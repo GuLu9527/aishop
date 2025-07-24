@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/sales")
+@RequestMapping("/sales")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "销售分析", description = "销售数据分析和统计报表")

@@ -52,7 +52,7 @@
           <template #title>销售分析</template>
         </el-menu-item>
 
-        <el-menu-item index="/ai-assistant">
+        <el-menu-item index="/ai-chat">
           <el-icon><ChatDotRound /></el-icon>
           <template #title>AI智能助手</template>
         </el-menu-item>

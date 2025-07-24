@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/finance")
+@RequestMapping("/finance")
 @RequiredArgsConstructor
 @Tag(name = "财务管理", description = "财务记录管理相关接口")
 @Validated

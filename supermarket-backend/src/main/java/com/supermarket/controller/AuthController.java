@@ -23,7 +23,7 @@ import jakarta.validation.Valid;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Tag(name = "认证管理", description = "用户登录、注册等认证相关接口")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -80,7 +80,7 @@ public class AuthController {
 
             String username = jwtUtils.getUsernameFromToken(token);
             LoginVO.UserInfoVO userInfo = authService.getUserInfo(username);
-            return Result.success(userInfo);
+            return Result.success("获取用户信息成功", userInfo);
         } catch (Exception e) {
             log.error("获取用户信息失败: {}", e.getMessage());
             return Result.error(e.getMessage());

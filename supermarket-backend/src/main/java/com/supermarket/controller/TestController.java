@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/test")
+@RequestMapping("/test")
 @Tag(name = "测试接口", description = "用于验证系统配置的测试接口")
 public class TestController {
 

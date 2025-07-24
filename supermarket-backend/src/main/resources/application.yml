@@ -66,7 +66,7 @@ spring:
   ai:
     alibaba:
       dashscope:
-        api-key: your_api_key
+        api-key: ${DASHSCOPE_API_KEY:your_api_key_here}
         chat:
           options:
             model: qwen-plus
@@ -101,7 +101,7 @@ mybatis-plus:
 
 # JWT配置
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:supermarket-jwt-secret-key-2024-very-long-and-secure-key-for-production}
   expiration: ${JWT_EXPIRATION:86400000}  # 24小时
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # 7天
 

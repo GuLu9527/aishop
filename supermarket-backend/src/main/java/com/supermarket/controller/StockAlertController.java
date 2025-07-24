@@ -25,7 +25,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/stock-alerts")
+@RequestMapping("/stock-alerts")
 @Tag(name = "库存预警管理", description = "库存预警相关接口")
 public class StockAlertController {
 

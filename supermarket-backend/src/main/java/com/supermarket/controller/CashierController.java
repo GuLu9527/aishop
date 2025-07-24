@@ -34,7 +34,7 @@ import java.util.List;
  */
 @Tag(name = "收银台管理", description = "收银台相关接口")
 @RestController
-@RequestMapping("/api/cashier")
+@RequestMapping("/cashier")
 @RequiredArgsConstructor
 public class CashierController {
 

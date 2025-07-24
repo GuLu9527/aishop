@@ -26,7 +26,7 @@ import com.supermarket.util.ExcelUtil;
  */
 @Tag(name = "供货商管理", description = "供货商管理相关接口")
 @RestController
-@RequestMapping("/api/suppliers")
+@RequestMapping("/suppliers")
 @RequiredArgsConstructor
 @Slf4j
 public class SupplierController {

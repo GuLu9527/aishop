@@ -112,6 +112,19 @@ const routes: RouteRecordRaw[] = [
   },
 
   {
+    path: '/ai-chat',
+    component: () => import('../layouts/MainLayout.vue'),
+    meta: { title: 'AI智能助手', requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'AiChat',
+        component: () => import('../views/AiChat.vue'),
+        meta: { title: 'AI智能助手' }
+      }
+    ]
+  },
+  {
     path: '/test-chart',
     component: () => import('../layouts/MainLayout.vue'),
     meta: { title: '图表测试', requiresAuth: true },

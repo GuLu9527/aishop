@@ -30,7 +30,7 @@ import java.util.Map;
  */
 @Tag(name = "商品管理", description = "商品管理相关接口")
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
 

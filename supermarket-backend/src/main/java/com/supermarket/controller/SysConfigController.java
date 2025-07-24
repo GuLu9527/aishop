@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/sys-config")
+@RequestMapping("/sys-config")
 @Tag(name = "系统配置管理", description = "系统配置相关接口")
 public class SysConfigController {
 

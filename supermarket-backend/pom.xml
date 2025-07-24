@@ -92,9 +92,6 @@
             <version>${mybatis-plus.version}</version>
         </dependency>
 
-        <!-- JWT -->
-            <version>${dotenv.version}</version>
-        </dependency>
 
         <!-- JWT -->
         <dependency>
@@ -163,6 +160,20 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
+        <!-- Spring AI 依赖 - 基础配置 -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-core</artifactId>
+            <version>1.0.0-M1</version>
+        </dependency>
+        
+        <!-- ChatClient核心依赖 -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-spring-boot-autoconfigure</artifactId>
+            <version>1.0.0-M1</version>
+        </dependency>
+
         <!-- 支付SDK -->
         <dependency>
             <groupId>com.alipay.sdk</groupId>
@@ -224,6 +235,16 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        
+        <!-- 添加Spring快照仓库以支持Spring AI里程碑版本 -->
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
 
         <!-- 修复：添加阿里云Maven仓库 -->

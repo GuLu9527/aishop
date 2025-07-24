@@ -20,7 +20,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/dashboard")
+@RequestMapping("/dashboard")
 @RequiredArgsConstructor
 @Tag(name = "仪表板管理", description = "仪表板数据统计接口")
 @CrossOrigin(origins = "*", maxAge = 3600)

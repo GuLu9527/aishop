@@ -30,7 +30,7 @@ import jakarta.validation.Valid;
  */
 @Tag(name = "库存管理", description = "库存管理相关接口")
 @RestController
-@RequestMapping("/api/inventory")
+@RequestMapping("/inventory")
 @RequiredArgsConstructor
 public class InventoryController {
 
