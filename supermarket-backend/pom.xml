@@ -32,7 +32,6 @@
         <jwt.version>0.11.5</jwt.version>
         <knife4j.version>4.4.0</knife4j.version>
         <alicloud.version>2.2.10</alicloud.version>
-
     </properties>
 
     <dependencies>
@@ -91,6 +90,10 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
             <version>${mybatis-plus.version}</version>
+        </dependency>
+
+        <!-- JWT -->
+            <version>${dotenv.version}</version>
         </dependency>
 
         <!-- JWT -->

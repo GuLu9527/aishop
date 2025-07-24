@@ -1,38 +1,31 @@
-# IntelliJ IDEA
+# IDE
 .idea/
 *.iml
 *.iws
 *.ipr
+.vscode/
+*.code-workspace
+.project
+.classpath
+.settings/
+.springBeans
+.sts4-cache
+.apt_generated
+.factorypath
+nbproject/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
 
-# Maven
+# Build
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
-# VS Code
-.vscode/
-*.code-workspace
-
-# Logs
-logs/
-*.log
-*.log.*
-
-# Node
-node_modules/
-dist/
-.env.local
-.env.*.local
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# System Files
-.DS_Store
-Thumbs.db
-
-# Build files
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 *.class
 *.jar
 *.war
@@ -41,8 +34,38 @@ Thumbs.db
 *.tar.gz
 *.rar
 
-# Local environment files
+# Node
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 环境和配置文件
+.env
+.env.*
+!.env.example
+.env.local
+.env.*.local
+application-dev.yml
+application-test.yml
+application-prod.yml
 application-local.yml
 application-local.properties
-application.yml
-!application-prod.yml
+
+# 日志文件
+logs/
+*.log
+*.log.*
+
+# 敏感文件
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# 系统文件
+.DS_Store
+Thumbs.db

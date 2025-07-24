@@ -1,0 +1,171 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: supermarket-backend
+
+  profiles:
+    active: dev
+
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/supermarket_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      stat-view-servlet:
+        enabled: false
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: strong_password
+      filter:
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 2000
+  
+  # Redis配置 (如果暂时不使用Redis，可以注释掉)
+  # redis:
+  #   host: localhost
+  #   port: 6379
+  #   password: # 如果Redis没有密码，留空
+  #   database: 0
+  #   timeout: 10000ms
+  #   lettuce:
+  #     pool:
+  #       max-active: 8
+  #       max-wait: -1ms
+  #       max-idle: 8
+  #       min-idle: 0
+  
+
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
+
+  # Spring AI Alibaba配置
+  ai:
+    alibaba:
+      dashscope:
+        api-key: your_api_key
+        chat:
+          options:
+            model: qwen-plus
+            temperature: 0.7
+            max-tokens: 2000
+
+  # Web MVC配置
+  mvc:
+    static-path-pattern: /static/**
+
+  # 静态资源配置
+  web:
+    resources:
+      static-locations: classpath:/static/,classpath:/public/
+      add-mappings: true
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}  # 24小时
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # 7天
+
+# 阿里云配置
+alicloud:
+  access-key: ${ALICLOUD_ACCESS_KEY}
+  secret-key: ${ALICLOUD_SECRET_KEY}
+  region: ${ALICLOUD_REGION:cn-hangzhou}
+  pai:
+    endpoint: ${ALICLOUD_PAI_ENDPOINT:https://pai-eas.cn-hangzhou.aliyuncs.com}
+  tongyi:
+    api-key: ${TONGYI_API_KEY}
+    model: ${TONGYI_MODEL:qwen-plus}
+    temperature: ${TONGYI_TEMPERATURE:0.3}
+    max-tokens: ${TONGYI_MAX_TOKENS:2000}
+
+
+# 支付配置
+payment:
+  alipay:
+    app-id: ${ALIPAY_APP_ID:your_app_id}
+    private-key: ${ALIPAY_PRIVATE_KEY:your_private_key}
+    public-key: ${ALIPAY_PUBLIC_KEY:alipay_public_key}
+    gateway-url: https://openapi.alipaydev.com/gateway.do
+    notify-url: ${server.servlet.context-path}/payment/alipay/notify
+    return-url: ${server.servlet.context-path}/payment/alipay/return
+
+# 日志配置
+logging:
+  level:
+    com.supermarket: debug
+    org.springframework.security: debug
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n'
+  file:
+    name: logs/supermarket.log
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# springdoc-openapi项目配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.supermarket.controller
+# knife4j的增强配置，不需要增强可以不配
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# Spring AI配置 - 添加到现有spring配置中
