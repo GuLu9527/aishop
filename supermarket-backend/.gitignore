@@ -1,0 +1,60 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### 环境配置文件 ###
+.env
+.env.*
+!.env.example
+
+### 日志文件 ###
+/logs/
+*.log
+*.log.*
+
+### 敏感配置文件 ###
+**/application-prod.yml
+**/application-dev.yml
+**/application-test.yml
+
+### 其他敏感文件 ###
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+### 系统文件 ###
+.DS_Store
+Thumbs.db
