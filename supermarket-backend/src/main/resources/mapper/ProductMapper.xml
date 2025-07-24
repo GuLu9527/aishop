@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supermarket.mapper.ProductMapper">
+
+    <!-- 商品VO结果映射 -->
+    <resultMap id="ProductVOMap" type="com.supermarket.vo.ProductVO">
+        <id column="id" property="id"/>
+        <result column="product_name" property="productName"/>
+        <result column="barcode" property="barcode"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="brand" property="brand"/>
+        <result column="unit" property="unit"/>
+        <result column="specification" property="specification"/>
+        <result column="purchase_price" property="purchasePrice"/>
+        <result column="selling_price" property="sellingPrice"/>
+        <result column="stock_quantity" property="stockQuantity"/>
+        <result column="min_stock" property="minStock"/>
+        <result column="max_stock" property="maxStock"/>
+        <result column="shelf_life_days" property="shelfLifeDays"/>
+        <result column="production_date" property="productionDate"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="description" property="description"/>
+        <result column="manufacturer" property="manufacturer"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_low_stock" property="isLowStock"/>
+    </resultMap>
+
+    <!-- 分页查询商品列表 -->
+    <select id="selectProductPage" resultMap="ProductVOMap">
+        SELECT 
+            p.id,
+            p.product_name,
+            p.barcode,
+            p.category_id,
+            pc.category_name,
+            p.brand,
+            p.unit,
+            p.specification,
+            p.purchase_price,
+            p.selling_price,
+            p.stock_quantity,
+            p.min_stock,
+            p.max_stock,
+            p.shelf_life_days,
+            p.production_date,
+            p.image_url,
+            p.description,
+            p.manufacturer,
+            p.status,
+            p.create_time,
+            p.update_time,
+            CASE WHEN p.stock_quantity &lt;= p.min_stock THEN 1 ELSE 0 END as is_low_stock
+        FROM product p
+        LEFT JOIN product_category pc ON p.category_id = pc.id
+        <where>
+            <if test="query.productName != null and query.productName != ''">
+                AND p.product_name LIKE CONCAT('%', #{query.productName}, '%')
+            </if>
+            <if test="query.barcode != null and query.barcode != ''">
+                AND p.barcode = #{query.barcode}
+            </if>
+            <if test="query.categoryId != null">
+                AND p.category_id = #{query.categoryId}
+            </if>
+            <if test="query.brand != null and query.brand != ''">
+                AND p.brand LIKE CONCAT('%', #{query.brand}, '%')
+            </if>
+            <if test="query.status != null">
+                AND p.status = #{query.status}
+            </if>
+            <if test="query.lowStock != null and query.lowStock == true">
+                AND p.stock_quantity &lt;= p.min_stock
+            </if>
+            <!-- 新增：生产日期范围查询 -->
+            <if test="query.productionDateStart != null">
+                AND p.production_date &gt;= #{query.productionDateStart}
+            </if>
+            <if test="query.productionDateEnd != null">
+                AND p.production_date &lt;= #{query.productionDateEnd}
+            </if>
+            <!-- 新增：临期商品查询 -->
+            <if test="query.expiring != null and query.expiring == true">
+                AND p.production_date IS NOT NULL
+                AND p.shelf_life_days IS NOT NULL
+                AND p.shelf_life_days > 0
+                AND DATE_ADD(p.production_date, INTERVAL p.shelf_life_days DAY) &lt;= DATE_ADD(CURDATE(), INTERVAL #{query.expiringDays} DAY)
+                AND DATE_ADD(p.production_date, INTERVAL p.shelf_life_days DAY) &gt;= CURDATE()
+            </if>
+            <!-- 默认只查询启用的商品，除非明确指定状态 -->
+            <if test="query.status == null">
+                AND p.status = 1
+            </if>
+        </where>
+        ORDER BY p.update_time DESC
+    </select>
+
+</mapper>

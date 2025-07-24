@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supermarket.mapper.SupplierMapper">
+
+    <!-- 供货商VO结果映射 -->
+    <resultMap id="SupplierVOMap" type="com.supermarket.vo.SupplierVO">
+        <id column="id" property="id"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="phone" property="phone"/>
+        <result column="address" property="address"/>
+        <result column="email" property="email"/>
+        <result column="credit_rating" property="creditRating"/>
+        <result column="credit_rating_text" property="creditRatingText"/>
+        <result column="payment_terms" property="paymentTerms"/>
+        <result column="delivery_cycle" property="deliveryCycle"/>
+        <result column="status" property="status"/>
+        <result column="status_text" property="statusText"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="product_count" property="productCount"/>
+        <result column="last_purchase_time" property="lastPurchaseTime"/>
+    </resultMap>
+
+    <!-- 分页查询供货商列表 -->
+    <select id="selectSupplierPage" resultMap="SupplierVOMap">
+        SELECT
+            s.id,
+            s.supplier_name,
+            s.contact_person,
+            s.phone,
+            s.address,
+            s.email,
+            s.credit_rating,
+            CASE s.credit_rating
+                WHEN 1 THEN '1星'
+                WHEN 2 THEN '2星'
+                WHEN 3 THEN '3星'
+                WHEN 4 THEN '4星'
+                WHEN 5 THEN '5星'
+                ELSE '未评级'
+            END as credit_rating_text,
+            s.payment_terms,
+            s.delivery_cycle,
+            s.status,
+            CASE s.status
+                WHEN 1 THEN '正常'
+                WHEN 0 THEN '停用'
+                ELSE '未知'
+            END as status_text,
+            s.create_time,
+            s.update_time,
+            0 as product_count,
+            NULL as last_purchase_time
+        FROM supplier s
+        <where>
+            <if test="query.supplierName != null and query.supplierName != ''">
+                AND s.supplier_name LIKE CONCAT('%', #{query.supplierName}, '%')
+            </if>
+            <if test="query.contactPerson != null and query.contactPerson != ''">
+                AND s.contact_person LIKE CONCAT('%', #{query.contactPerson}, '%')
+            </if>
+            <if test="query.phone != null and query.phone != ''">
+                AND s.phone = #{query.phone}
+            </if>
+            <if test="query.creditRating != null">
+                AND s.credit_rating = #{query.creditRating}
+            </if>
+            <if test="query.status != null">
+                AND s.status = #{query.status}
+            </if>
+            <if test="query.createTimeStart != null and query.createTimeStart != ''">
+                AND s.create_time >= #{query.createTimeStart}
+            </if>
+            <if test="query.createTimeEnd != null and query.createTimeEnd != ''">
+                AND s.create_time &lt;= #{query.createTimeEnd}
+            </if>
+        </where>
+        ORDER BY s.create_time DESC
+    </select>
+
+    <!-- 根据ID查询供货商详情 -->
+    <select id="selectSupplierById" resultMap="SupplierVOMap">
+        SELECT
+            s.id,
+            s.supplier_name,
+            s.contact_person,
+            s.phone,
+            s.address,
+            s.email,
+            s.credit_rating,
+            CASE s.credit_rating
+                WHEN 1 THEN '1星'
+                WHEN 2 THEN '2星'
+                WHEN 3 THEN '3星'
+                WHEN 4 THEN '4星'
+                WHEN 5 THEN '5星'
+                ELSE '未评级'
+            END as credit_rating_text,
+            s.payment_terms,
+            s.delivery_cycle,
+            s.status,
+            CASE s.status
+                WHEN 1 THEN '正常'
+                WHEN 0 THEN '停用'
+                ELSE '未知'
+            END as status_text,
+            s.create_time,
+            s.update_time,
+            0 as product_count,
+            NULL as last_purchase_time
+        FROM supplier s
+        WHERE s.id = #{id}
+    </select>
+
+    <!-- 查询所有启用的供货商 -->
+    <select id="selectActiveSuppliers" resultMap="SupplierVOMap">
+        SELECT 
+            s.id,
+            s.supplier_name,
+            s.contact_person,
+            s.phone,
+            s.credit_rating,
+            CASE s.credit_rating
+                WHEN 1 THEN '1星'
+                WHEN 2 THEN '2星'
+                WHEN 3 THEN '3星'
+                WHEN 4 THEN '4星'
+                WHEN 5 THEN '5星'
+                ELSE '未评级'
+            END as credit_rating_text,
+            s.status,
+            '正常' as status_text
+        FROM supplier s
+        WHERE s.status = 1
+        ORDER BY s.supplier_name
+    </select>
+
+    <!-- 根据名称查询供货商数量（用于重名检查） -->
+    <select id="countByName" resultType="int">
+        SELECT COUNT(*)
+        FROM supplier
+        WHERE supplier_name = #{supplierName}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 获取供货商统计信息 -->
+    <select id="getSupplierStats" resultType="java.util.Map">
+        SELECT
+            COUNT(*) as totalCount,
+            SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as activeCount,
+            SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as inactiveCount
+        FROM supplier
+    </select>
+
+</mapper>

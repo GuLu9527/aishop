@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supermarket.mapper.FinanceRecordMapper">
+
+    <!-- 财务记录VO结果映射 -->
+    <resultMap id="FinanceRecordVOMap" type="com.supermarket.vo.FinanceRecordVO">
+        <id column="id" property="id"/>
+        <result column="record_type" property="recordType"/>
+        <result column="record_type_text" property="recordTypeText"/>
+        <result column="business_type" property="businessType"/>
+        <result column="business_type_text" property="businessTypeText"/>
+        <result column="amount" property="amount"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="business_id" property="businessId"/>
+        <result column="description" property="description"/>
+        <result column="remark" property="remark"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="operator_name" property="operatorName"/>
+        <result column="record_date" property="recordDate"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 分页查询财务记录 -->
+    <select id="selectFinanceRecordPage" resultMap="FinanceRecordVOMap">
+        SELECT 
+            fr.id,
+            fr.record_type,
+            CASE fr.record_type
+                WHEN 1 THEN '收入'
+                WHEN 2 THEN '支出'
+                ELSE '未知'
+            END as record_type_text,
+            fr.business_type,
+            CASE fr.business_type
+                WHEN 1 THEN '销售收入'
+                WHEN 2 THEN '采购支出'
+                WHEN 3 THEN '其他收入'
+                WHEN 4 THEN '其他支出'
+                WHEN 5 THEN '退货退款'
+                ELSE '未知'
+            END as business_type_text,
+            fr.amount,
+            fr.order_no,
+            fr.business_id,
+            fr.description,
+            fr.remark,
+            fr.operator_id,
+            fr.operator_name,
+            fr.record_date,
+            fr.create_time,
+            fr.update_time
+        FROM finance_record fr
+        WHERE fr.is_deleted = 0
+        <if test="query.recordType != null">
+            AND fr.record_type = #{query.recordType}
+        </if>
+        <if test="query.businessType != null">
+            AND fr.business_type = #{query.businessType}
+        </if>
+        <if test="query.minAmount != null">
+            AND fr.amount >= #{query.minAmount}
+        </if>
+        <if test="query.maxAmount != null">
+            AND fr.amount &lt;= #{query.maxAmount}
+        </if>
+        <if test="query.orderNo != null and query.orderNo != ''">
+            AND fr.order_no LIKE CONCAT('%', #{query.orderNo}, '%')
+        </if>
+        <if test="query.description != null and query.description != ''">
+            AND fr.description LIKE CONCAT('%', #{query.description}, '%')
+        </if>
+        <if test="query.operatorId != null">
+            AND fr.operator_id = #{query.operatorId}
+        </if>
+        <if test="query.operatorName != null and query.operatorName != ''">
+            AND fr.operator_name LIKE CONCAT('%', #{query.operatorName}, '%')
+        </if>
+        <if test="query.startDate != null">
+            AND fr.create_time >= #{query.startDate}
+        </if>
+        <if test="query.endDate != null">
+            AND fr.create_time &lt;= #{query.endDate}
+        </if>
+        <if test="query.recordStartDate != null">
+            AND fr.record_date >= #{query.recordStartDate}
+        </if>
+        <if test="query.recordEndDate != null">
+            AND fr.record_date &lt;= #{query.recordEndDate}
+        </if>
+        ORDER BY fr.record_date DESC, fr.create_time DESC
+    </select>
+
+    <!-- 根据ID查询财务记录详情 -->
+    <select id="selectFinanceRecordById" resultMap="FinanceRecordVOMap">
+        SELECT 
+            fr.id,
+            fr.record_type,
+            CASE fr.record_type
+                WHEN 1 THEN '收入'
+                WHEN 2 THEN '支出'
+                ELSE '未知'
+            END as record_type_text,
+            fr.business_type,
+            CASE fr.business_type
+                WHEN 1 THEN '销售收入'
+                WHEN 2 THEN '采购支出'
+                WHEN 3 THEN '其他收入'
+                WHEN 4 THEN '其他支出'
+                WHEN 5 THEN '退货退款'
+                ELSE '未知'
+            END as business_type_text,
+            fr.amount,
+            fr.order_no,
+            fr.business_id,
+            fr.description,
+            fr.remark,
+            fr.operator_id,
+            fr.operator_name,
+            fr.record_date,
+            fr.create_time,
+            fr.update_time
+        FROM finance_record fr
+        WHERE fr.id = #{id} AND fr.is_deleted = 0
+    </select>
+
+    <!-- 获取财务统计信息 -->
+    <select id="getFinanceStats" resultType="com.supermarket.vo.FinanceStatsVO">
+        SELECT 
+            COALESCE(SUM(CASE WHEN record_type = 1 THEN amount ELSE 0 END), 0) as totalIncome,
+            COALESCE(SUM(CASE WHEN record_type = 2 THEN amount ELSE 0 END), 0) as totalExpense,
+            COALESCE(SUM(CASE WHEN record_type = 1 THEN amount ELSE -amount END), 0) as netProfit,
+            COALESCE(SUM(CASE WHEN business_type = 1 THEN amount ELSE 0 END), 0) as salesIncome,
+            COALESCE(SUM(CASE WHEN business_type = 2 THEN amount ELSE 0 END), 0) as purchaseExpense,
+            COALESCE(SUM(CASE WHEN business_type = 3 THEN amount ELSE 0 END), 0) as otherIncome,
+            COALESCE(SUM(CASE WHEN business_type = 4 THEN amount ELSE 0 END), 0) as otherExpense,
+            COALESCE(SUM(CASE WHEN business_type = 5 THEN amount ELSE 0 END), 0) as refundAmount
+        FROM finance_record 
+        WHERE is_deleted = 0
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+    </select>
+
+    <!-- 获取收入趋势数据 -->
+    <select id="getIncomeTrend" resultType="com.supermarket.vo.FinanceStatsVO$TrendData">
+        SELECT 
+            DATE_FORMAT(record_date, '%Y-%m-%d') as date,
+            COALESCE(SUM(amount), 0) as amount
+        FROM finance_record 
+        WHERE is_deleted = 0 
+            AND record_type = 1
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+        GROUP BY DATE_FORMAT(record_date, '%Y-%m-%d')
+        ORDER BY date ASC
+    </select>
+
+    <!-- 获取支出趋势数据 -->
+    <select id="getExpenseTrend" resultType="com.supermarket.vo.FinanceStatsVO$TrendData">
+        SELECT 
+            DATE_FORMAT(record_date, '%Y-%m-%d') as date,
+            COALESCE(SUM(amount), 0) as amount
+        FROM finance_record 
+        WHERE is_deleted = 0 
+            AND record_type = 2
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+        GROUP BY DATE_FORMAT(record_date, '%Y-%m-%d')
+        ORDER BY date ASC
+    </select>
+
+    <!-- 获取利润趋势数据 -->
+    <select id="getProfitTrend" resultType="com.supermarket.vo.FinanceStatsVO$TrendData">
+        SELECT 
+            DATE_FORMAT(record_date, '%Y-%m-%d') as date,
+            COALESCE(SUM(CASE WHEN record_type = 1 THEN amount ELSE -amount END), 0) as amount
+        FROM finance_record 
+        WHERE is_deleted = 0
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+        GROUP BY DATE_FORMAT(record_date, '%Y-%m-%d')
+        ORDER BY date ASC
+    </select>
+
+    <!-- 根据业务类型统计金额 -->
+    <select id="sumAmountByType" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(amount), 0)
+        FROM finance_record 
+        WHERE is_deleted = 0
+        <if test="recordType != null">
+            AND record_type = #{recordType}
+        </if>
+        <if test="businessType != null">
+            AND business_type = #{businessType}
+        </if>
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+    </select>
+
+    <!-- 根据记录类型统计金额 -->
+    <select id="sumAmountByRecordType" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(amount), 0)
+        FROM finance_record
+        WHERE is_deleted = 0
+            AND record_type = #{recordType}
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+    </select>
+
+    <!-- 获取记录数量统计 -->
+    <select id="getRecordCounts" resultType="java.util.Map">
+        SELECT
+            COUNT(*) as totalRecords,
+            COUNT(CASE WHEN record_type = 1 THEN 1 END) as incomeRecords,
+            COUNT(CASE WHEN record_type = 2 THEN 1 END) as expenseRecords,
+            COALESCE(AVG(CASE WHEN record_type = 1 THEN amount END), 0) as avgIncomeAmount,
+            COALESCE(AVG(CASE WHEN record_type = 2 THEN amount END), 0) as avgExpenseAmount
+        FROM finance_record
+        WHERE is_deleted = 0
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+    </select>
+
+    <!-- 获取每日趋势数据 -->
+    <select id="getDailyTrend" resultType="java.util.Map">
+        SELECT
+            DATE(record_date) as date,
+            COALESCE(SUM(CASE WHEN record_type = 1 THEN amount ELSE 0 END), 0) as income,
+            COALESCE(SUM(CASE WHEN record_type = 2 THEN amount ELSE 0 END), 0) as expense,
+            COALESCE(SUM(CASE WHEN record_type = 1 THEN amount ELSE -amount END), 0) as profit
+        FROM finance_record
+        WHERE is_deleted = 0
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+        GROUP BY DATE(record_date)
+        ORDER BY DATE(record_date)
+    </select>
+
+    <!-- 获取每周趋势数据 -->
+    <select id="getWeeklyTrend" resultType="java.util.Map">
+        SELECT
+            YEARWEEK(record_date, 1) as week,
+            DATE(DATE_SUB(record_date, INTERVAL WEEKDAY(record_date) DAY)) as weekStart,
+            COALESCE(SUM(CASE WHEN record_type = 1 THEN amount ELSE 0 END), 0) as income,
+            COALESCE(SUM(CASE WHEN record_type = 2 THEN amount ELSE 0 END), 0) as expense,
+            COALESCE(SUM(CASE WHEN record_type = 1 THEN amount ELSE -amount END), 0) as profit
+        FROM finance_record
+        WHERE is_deleted = 0
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+        GROUP BY YEARWEEK(record_date, 1)
+        ORDER BY YEARWEEK(record_date, 1)
+    </select>
+
+    <!-- 获取每月趋势数据 -->
+    <select id="getMonthlyTrend" resultType="java.util.Map">
+        SELECT
+            DATE_FORMAT(record_date, '%Y-%m') as month,
+            COALESCE(SUM(CASE WHEN record_type = 1 THEN amount ELSE 0 END), 0) as income,
+            COALESCE(SUM(CASE WHEN record_type = 2 THEN amount ELSE 0 END), 0) as expense,
+            COALESCE(SUM(CASE WHEN record_type = 1 THEN amount ELSE -amount END), 0) as profit
+        FROM finance_record
+        WHERE is_deleted = 0
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+        GROUP BY DATE_FORMAT(record_date, '%Y-%m')
+        ORDER BY DATE_FORMAT(record_date, '%Y-%m')
+    </select>
+
+    <!-- 获取业务类型统计 -->
+    <select id="getBusinessTypeStats" resultType="java.util.Map">
+        SELECT
+            business_type as businessType,
+            CASE business_type
+                WHEN 1 THEN '销售收入'
+                WHEN 2 THEN '采购支出'
+                WHEN 3 THEN '其他收入'
+                WHEN 4 THEN '其他支出'
+                WHEN 5 THEN '退货退款'
+                ELSE '未知'
+            END as businessTypeName,
+            record_type as recordType,
+            CASE record_type
+                WHEN 1 THEN '收入'
+                WHEN 2 THEN '支出'
+                ELSE '未知'
+            END as recordTypeName,
+            COUNT(*) as recordCount,
+            COALESCE(SUM(amount), 0) as totalAmount,
+            COALESCE(AVG(amount), 0) as avgAmount
+        FROM finance_record
+        WHERE is_deleted = 0
+        <if test="startDate != null">
+            AND record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND record_date &lt;= #{endDate}
+        </if>
+        GROUP BY business_type, record_type
+        ORDER BY business_type, record_type
+    </select>
+
+</mapper>

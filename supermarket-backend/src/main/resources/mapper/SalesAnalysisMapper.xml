@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.supermarket.mapper.SalesAnalysisMapper">
+
+    <!-- 可重用的SQL片段 -->
+    <sql id="salesOrderJoin">
+        FROM sale_order o
+        JOIN sale_order_item oi ON o.id = oi.order_id
+        WHERE DATE(o.create_time) BETWEEN #{startDate} AND #{endDate}
+        AND o.status = 1
+    </sql>
+
+    <!-- 销售概览查询 -->
+    <select id="getSalesOverview" resultType="map">
+        SELECT
+            COALESCE(SUM(oi.quantity * oi.selling_price), 0) as total_sales,
+            COUNT(DISTINCT o.id) as total_orders,
+            COALESCE(SUM(oi.quantity), 0) as total_products,
+            CASE
+                WHEN COUNT(DISTINCT o.id) > 0
+                THEN COALESCE(SUM(oi.quantity * oi.selling_price), 0) / COUNT(DISTINCT o.id)
+                ELSE 0
+            END as avg_order_value
+        <include refid="salesOrderJoin"/>
+    </select>
+
+    <!-- 销售趋势查询 -->
+    <select id="getSalesTrend" resultType="map">
+        SELECT
+            <choose>
+                <when test="period == 'week'">
+                    YEARWEEK(o.create_time) as period_key,
+                    CONCAT(YEAR(o.create_time), '年第', WEEK(o.create_time), '周') as period_label
+                </when>
+                <when test="period == 'month'">
+                    DATE_FORMAT(o.create_time, '%Y-%m') as period_key,
+                    DATE_FORMAT(o.create_time, '%Y年%m月') as period_label
+                </when>
+                <otherwise>
+                    DATE(o.create_time) as period_key,
+                    DATE_FORMAT(o.create_time, '%m-%d') as period_label
+                </otherwise>
+            </choose>,
+            COALESCE(SUM(oi.quantity * oi.selling_price), 0) as sales,
+            COUNT(DISTINCT o.id) as orders
+        <include refid="salesOrderJoin"/>
+        GROUP BY 
+            <choose>
+                <when test="period == 'week'">YEARWEEK(o.create_time)</when>
+                <when test="period == 'month'">DATE_FORMAT(o.create_time, '%Y-%m')</when>
+                <otherwise>DATE(o.create_time)</otherwise>
+            </choose>
+        ORDER BY period_key
+    </select>
+
+    <!-- 商品分类销售查询 -->
+    <select id="getCategorySales" resultType="map">
+        SELECT
+            pc.category_name as name,
+            COALESCE(SUM(oi.quantity * oi.selling_price), 0) as value
+        FROM product_category pc
+        LEFT JOIN product p ON pc.id = p.category_id
+        LEFT JOIN sale_order_item oi ON p.id = oi.product_id
+        LEFT JOIN sale_order o ON oi.order_id = o.id
+            AND DATE(o.create_time) BETWEEN #{startDate} AND #{endDate}
+            AND o.status = 1
+        GROUP BY pc.id, pc.category_name
+        HAVING value > 0
+        ORDER BY value DESC
+    </select>
+
+    <!-- 热销商品查询 -->
+    <select id="getTopProducts" resultType="map">
+        SELECT
+            p.id as product_id,
+            p.product_name,
+            p.barcode,
+            pc.category_name,
+            COALESCE(SUM(oi.quantity), 0) as quantity,
+            COALESCE(SUM(oi.quantity * oi.selling_price), 0) as sales
+        FROM product p
+        LEFT JOIN product_category pc ON p.category_id = pc.id
+        LEFT JOIN sale_order_item oi ON p.id = oi.product_id
+        LEFT JOIN sale_order o ON oi.order_id = o.id
+            AND DATE(o.create_time) BETWEEN #{startDate} AND #{endDate}
+            AND o.status = 1
+        GROUP BY p.id, p.product_name, p.barcode, pc.category_name
+        HAVING quantity > 0
+        ORDER BY quantity DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 收银员业绩查询 -->
+    <select id="getCashierPerformance" resultType="map">
+        SELECT
+            u.id as cashier_id,
+            u.real_name as cashier_name,
+            COALESCE(SUM(oi.quantity * oi.selling_price), 0) as sales,
+            COUNT(DISTINCT o.id) as orders,
+            CASE
+                WHEN COUNT(DISTINCT o.id) > 0
+                THEN COALESCE(SUM(oi.quantity * oi.selling_price), 0) / COUNT(DISTINCT o.id)
+                ELSE 0
+            END as avg_order_value
+        FROM sys_user u
+        LEFT JOIN sale_order o ON u.id = o.cashier_id
+            AND DATE(o.create_time) BETWEEN #{startDate} AND #{endDate}
+            AND o.status = 1
+        LEFT JOIN sale_order_item oi ON o.id = oi.order_id
+        WHERE u.status = 1
+        GROUP BY u.id, u.real_name
+        ORDER BY 
+            <choose>
+                <when test="metric == 'orders'">orders</when>
+                <otherwise>sales</otherwise>
+            </choose> DESC
+    </select>
+
+    <!-- 时段分析查询 -->
+    <select id="getTimeAnalysis" resultType="map">
+        SELECT
+            <choose>
+                <when test="type == 'hourly'">
+                    HOUR(o.create_time) as time_order,
+                    CONCAT(HOUR(o.create_time), ':00') as time_label
+                </when>
+                <otherwise>
+                    DAYOFWEEK(o.create_time) as time_order,
+                    CASE DAYOFWEEK(o.create_time)
+                        WHEN 1 THEN '周日'
+                        WHEN 2 THEN '周一'
+                        WHEN 3 THEN '周二'
+                        WHEN 4 THEN '周三'
+                        WHEN 5 THEN '周四'
+                        WHEN 6 THEN '周五'
+                        WHEN 7 THEN '周六'
+                    END as time_label
+                </otherwise>
+            </choose>,
+            COALESCE(SUM(oi.quantity * oi.selling_price), 0) as sales,
+            COUNT(DISTINCT o.id) as orders
+        <include refid="salesOrderJoin"/>
+        GROUP BY 
+            <choose>
+                <when test="type == 'hourly'">HOUR(o.create_time)</when>
+                <otherwise>DAYOFWEEK(o.create_time)</otherwise>
+            </choose>
+        ORDER BY time_order
+    </select>
+
+    <!-- 获取销售详情数据用于导出 -->
+    <select id="getSalesDetailForExport" resultType="map">
+        SELECT
+            o.order_no as orderNo,
+            o.create_time as orderTime,
+            o.total_amount as totalAmount,
+            o.payment_method as paymentMethod,
+            o.cashier_id as cashierId,
+            u.real_name as cashierName,
+            p.product_name as productName,
+            p.barcode as productBarcode,
+            pc.category_name as categoryName,
+            oi.quantity as quantity,
+            oi.selling_price as sellingPrice,
+            oi.cost_price as costPrice,
+            (oi.quantity * oi.selling_price) as itemTotal,
+            (oi.quantity * (oi.selling_price - oi.cost_price)) as itemProfit
+        FROM sale_order o
+        JOIN sale_order_item oi ON o.id = oi.order_id
+        JOIN product p ON oi.product_id = p.id
+        LEFT JOIN product_category pc ON p.category_id = pc.id
+        LEFT JOIN sys_user u ON o.cashier_id = u.id
+        WHERE DATE(o.create_time) BETWEEN #{startDate} AND #{endDate}
+        AND o.status = 1
+        ORDER BY o.create_time DESC
+    </select>
+
+    <!-- 获取当前小时销售数据 -->
+    <select id="getCurrentHourSales" resultType="map">
+        SELECT
+            COALESCE(SUM(oi.quantity * oi.selling_price), 0) as hourSales,
+            COUNT(DISTINCT o.id) as hourOrders,
+            COALESCE(SUM(oi.quantity), 0) as hourProducts,
+            HOUR(NOW()) as currentHour
+        FROM sale_order o
+        JOIN sale_order_item oi ON o.id = oi.order_id
+        WHERE DATE(o.create_time) = CURDATE()
+        AND HOUR(o.create_time) = HOUR(NOW())
+        AND o.status = 1
+    </select>
+
+    <!-- 获取最近订单 -->
+    <select id="getRecentOrders" resultType="map">
+        SELECT
+            o.id as orderId,
+            o.order_no as orderNo,
+            o.total_amount as totalAmount,
+            o.create_time as createTime,
+            u.real_name as cashierName,
+            COUNT(oi.id) as itemCount
+        FROM sale_order o
+        LEFT JOIN sale_order_item oi ON o.id = oi.order_id
+        LEFT JOIN sys_user u ON o.cashier_id = u.id
+        WHERE o.status = 1
+        GROUP BY o.id, o.order_no, o.total_amount, o.create_time, u.real_name
+        ORDER BY o.create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 获取库存预警数据 -->
+    <select id="getStockAlert" resultType="map">
+        SELECT
+            p.id as productId,
+            p.product_name as productName,
+            p.barcode as barcode,
+            p.stock_quantity as currentStock,
+            p.min_stock as minStock,
+            pc.category_name as categoryName,
+            CASE
+                WHEN p.stock_quantity = 0 THEN '缺货'
+                WHEN p.stock_quantity &lt;= p.min_stock THEN '库存不足'
+                ELSE '正常'
+            END as alertType,
+            CASE
+                WHEN p.stock_quantity = 0 THEN 'danger'
+                WHEN p.stock_quantity &lt;= p.min_stock THEN 'warning'
+                ELSE 'success'
+            END as alertLevel
+        FROM product p
+        LEFT JOIN product_category pc ON p.category_id = pc.id
+        WHERE p.status = 1
+        AND (p.stock_quantity = 0 OR p.stock_quantity &lt;= p.min_stock)
+        ORDER BY
+            CASE
+                WHEN p.stock_quantity = 0 THEN 1
+                WHEN p.stock_quantity &lt;= p.min_stock THEN 2
+                ELSE 3
+            END,
+            p.stock_quantity ASC
+    </select>
+
+</mapper>
