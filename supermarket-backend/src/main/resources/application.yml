@@ -66,7 +66,7 @@ spring:
   ai:
     alibaba:
       dashscope:
-        api-key: sk-635c75f78f234b20af626f84416fd346
+        api-key: replay-your-key
         chat:
           options:
             model: qwen-plus
