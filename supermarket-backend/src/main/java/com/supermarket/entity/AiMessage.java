@@ -43,10 +43,10 @@ public class AiMessage {
     private String sessionId;
 
     /**
-     * 消息类型：USER-用户消息，AI-AI回复，SYSTEM-系统消息
+     * 消息类型：1-用户消息，2-AI回复，3-系统消息
      */
     @TableField("message_type")
-    private String messageType;
+    private Integer messageType;
 
     /**
      * 消息内容

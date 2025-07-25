@@ -28,13 +28,13 @@ public interface AiConversationMapper extends BaseMapper<AiConversation> {
     List<AiConversation> selectByUserId(@Param("userId") Long userId, @Param("limit") Integer limit);
 
     /**
-     * 根据用户ID查询会话列表（无分页）
+     * 根据用户ID查询所有会话列表（无分页）
      *
      * @param userId 用户ID
      * @return 会话列表
      */
     @Select("SELECT * FROM ai_conversation WHERE user_id = #{userId} ORDER BY update_time DESC")
-    List<AiConversation> selectByUserId(@Param("userId") Long userId);
+    List<AiConversation> selectAllByUserId(@Param("userId") Long userId);
 
     /**
      * 根据会话ID查询会话

@@ -409,6 +409,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
 import {
   ShoppingCart, Search, Plus, Delete, Close, CreditCard,
   Money, Check, Clock, List, Setting,
@@ -426,6 +427,9 @@ import {
   getCashierInfo
 } from '@/api/cashier'
 import { getUserInfo } from '@/api/user'
+
+// 路由
+const router = useRouter()
 
 // 响应式数据
 const barcodeInputRef = ref()
@@ -1037,8 +1041,8 @@ const printLastReceipt = () => {
 
 // 显示销售报表
 const showSalesReport = () => {
-  ElMessage.info('销售报表功能开发中...')
-  // TODO: 实现销售报表功能
+  // 跳转到销售分析页面
+  router.push('/sales')
 }
 
 // 显示商品选择对话框

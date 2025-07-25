@@ -165,22 +165,27 @@ const sendMessage = async (message: string) => {
       createNewConversation: !currentConversationId.value
     })
 
+    console.log('AI响应:', response.data) // 调试日志
+
     if (response.data.code === 200) {
       const aiResponse = response.data.data
 
       // 更新会话ID
-      if (aiResponse.conversationId) {
-        currentConversationId.value = aiResponse.conversationId
+      if (aiResponse.sessionId) {
+        currentConversationId.value = aiResponse.sessionId
       }
 
       // 添加AI回复
       const aiMessage = {
         id: Date.now() + 1,
         role: 'ASSISTANT',
-        content: aiResponse.reply || '抱歉，我暂时无法处理您的请求。',
+        content: aiResponse.message || '抱歉，我暂时无法处理您的请求。',
         createTime: new Date(),
         metadata: {
-          suggested_questions: aiResponse.suggestedQuestions
+          suggested_questions: aiResponse.suggestions || [],
+          intent: aiResponse.intent,
+          entities: aiResponse.entities,
+          actionResult: aiResponse.actionResult
         }
       }
       messages.value.push(aiMessage)
@@ -257,10 +262,13 @@ watch(messages, async () => {
 .ai-chat-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 120px); /* 减去导航栏和页边距的高度 */
   max-width: 800px;
   margin: 0 auto;
   background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 /* 头部 */
@@ -293,23 +301,24 @@ watch(messages, async () => {
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 12px 16px;
   background: #f8f9fa;
+  min-height: 0; /* 确保flex子项可以收缩 */
 }
 
 /* 欢迎卡片 */
 .welcome-card {
   text-align: center;
-  padding: 32px 24px;
+  padding: 20px 16px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .welcome-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  font-size: 36px;
+  margin-bottom: 12px;
 }
 
 .welcome-card h3 {
@@ -333,7 +342,7 @@ watch(messages, async () => {
 
 /* 消息样式 */
 .message-wrapper {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .message {

@@ -1,9 +1,14 @@
 package com.supermarket.service.impl;
 
+import com.supermarket.constants.AiChatConstants;
 import com.supermarket.dto.AiChatRequest;
 import com.supermarket.dto.AiChatResponse;
 import com.supermarket.entity.AiConversation;
 import com.supermarket.entity.AiMessage;
+import com.supermarket.enums.ActionType;
+import com.supermarket.enums.ConversationStatus;
+import com.supermarket.enums.IntentType;
+import com.supermarket.enums.MessageType;
 import com.supermarket.mapper.AiConversationMapper;
 import com.supermarket.mapper.AiMessageMapper;
 import com.supermarket.service.AiChatService;
@@ -46,12 +51,20 @@ public class AiChatServiceImpl implements AiChatService {
             // 3. 意图识别和实体提取
             Map<String, Object> intentResult = intentService.parseIntent(request.getMessage());
             String intent = (String) intentResult.get("intent");
-            Map<String, Object> entities = (Map<String, Object>) intentResult.get("entities");
+            Map<String, Object> entities = null;
+            Object entitiesObj = intentResult.get("entities");
+            if (entitiesObj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> entitiesMap = (Map<String, Object>) entitiesObj;
+                entities = entitiesMap;
+            } else {
+                entities = new HashMap<>();
+            }
             
             // 4. 执行业务操作
             Map<String, Object> actionResult = null;
             String action = null;
-            if (intent != null && !intent.equals("CHAT")) {
+            if (intent != null && !IntentType.CHAT.getCode().equals(intent)) {
                 action = intent;
                 actionResult = businessToolsService.executeAction(intent, entities, request.getUserId());
             }
@@ -132,14 +145,16 @@ public class AiChatServiceImpl implements AiChatService {
         conversation.setSessionId(UUID.randomUUID().toString().replace("-", ""));
         conversation.setUserId(userId);
         conversation.setUserName(userName);
-        conversation.setTitle("新对话");
-        conversation.setStatus(1);
+        conversation.setTitle(AiChatConstants.DEFAULT_CONVERSATION_TITLE);
+        conversation.setStatus(ConversationStatus.ACTIVE.getCode());
         conversation.setMessageCount(0);
         conversation.setCreateTime(LocalDateTime.now());
         conversation.setUpdateTime(LocalDateTime.now());
         conversation.setIsDeleted(0);
         
         conversationMapper.insert(conversation);
+        log.info("创建新会话: sessionId={}, userId={}", conversation.getSessionId(), userId);
+        
         return conversation;
     }
     
@@ -147,7 +162,7 @@ public class AiChatServiceImpl implements AiChatService {
         AiMessage message = new AiMessage();
         message.setConversationId(conversation.getId()); // Long类型，不需要转换
         message.setSessionId(conversation.getSessionId());
-        message.setMessageType("USER"); // 使用String类型
+        message.setMessageType(MessageType.USER.getCode()); // 使用枚举
         message.setContent(request.getMessage());
         message.setCreateTime(LocalDateTime.now());
         message.setUpdateTime(LocalDateTime.now());
@@ -164,13 +179,13 @@ public class AiChatServiceImpl implements AiChatService {
         // 使用自定义的通义千问服务
         try {
             if (!tongyiAiService.isConfigured()) {
-                return "AI服务尚未配置，请联系管理员设置API密钥。";
+                return AiChatConstants.AI_SERVICE_NOT_CONFIGURED;
             }
             
             return tongyiAiService.chat(promptText);
         } catch (Exception e) {
             log.error("调用AI模型失败", e);
-            return "抱歉，我暂时无法处理您的请求，请稍后再试。";
+            return AiChatConstants.DEFAULT_ERROR_RESPONSE;
         }
     }
     
@@ -207,18 +222,20 @@ public class AiChatServiceImpl implements AiChatService {
         AiMessage message = new AiMessage();
         message.setConversationId(conversation.getId()); // Long类型，不需要转换
         message.setSessionId(conversation.getSessionId());
-        message.setMessageType("AI"); // 使用String类型
+        message.setMessageType(MessageType.AI.getCode()); // 使用枚举
         message.setContent(content);
         message.setIntent(intent);
         message.setEntities(entities);
         message.setAction(action);
         message.setActionResult(actionResult);
-        message.setModelName("tongyi-qwen");
+        message.setModelName(AiChatConstants.DEFAULT_MODEL_NAME);
         message.setCreateTime(LocalDateTime.now());
         message.setUpdateTime(LocalDateTime.now());
         message.setIsDeleted(0);
         
         messageMapper.insert(message);
+        log.info("保存AI消息: conversationId={}, content={}", conversation.getId(), content);
+        
         return message;
     }
     
@@ -233,23 +250,32 @@ public class AiChatServiceImpl implements AiChatService {
     private List<String> generateSuggestions(String intent, Map<String, Object> actionResult) {
         List<String> suggestions = new ArrayList<>();
         
-        if ("QUERY_SALES".equals(intent)) {
-            suggestions.add("查看本周销售趋势");
-            suggestions.add("哪些商品卖得最好？");
-            suggestions.add("今天的利润是多少？");
-        } else if ("CHECK_INVENTORY".equals(intent)) {
-            suggestions.add("需要补什么货？");
-            suggestions.add("设置库存预警");
-            suggestions.add("查看过期商品");
-        } else if ("ADD_PRODUCT".equals(intent)) {
-            suggestions.add("修改商品价格");
-            suggestions.add("查看商品信息");
-            suggestions.add("批量导入商品");
-        } else {
-            // 默认建议
-            suggestions.add("今天卖了多少钱？");
-            suggestions.add("有什么商品快没货了？");
-            suggestions.add("帮我添加新商品");
+        IntentType intentType = IntentType.fromCode(intent);
+        
+        switch (intentType) {
+            case QUERY_SALES:
+                suggestions.addAll(Arrays.asList(AiChatConstants.SuggestionTemplates.SALES_SUGGESTIONS));
+                break;
+            case CHECK_INVENTORY:
+                suggestions.addAll(Arrays.asList(AiChatConstants.SuggestionTemplates.INVENTORY_SUGGESTIONS));
+                break;
+            case ADD_PRODUCT:
+            case UPDATE_PRICE:
+            case REMOVE_PRODUCT:
+                suggestions.addAll(Arrays.asList(AiChatConstants.SuggestionTemplates.PRODUCT_SUGGESTIONS));
+                break;
+            case QUERY_FINANCE:
+            case GENERATE_REPORT:
+                suggestions.addAll(Arrays.asList(AiChatConstants.SuggestionTemplates.FINANCE_SUGGESTIONS));
+                break;
+            default:
+                suggestions.addAll(Arrays.asList(AiChatConstants.SuggestionTemplates.DEFAULT_SUGGESTIONS));
+                break;
+        }
+        
+        // 限制建议数量
+        if (suggestions.size() > AiChatConstants.DEFAULT_SUGGESTION_COUNT) {
+            suggestions = suggestions.subList(0, AiChatConstants.DEFAULT_SUGGESTION_COUNT);
         }
         
         return suggestions;
@@ -266,7 +292,7 @@ public class AiChatServiceImpl implements AiChatService {
     @Override
     public List<AiConversation> getUserConversations(Long userId) {
         // 使用不带分页参数的selectByUserId方法，或者传入默认分页参数
-        return conversationMapper.selectByUserId(userId);
+        return conversationMapper.selectAllByUserId(userId);
     }
     
     @Override
@@ -274,9 +300,10 @@ public class AiChatServiceImpl implements AiChatService {
     public void endConversation(String sessionId) {
         AiConversation conversation = conversationMapper.selectBySessionId(sessionId);
         if (conversation != null) {
-            conversation.setStatus(2); // 已结束
+            conversation.setStatus(ConversationStatus.ENDED.getCode());
             conversation.setUpdateTime(LocalDateTime.now());
             conversationMapper.updateById(conversation);
+            log.info("结束会话: sessionId={}", sessionId);
         }
     }
     

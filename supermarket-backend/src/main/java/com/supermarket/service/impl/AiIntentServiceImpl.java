@@ -1,5 +1,7 @@
 package com.supermarket.service.impl;
 
+import com.supermarket.constants.AiChatConstants;
+import com.supermarket.enums.IntentType;
 import com.supermarket.service.AiIntentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,35 +23,35 @@ public class AiIntentServiceImpl implements AiIntentService {
     
     static {
         // 销售查询相关
-        INTENT_KEYWORDS.put("QUERY_SALES", new String[]{
+        INTENT_KEYWORDS.put(IntentType.QUERY_SALES.getCode(), new String[]{
             "销售", "卖", "营业额", "收入", "赚", "钱", "生意", "业绩", "流水"
         });
         
         // 库存查询相关
-        INTENT_KEYWORDS.put("CHECK_INVENTORY", new String[]{
+        INTENT_KEYWORDS.put(IntentType.CHECK_INVENTORY.getCode(), new String[]{
             "库存", "没货", "剩余", "还有", "多少", "补货", "进货", "缺货"
         });
         
         // 商品管理相关
-        INTENT_KEYWORDS.put("ADD_PRODUCT", new String[]{
+        INTENT_KEYWORDS.put(IntentType.ADD_PRODUCT.getCode(), new String[]{
             "添加", "新增", "录入", "上架", "加", "商品"
         });
         
-        INTENT_KEYWORDS.put("UPDATE_PRICE", new String[]{
+        INTENT_KEYWORDS.put(IntentType.UPDATE_PRICE.getCode(), new String[]{
             "修改", "更新", "调整", "价格", "改价"
         });
         
-        INTENT_KEYWORDS.put("REMOVE_PRODUCT", new String[]{
+        INTENT_KEYWORDS.put(IntentType.REMOVE_PRODUCT.getCode(), new String[]{
             "删除", "下架", "移除", "去掉"
         });
         
         // 财务相关
-        INTENT_KEYWORDS.put("QUERY_FINANCE", new String[]{
+        INTENT_KEYWORDS.put(IntentType.QUERY_FINANCE.getCode(), new String[]{
             "利润", "成本", "毛利", "财务", "账目", "盈利"
         });
         
         // 报表相关
-        INTENT_KEYWORDS.put("GENERATE_REPORT", new String[]{
+        INTENT_KEYWORDS.put(IntentType.GENERATE_REPORT.getCode(), new String[]{
             "报表", "统计", "分析", "总结", "汇总"
         });
     }
@@ -103,30 +105,24 @@ public class AiIntentServiceImpl implements AiIntentService {
         return scores.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
-                .orElse("CHAT"); // 默认为普通聊天
+                .orElse(IntentType.CHAT.getCode()); // 默认为普通聊天
     }
     
     @Override
     public Map<String, Object> extractEntities(String userInput, String intent) {
         Map<String, Object> entities = new HashMap<>();
         
-        switch (intent) {
-            case "QUERY_SALES":
-                extractSalesEntities(userInput, entities);
-                break;
-            case "CHECK_INVENTORY":
-                extractInventoryEntities(userInput, entities);
-                break;
-            case "ADD_PRODUCT":
-                extractProductEntities(userInput, entities);
-                break;
-            case "UPDATE_PRICE":
-                extractPriceEntities(userInput, entities);
-                break;
-            default:
-                // 通用实体提取
-                extractCommonEntities(userInput, entities);
-                break;
+        if (IntentType.QUERY_SALES.getCode().equals(intent)) {
+            extractSalesEntities(userInput, entities);
+        } else if (IntentType.CHECK_INVENTORY.getCode().equals(intent)) {
+            extractInventoryEntities(userInput, entities);
+        } else if (IntentType.ADD_PRODUCT.getCode().equals(intent)) {
+            extractProductEntities(userInput, entities);
+        } else if (IntentType.UPDATE_PRICE.getCode().equals(intent)) {
+            extractPriceEntities(userInput, entities);
+        } else {
+            // 通用实体提取
+            extractCommonEntities(userInput, entities);
         }
         
         return entities;
@@ -246,7 +242,7 @@ public class AiIntentServiceImpl implements AiIntentService {
     }
     
     private double calculateConfidence(String userInput, String intent) {
-        if ("CHAT".equals(intent)) {
+        if (IntentType.CHAT.getCode().equals(intent)) {
             return 0.3; // 默认聊天置信度较低
         }
         

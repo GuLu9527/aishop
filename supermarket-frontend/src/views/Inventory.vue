@@ -797,6 +797,7 @@ const getStockRecordList = async (productId: string) => {
 }
 
 // 库存记录分页处理
+// 库存记录分页处理
 const handleRecordSizeChange = (size: number) => {
   recordPagination.pageSize = size
   recordPagination.pageNum = 1
@@ -815,23 +816,36 @@ const handleRecordCurrentChange = (page: number) => {
 }
 
 // 获取当前查看记录的商品ID
-const getCurrentProductId = () => {
+const getCurrentProductId = (): string | undefined => {
   const currentProduct = inventoryList.value.find(item =>
     item.productName === recordProductName.value
   )
-  return currentProduct?.id
+  return currentProduct?.id ? String(currentProduct.id) : undefined
 }
 
 // 格式化日期时间
-const formatDateTime = (dateTime: string | number[]) => {
-  if (!dateTime) return ''
+const formatDateTime = (dateTime: string | number[] | null | undefined) => {
+  if (!dateTime) return '暂无'
 
   try {
     // 处理后端返回的数组格式 [2025, 7, 18, 11, 24, 8]
     if (Array.isArray(dateTime)) {
-      const [year, month, day, hour, minute, second] = dateTime
+      const [year, month, day, hour = 0, minute = 0, second = 0] = dateTime
+      // 验证数组长度和数据有效性
+      if (dateTime.length < 3 || !year || !month || !day) {
+        console.warn('无效的日期数组格式:', dateTime)
+        return '格式错误'
+      }
+      
       // 注意：JavaScript的月份是从0开始的，所以需要减1
-      const date = new Date(year, month - 1, day, hour || 0, minute || 0, second || 0)
+      const date = new Date(year, month - 1, day, hour, minute, second)
+      
+      // 验证日期是否有效
+      if (isNaN(date.getTime())) {
+        console.warn('无效的日期值:', dateTime)
+        return '日期无效'
+      }
+      
       return date.toLocaleString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
@@ -843,7 +857,13 @@ const formatDateTime = (dateTime: string | number[]) => {
     }
 
     // 处理字符串格式
-    return new Date(dateTime).toLocaleString('zh-CN', {
+    const date = new Date(dateTime)
+    if (isNaN(date.getTime())) {
+      console.warn('无效的日期字符串:', dateTime)
+      return '日期无效'
+    }
+    
+    return date.toLocaleString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -853,7 +873,7 @@ const formatDateTime = (dateTime: string | number[]) => {
     })
   } catch (error) {
     console.error('日期格式化失败:', dateTime, error)
-    return ''
+    return '格式错误'
   }
 }
 

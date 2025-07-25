@@ -6,6 +6,7 @@ import com.supermarket.entity.AiConversation;
 import com.supermarket.entity.AiMessage;
 import com.supermarket.service.AiChatService;
 import com.supermarket.common.Result;
+import com.supermarket.enums.ActionType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -143,11 +144,11 @@ public class AiChatController {
     public Result<List<Map<String, Object>>> getQuickActions() {
         try {
             List<Map<String, Object>> actions = List.of(
-                Map.of("title", "今日销售", "action", "query_today_sales", "icon", "📊"),
-                Map.of("title", "库存预警", "action", "check_inventory", "icon", "⚠️"),
-                Map.of("title", "添加商品", "action", "add_product", "icon", "➕"),
-                Map.of("title", "财务概况", "action", "financial_overview", "icon", "💰"),
-                Map.of("title", "销售排行", "action", "sales_ranking", "icon", "🏆"),
+                Map.of("title", "今日销售", "action", ActionType.QUERY_SALES_DATA.getCode(), "icon", "📊"),
+                Map.of("title", "库存预警", "action", ActionType.CHECK_INVENTORY.getCode(), "icon", "⚠️"),
+                Map.of("title", "添加商品", "action", ActionType.ADD_PRODUCT.getCode(), "icon", "➕"),
+                Map.of("title", "财务概况", "action", ActionType.QUERY_FINANCE.getCode(), "icon", "💰"),
+                Map.of("title", "销售排行", "action", ActionType.QUERY_SALES_DATA.getCode(), "icon", "🏆"),
                 Map.of("title", "系统设置", "action", "system_settings", "icon", "⚙️")
             );
             return Result.success(actions);

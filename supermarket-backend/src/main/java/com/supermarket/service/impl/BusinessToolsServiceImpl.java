@@ -4,17 +4,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.supermarket.entity.Product;
 import com.supermarket.entity.SaleOrder;
 import com.supermarket.entity.SaleOrderItem;
+import com.supermarket.enums.ActionType;
 import com.supermarket.mapper.ProductMapper;
-import com.supermarket.mapper.SaleOrderMapper;
 import com.supermarket.mapper.SaleOrderItemMapper;
+import com.supermarket.mapper.SaleOrderMapper;
 import com.supermarket.service.BusinessToolsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -35,33 +36,27 @@ public class BusinessToolsServiceImpl implements BusinessToolsService {
     @Override
     public Map<String, Object> executeAction(String action, Map<String, Object> params, Long userId) {
         try {
-            switch (action) {
-                case "QUERY_SALES":
-                    String timeRange = (String) params.get("time_range");
-                    String productName = (String) params.get("product_name");
-                    return querySalesData(timeRange, productName);
-                    
-                case "CHECK_INVENTORY":
-                    String productNameForInventory = (String) params.get("product_name");
-                    return checkInventoryStatus(productNameForInventory);
-                    
-                case "ADD_PRODUCT":
-                    return addProduct(params, userId);
-                    
-                case "UPDATE_PRICE":
-                    String productNameForPrice = (String) params.get("product_name");
-                    Double newPrice = (Double) params.get("new_price");
-                    return updateProductPrice(productNameForPrice, newPrice, userId);
-                    
-                case "QUERY_FINANCE":
-                    String timeRangeForFinance = (String) params.get("time_range");
-                    return getFinancialOverview(timeRangeForFinance);
-                    
-                default:
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("success", false);
-                    result.put("message", "不支持的操作类型: " + action);
-                    return result;
+            if (ActionType.QUERY_SALES_DATA.getCode().equals(action)) {
+                String timeRange = (String) params.get("time_range");
+                String productName = (String) params.get("product_name");
+                return querySalesData(timeRange, productName);
+            } else if (ActionType.CHECK_INVENTORY_STATUS.getCode().equals(action)) {
+                String productNameForInventory = (String) params.get("product_name");
+                return checkInventoryStatus(productNameForInventory);
+            } else if (ActionType.ADD_NEW_PRODUCT.getCode().equals(action)) {
+                return addProduct(params, userId);
+            } else if (ActionType.UPDATE_PRODUCT_PRICE.getCode().equals(action)) {
+                String productNameForPrice = (String) params.get("product_name");
+                Double newPrice = (Double) params.get("new_price");
+                return updateProductPrice(productNameForPrice, newPrice, userId);
+            } else if (ActionType.GET_FINANCIAL_OVERVIEW.getCode().equals(action)) {
+                String timeRangeForFinance = (String) params.get("time_range");
+                return getFinancialOverview(timeRangeForFinance);
+            } else {
+                Map<String, Object> result = new HashMap<>();
+                result.put("success", false);
+                result.put("message", "不支持的操作类型: " + action);
+                return result;
             }
         } catch (Exception e) {
             log.error("执行业务操作失败: action={}, params={}", action, params, e);
@@ -363,10 +358,58 @@ public class BusinessToolsServiceImpl implements BusinessToolsService {
             LocalDateTime startTime = calculateStartTime(timeRange);
             LocalDateTime endTime = LocalDateTime.now();
             
-            // 这里需要自定义SQL查询销售排行，暂时返回模拟数据
+            // 查询销售订单
+            QueryWrapper<SaleOrder> orderQuery = new QueryWrapper<>();
+            orderQuery.between("create_time", startTime, endTime);
+            List<SaleOrder> orders = saleOrderMapper.selectList(orderQuery);
+            
+            if (orders.isEmpty()) {
+                result.put("success", true);
+                result.put("message", "该时间段内没有销售记录");
+                result.put("ranking", new ArrayList<>());
+                result.put("time_range", timeRange);
+                return result;
+            }
+            
+            // 获取订单ID列表
+            List<Long> orderIds = orders.stream().map(SaleOrder::getId).collect(Collectors.toList());
+            
+            // 查询销售明细
+            QueryWrapper<SaleOrderItem> itemQuery = new QueryWrapper<>();
+            itemQuery.in("order_id", orderIds);
+            List<SaleOrderItem> items = saleOrderItemMapper.selectList(itemQuery);
+            
+            // 按商品统计销售数据
+            Map<String, Map<String, Object>> productStats = new HashMap<>();
+            
+            for (SaleOrderItem item : items) {
+                String productName = item.getProductName();
+                productStats.computeIfAbsent(productName, k -> {
+                    Map<String, Object> stats = new HashMap<>();
+                    stats.put("product_name", productName);
+                    stats.put("total_quantity", 0);
+                    stats.put("total_amount", BigDecimal.ZERO);
+                    stats.put("order_count", 0);
+                    return stats;
+                });
+                
+                Map<String, Object> stats = productStats.get(productName);
+                stats.put("total_quantity", (Integer) stats.get("total_quantity") + item.getQuantity());
+                stats.put("total_amount", ((BigDecimal) stats.get("total_amount")).add(item.getSubtotal()));
+                stats.put("order_count", (Integer) stats.get("order_count") + 1);
+            }
+            
+            // 按销售金额排序
+            List<Map<String, Object>> ranking = productStats.values().stream()
+                    .sorted((a, b) -> ((BigDecimal) b.get("total_amount")).compareTo((BigDecimal) a.get("total_amount")))
+                    .limit(limit)
+                    .collect(Collectors.toList());
+            
             result.put("success", true);
-            result.put("message", "销售排行功能正在开发中");
+            result.put("message", "获取销售排行成功");
+            result.put("ranking", ranking);
             result.put("time_range", timeRange);
+            result.put("total_products", ranking.size());
             
         } catch (Exception e) {
             log.error("获取销售排行失败", e);

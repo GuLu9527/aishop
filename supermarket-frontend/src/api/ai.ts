@@ -18,18 +18,19 @@ export interface AiChatRequest {
  * AI聊天响应接口
  */
 export interface AiChatResponse {
-  conversationId: string
-  reply: string
+  sessionId: string
+  message: string
   intent?: string
   entities?: any
-  operationResult?: any
-  suggestedQuestions?: string[]
-  processingTime?: number
+  action?: string
+  actionResult?: any
+  suggestions?: string[]
+  processTime?: number
   success: boolean
   errorMessage?: string
-  messageType?: string
+  messageType?: number
   needConfirmation?: boolean
-  confirmationParams?: any
+  confirmationData?: any
 }
 
 /**

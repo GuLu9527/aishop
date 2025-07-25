@@ -66,7 +66,7 @@ spring:
   ai:
     alibaba:
       dashscope:
-        api-key: ${DASHSCOPE_API_KEY:your_api_key_here}
+        api-key: sk-635c75f78f234b20af626f84416fd346
         chat:
           options:
             model: qwen-plus
@@ -101,33 +101,33 @@ mybatis-plus:
 
 # JWT配置
 jwt:
-  secret: ${JWT_SECRET:supermarket-jwt-secret-key-2024-very-long-and-secure-key-for-production}
-  expiration: ${JWT_EXPIRATION:86400000}  # 24小时
-  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # 7天
+  secret: supermarket-jwt-secret-key-2024-very-long-and-secure-key-for-production
+  expiration: 86400000  # 24小时
+  refresh-expiration: 604800000  # 7天
 
 # 阿里云配置
 alicloud:
-  access-key: ${ALICLOUD_ACCESS_KEY}
-  secret-key: ${ALICLOUD_SECRET_KEY}
-  region: ${ALICLOUD_REGION:cn-hangzhou}
+  access-key: your-alicloud-access-key
+  secret-key: your-alicloud-secret-key
+  region: cn-hangzhou
   pai:
-    endpoint: ${ALICLOUD_PAI_ENDPOINT:https://pai-eas.cn-hangzhou.aliyuncs.com}
+    endpoint: https://pai-eas.cn-hangzhou.aliyuncs.com
   tongyi:
-    api-key: ${TONGYI_API_KEY}
-    model: ${TONGYI_MODEL:qwen-plus}
-    temperature: ${TONGYI_TEMPERATURE:0.3}
-    max-tokens: ${TONGYI_MAX_TOKENS:2000}
+    api-key: your-tongyi-api-key
+    model: qwen-plus
+    temperature: 0.3
+    max-tokens: 2000
 
 
 # 支付配置
 payment:
   alipay:
-    app-id: ${ALIPAY_APP_ID:your_app_id}
-    private-key: ${ALIPAY_PRIVATE_KEY:your_private_key}
-    public-key: ${ALIPAY_PUBLIC_KEY:alipay_public_key}
+    app-id: your_alipay_app_id
+    private-key: your_alipay_private_key
+    public-key: your_alipay_public_key
     gateway-url: https://openapi.alipaydev.com/gateway.do
-    notify-url: ${server.servlet.context-path}/payment/alipay/notify
-    return-url: ${server.servlet.context-path}/payment/alipay/return
+    notify-url: /api/payment/alipay/notify
+    return-url: /api/payment/alipay/return
 
 # 日志配置
 logging:
@@ -168,4 +168,8 @@ knife4j:
   setting:
     language: zh_cn
 
-# Spring AI配置 - 添加到现有spring配置中
+# Spring AI配置 - 使用真实的通义千问API服务
+# AI服务配置
+ai:
+  mock:
+    enabled: false  # 禁用模拟服务，使用真实API

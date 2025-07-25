@@ -29,7 +29,7 @@ public class TongyiAiServiceImpl {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.ai.alibaba.dashscope.api-key:sk-test-key}")
+    @Value("${spring.ai.alibaba.dashscope.api-key:}")
     private String apiKey;
 
     @Value("${spring.ai.alibaba.dashscope.chat.options.model:qwen-plus}")
@@ -98,6 +98,10 @@ public class TongyiAiServiceImpl {
      * 检查API配置是否有效
      */
     public boolean isConfigured() {
-        return apiKey != null && !apiKey.equals("sk-test-key") && !apiKey.trim().isEmpty();
+        boolean configured = apiKey != null && !apiKey.trim().isEmpty();
+        log.debug("AI服务配置检查: apiKey存在={}, apiKey长度={}", 
+                 apiKey != null && !apiKey.trim().isEmpty(), 
+                 apiKey != null ? apiKey.length() : 0);
+        return configured;
     }
 }

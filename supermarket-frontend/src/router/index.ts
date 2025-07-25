@@ -52,7 +52,7 @@ const routes: RouteRecordRaw[] = [
       }
     ]
   },
-  {
+{
     path: '/stock-alerts',
     component: () => import('../layouts/MainLayout.vue'),
     meta: { title: '库存预警', requiresAuth: true },
