@@ -34,7 +34,7 @@ public class AiMessage {
      * 会话ID
      */
     @TableField("conversation_id")
-    private Long conversationId;
+    private Long conversationId = 0L; // 设置默认值
 
     /**
      * 会话标识
@@ -113,6 +113,30 @@ public class AiMessage {
      */
     @TableField("error_message")
     private String errorMessage;
+
+    /**
+     * 消息来源：ai_test,ai_customer_service
+     */
+    @TableField("source")
+    private String source;
+
+    /**
+     * 客户满意度评分(1-5)
+     */
+    @TableField("satisfaction_score")
+    private Integer satisfactionScore;
+
+    /**
+     * 是否需要人工介入
+     */
+    @TableField("need_human_intervention")
+    private Boolean needHumanIntervention;
+
+    /**
+     * 关联的知识库ID
+     */
+    @TableField("knowledge_base_id")
+    private Long knowledgeBaseId;
 
     /**
      * 创建时间

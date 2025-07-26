@@ -10,9 +10,11 @@ const JSONbigString = JSONbig({
 // 创建axios实例
 const request = axios.create({
   baseURL: 'http://localhost:8080',
-  timeout: 10000,
+  timeout: 15000,
+  withCredentials: true,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   },
   transformResponse: [
     function (data) {

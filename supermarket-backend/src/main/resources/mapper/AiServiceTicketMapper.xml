@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supermarket.mapper.AiServiceTicketMapper">
+
+    <!-- 根据工单编号查询工单 -->
+    <select id="findByTicketNo" resultType="com.supermarket.entity.AiServiceTicket">
+        SELECT * FROM ai_service_ticket 
+        WHERE ticket_no = #{ticketNo} 
+        AND is_deleted = 0
+    </select>
+
+    <!-- 根据会话ID查询工单 -->
+    <select id="findBySessionId" resultType="com.supermarket.entity.AiServiceTicket">
+        SELECT * FROM ai_service_ticket 
+        WHERE session_id = #{sessionId} 
+        AND is_deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据客户ID查询工单 -->
+    <select id="findByCustomerId" resultType="com.supermarket.entity.AiServiceTicket">
+        SELECT * FROM ai_service_ticket 
+        WHERE customer_id = #{customerId} 
+        AND is_deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据状态查询工单 -->
+    <select id="findByStatus" resultType="com.supermarket.entity.AiServiceTicket">
+        SELECT * FROM ai_service_ticket 
+        WHERE status = #{status} 
+        AND is_deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据分配人查询工单 -->
+    <select id="findByAssignedTo" resultType="com.supermarket.entity.AiServiceTicket">
+        SELECT * FROM ai_service_ticket 
+        WHERE assigned_to = #{assignedTo} 
+        AND is_deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 查询待分配工单 -->
+    <select id="findUnassignedTickets" resultType="com.supermarket.entity.AiServiceTicket">
+        SELECT * FROM ai_service_ticket 
+        WHERE status = 1 
+        AND assigned_to IS NULL
+        AND is_deleted = 0
+        ORDER BY priority DESC, create_time ASC
+    </select>
+
+    <!-- 统计指定时间范围内的工单数量 -->
+    <select id="countTicketsByTimeRange" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM ai_service_ticket 
+        WHERE create_time BETWEEN #{startTime} AND #{endTime}
+        AND is_deleted = 0
+    </select>
+
+    <!-- 统计各状态工单数量 -->
+    <select id="countByStatus" resultType="java.util.Map">
+        SELECT 
+            status,
+            COUNT(*) as count
+        FROM ai_service_ticket 
+        WHERE is_deleted = 0
+        GROUP BY status
+    </select>
+
+</mapper>

@@ -11,7 +11,7 @@
  Target Server Version : 80030 (8.0.30)
  File Encoding         : 65001
 
- Date: 19/07/2025 13:40:08
+ Date: 26/07/2025 11:49:56
 */
 
 SET NAMES utf8mb4;
@@ -37,11 +37,7 @@ CREATE TABLE `ai_analysis_result`  (
   INDEX `idx_product_id`(`product_id` ASC) USING BTREE,
   INDEX `idx_analysis_date`(`analysis_date` ASC) USING BTREE,
   INDEX `idx_ai_service`(`ai_service` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI分析结果表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of ai_analysis_result
--- ----------------------------
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI分析结果表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for ai_conversation
@@ -49,7 +45,7 @@ CREATE TABLE `ai_analysis_result`  (
 DROP TABLE IF EXISTS `ai_conversation`;
 CREATE TABLE `ai_conversation`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '会话ID',
-  `session_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '会话标识',
+  `session_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '会话标识',
   `user_id` bigint NOT NULL COMMENT '用户ID',
   `user_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户姓名',
   `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '会话标题',
@@ -63,11 +59,37 @@ CREATE TABLE `ai_conversation`  (
   UNIQUE INDEX `uk_session_id`(`session_id` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI对话会话表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 84 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI对话会话表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Records of ai_conversation
+-- Table structure for ai_customer_session
 -- ----------------------------
+DROP TABLE IF EXISTS `ai_customer_session`;
+CREATE TABLE `ai_customer_session`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '会话ID',
+  `session_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '会话标识',
+  `customer_id` bigint NOT NULL COMMENT '客户ID',
+  `customer_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户姓名',
+  `customer_phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户联系方式',
+  `session_title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '会话标题',
+  `status` tinyint NULL DEFAULT 1 COMMENT '会话状态：1-进行中，2-已结束，3-转人工',
+  `message_count` int NULL DEFAULT 0 COMMENT '消息总数',
+  `last_message_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '最后一条消息内容',
+  `last_message_time` datetime NULL DEFAULT NULL COMMENT '最后消息时间',
+  `need_human_intervention` tinyint NULL DEFAULT 0 COMMENT '是否需要人工介入：0-否，1-是',
+  `assigned_staff_id` bigint NULL DEFAULT NULL COMMENT '分配的客服人员ID',
+  `assigned_staff_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分配的客服人员姓名',
+  `customer_satisfaction` decimal(3, 2) NULL DEFAULT NULL COMMENT '客户满意度评分（1-5分）',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-未删除，1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_session_id`(`session_id` ASC) USING BTREE,
+  INDEX `idx_customer_id`(`customer_id` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_need_human_intervention`(`need_human_intervention` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI客服会话表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for ai_intent_config
@@ -88,11 +110,35 @@ CREATE TABLE `ai_intent_config`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_intent_code`(`intent_code` ASC) USING BTREE,
   INDEX `idx_intent_name`(`intent_name` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI意图配置表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI意图配置表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Records of ai_intent_config
+-- Table structure for ai_knowledge_base
 -- ----------------------------
+DROP TABLE IF EXISTS `ai_knowledge_base`;
+CREATE TABLE `ai_knowledge_base`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '知识库ID',
+  `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '知识标题',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '知识内容',
+  `category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '知识分类',
+  `keywords` json NULL COMMENT '关键词列表（JSON格式）',
+  `intent` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '关联意图',
+  `priority` int NULL DEFAULT 0 COMMENT '优先级（数字越大优先级越高）',
+  `hit_count` int NULL DEFAULT 0 COMMENT '命中次数',
+  `effectiveness_score` decimal(3, 2) NULL DEFAULT NULL COMMENT '有效性评分（1-5分）',
+  `status` tinyint NULL DEFAULT 1 COMMENT '状态：1-启用，0-禁用',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-未删除，1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_category`(`category` ASC) USING BTREE,
+  INDEX `idx_intent`(`intent` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_priority`(`priority` ASC) USING BTREE,
+  INDEX `idx_hit_count`(`hit_count` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI知识库表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for ai_message
@@ -104,27 +150,31 @@ CREATE TABLE `ai_message`  (
   `session_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '会话标识',
   `message_type` tinyint NOT NULL COMMENT '消息类型：1-用户消息，2-AI回复，3-系统消息',
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '消息内容',
-  `intent` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '识别的意图',
-  `entities` json NULL COMMENT '提取的实体（JSON格式）',
+  `intent` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '意图识别结果',
+  `entities` json NULL COMMENT '实体提取结果JSON',
   `action` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '执行的操作',
   `action_params` json NULL COMMENT '操作参数（JSON格式）',
   `action_result` json NULL COMMENT '操作结果',
   `model_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'AI模型名称',
   `process_time` bigint NULL DEFAULT NULL COMMENT '处理耗时（毫秒）',
   `satisfaction` tinyint NULL DEFAULT NULL COMMENT '用户满意度：1-5分',
+  `source` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'chat' COMMENT '消息来源：chat-普通聊天，customer_service-客服',
+  `satisfaction_score` decimal(3, 2) NULL DEFAULT NULL COMMENT '客户满意度评分（1-5分）',
+  `need_human_intervention` tinyint NULL DEFAULT 0 COMMENT '是否需要人工介入：0-否，1-是',
+  `knowledge_base_id` bigint NULL DEFAULT NULL COMMENT '关联的知识库ID',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-未删除，1-已删除',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_conversation_id`(`conversation_id` ASC) USING BTREE,
-  INDEX `idx_session_id`(`session_id` ASC) USING BTREE,
+  INDEX `idx_message_type`(`message_type` ASC) USING BTREE,
+  INDEX `idx_intent`(`intent` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
-  INDEX `idx_message_type`(`message_type` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI消息记录表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of ai_message
--- ----------------------------
+  INDEX `idx_session_id`(`session_id` ASC) USING BTREE,
+  INDEX `idx_source`(`source` ASC) USING BTREE,
+  INDEX `idx_need_human_intervention`(`need_human_intervention` ASC) USING BTREE,
+  INDEX `idx_knowledge_base_id`(`knowledge_base_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 111 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI对话消息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for ai_operation_log
@@ -147,11 +197,140 @@ CREATE TABLE `ai_operation_log`  (
   INDEX `idx_operation_type`(`operation_type` ASC) USING BTREE,
   INDEX `idx_execution_status`(`execution_status` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI操作日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI操作日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Records of ai_operation_log
+-- Table structure for ai_service_evaluation
 -- ----------------------------
+DROP TABLE IF EXISTS `ai_service_evaluation`;
+CREATE TABLE `ai_service_evaluation`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '评价ID',
+  `session_id` bigint NOT NULL COMMENT '会话ID',
+  `customer_id` bigint NOT NULL COMMENT '客户ID',
+  `evaluation_type` tinyint NOT NULL COMMENT '评价类型：1-AI服务评价，2-人工服务评价',
+  `satisfaction_score` decimal(3, 2) NOT NULL COMMENT '满意度评分（1-5分）',
+  `response_speed_score` decimal(3, 2) NULL DEFAULT NULL COMMENT '响应速度评分（1-5分）',
+  `solution_quality_score` decimal(3, 2) NULL DEFAULT NULL COMMENT '解决质量评分（1-5分）',
+  `service_attitude_score` decimal(3, 2) NULL DEFAULT NULL COMMENT '服务态度评分（1-5分）',
+  `feedback_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '反馈内容',
+  `improvement_suggestions` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '改进建议',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-未删除，1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_session_id`(`session_id` ASC) USING BTREE,
+  INDEX `idx_customer_id`(`customer_id` ASC) USING BTREE,
+  INDEX `idx_evaluation_type`(`evaluation_type` ASC) USING BTREE,
+  INDEX `idx_satisfaction_score`(`satisfaction_score` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI客服评价表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for ai_service_ticket
+-- ----------------------------
+DROP TABLE IF EXISTS `ai_service_ticket`;
+CREATE TABLE `ai_service_ticket`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '工单ID',
+  `ticket_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '工单编号',
+  `session_id` bigint NULL DEFAULT NULL COMMENT '关联会话ID',
+  `customer_id` bigint NOT NULL COMMENT '客户ID',
+  `customer_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '客户姓名',
+  `customer_phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户联系方式',
+  `problem_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '问题类型',
+  `problem_title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '问题标题',
+  `problem_description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '问题描述',
+  `priority` tinyint NULL DEFAULT 2 COMMENT '优先级：1-低，2-中，3-高，4-紧急',
+  `status` tinyint NULL DEFAULT 1 COMMENT '工单状态：1-待分配，2-处理中，3-待确认，4-已解决，5-已关闭',
+  `assigned_to` bigint NULL DEFAULT NULL COMMENT '分配给（员工ID）',
+  `assigned_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分配给（员工姓名）',
+  `solution` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '解决方案',
+  `resolved_time` datetime NULL DEFAULT NULL COMMENT '解决时间',
+  `closed_time` datetime NULL DEFAULT NULL COMMENT '关闭时间',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-未删除，1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_ticket_no`(`ticket_no` ASC) USING BTREE,
+  INDEX `idx_session_id`(`session_id` ASC) USING BTREE,
+  INDEX `idx_customer_id`(`customer_id` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_assigned_to`(`assigned_to` ASC) USING BTREE,
+  INDEX `idx_priority`(`priority` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI客服工单表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for batch_operation_record
+-- ----------------------------
+DROP TABLE IF EXISTS `batch_operation_record`;
+CREATE TABLE `batch_operation_record`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '记录ID',
+  `batch_id` bigint NOT NULL COMMENT '批次ID',
+  `operation_type` tinyint NOT NULL COMMENT '操作类型：1-入库，2-出库，3-调拨，4-盘点，5-报损',
+  `quantity` int NOT NULL COMMENT '操作数量',
+  `before_quantity` int NOT NULL COMMENT '操作前数量',
+  `after_quantity` int NOT NULL COMMENT '操作后数量',
+  `unit_price` decimal(10, 2) NULL DEFAULT NULL COMMENT '单价',
+  `total_amount` decimal(10, 2) NULL DEFAULT NULL COMMENT '总金额',
+  `reason` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作原因',
+  `reference_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '关联单号',
+  `operator_id` bigint NULL DEFAULT NULL COMMENT '操作人ID',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_batch_id`(`batch_id` ASC) USING BTREE,
+  INDEX `idx_operation_type`(`operation_type` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
+  INDEX `idx_operation_batch_time`(`batch_id` ASC, `create_time` ASC) USING BTREE,
+  CONSTRAINT `fk_record_batch` FOREIGN KEY (`batch_id`) REFERENCES `product_batch` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '批次操作记录表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for batch_stock_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `batch_stock_detail`;
+CREATE TABLE `batch_stock_detail`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '明细ID',
+  `batch_id` bigint NOT NULL COMMENT '批次ID',
+  `location_id` bigint NULL DEFAULT NULL COMMENT '库位ID',
+  `quantity` int NOT NULL DEFAULT 0 COMMENT '数量',
+  `reserved_quantity` int NOT NULL DEFAULT 0 COMMENT '预留数量',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_batch_location`(`batch_id` ASC, `location_id` ASC) USING BTREE,
+  INDEX `idx_batch_id`(`batch_id` ASC) USING BTREE,
+  INDEX `idx_location_id`(`location_id` ASC) USING BTREE,
+  CONSTRAINT `fk_detail_batch` FOREIGN KEY (`batch_id`) REFERENCES `product_batch` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '批次库存明细表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for finance_record
+-- ----------------------------
+DROP TABLE IF EXISTS `finance_record`;
+CREATE TABLE `finance_record`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `record_type` tinyint NOT NULL COMMENT '记录类型：1-收入，2-支出',
+  `business_type` tinyint NOT NULL COMMENT '业务类型：1-销售收入，2-采购支出，3-其他收入，4-其他支出，5-退货退款',
+  `amount` decimal(10, 2) NOT NULL COMMENT '金额',
+  `order_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '关联订单号',
+  `business_id` bigint NULL DEFAULT NULL COMMENT '关联业务ID',
+  `description` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '描述说明',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `operator_id` bigint NOT NULL COMMENT '操作员ID',
+  `operator_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '操作员姓名',
+  `record_date` datetime NOT NULL COMMENT '记录日期',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-未删除，1-已删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_record_type`(`record_type` ASC) USING BTREE,
+  INDEX `idx_business_type`(`business_type` ASC) USING BTREE,
+  INDEX `idx_order_no`(`order_no` ASC) USING BTREE,
+  INDEX `idx_operator_id`(`operator_id` ASC) USING BTREE,
+  INDEX `idx_record_date`(`record_date` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '财务记录表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for financial_record
@@ -166,15 +345,32 @@ CREATE TABLE `financial_record`  (
   `record_date` date NOT NULL COMMENT '记录日期',
   `operator_id` bigint NULL DEFAULT NULL COMMENT '操作人ID',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_record_type`(`record_type` ASC) USING BTREE,
   INDEX `idx_record_date`(`record_date` ASC) USING BTREE,
-  INDEX `idx_category`(`category` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '财务记录表' ROW_FORMAT = Dynamic;
+  INDEX `idx_category`(`category` ASC) USING BTREE,
+  INDEX `idx_update_time`(`update_time` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '财务记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Records of financial_record
+-- Table structure for flyway_schema_history
 -- ----------------------------
+DROP TABLE IF EXISTS `flyway_schema_history`;
+CREATE TABLE `flyway_schema_history`  (
+  `installed_rank` int NOT NULL,
+  `version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `description` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `script` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `checksum` int NULL DEFAULT NULL,
+  `installed_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `installed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `execution_time` int NOT NULL,
+  `success` tinyint(1) NOT NULL,
+  PRIMARY KEY (`installed_rank`) USING BTREE,
+  INDEX `flyway_schema_history_s_idx`(`success` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for held_transaction
@@ -198,11 +394,7 @@ CREATE TABLE `held_transaction`  (
   INDEX `idx_terminal_id`(`terminal_id` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '挂单表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of held_transaction
--- ----------------------------
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '挂单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for inventory_record
@@ -239,11 +431,7 @@ CREATE TABLE `inventory_record`  (
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
   INDEX `idx_expiration_date`(`expiration_date` ASC) USING BTREE,
   CONSTRAINT `inventory_record_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存记录表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of inventory_record
--- ----------------------------
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for product
@@ -263,6 +451,7 @@ CREATE TABLE `product`  (
   `min_stock` int NULL DEFAULT 0 COMMENT '最低库存预警',
   `max_stock` int NULL DEFAULT 0 COMMENT '最高库存预警',
   `shelf_life_days` int NULL DEFAULT NULL COMMENT '保质期天数',
+  `production_date` date NULL DEFAULT NULL COMMENT '生产日期',
   `image_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '商品图片',
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '商品描述',
   `manufacturer` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '生产厂家',
@@ -271,25 +460,49 @@ CREATE TABLE `product`  (
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建人',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新人',
+  `batch_tracking` tinyint NULL DEFAULT 0 COMMENT '是否启用批次管理：1-启用，0-不启用',
+  `expiry_tracking` tinyint NULL DEFAULT 0 COMMENT '是否启用过期日期跟踪：1-启用，0-不启用',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_barcode`(`barcode` ASC) USING BTREE,
   INDEX `idx_category_id`(`category_id` ASC) USING BTREE,
   INDEX `idx_product_name`(`product_name` ASC) USING BTREE,
-  INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1946051776063545359 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '商品表' ROW_FORMAT = Dynamic;
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_production_date`(`production_date` ASC) USING BTREE,
+  INDEX `idx_production_shelf_life`(`production_date` ASC, `shelf_life_days` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1946051776063545360 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '商品表 - 已添加生产日期字段用于过期管理' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Records of product
+-- Table structure for product_batch
 -- ----------------------------
-INSERT INTO `product` VALUES (1946048310675107841, '烤肠', '6907987232367', 1, '金锣', '个', '100g', 2.00, 4.00, 50, 10, 100, 30, '', '热食', NULL, 1, '2025-07-18 11:24:08', '2025-07-18 11:24:08', NULL, NULL);
-INSERT INTO `product` VALUES (1946051776063545345, '面包', '6909836858016', 1, '桃李', '个', '250g', 2.00, 6.00, 20, 5, 40, 15, '', '测试', NULL, 1, '2025-07-18 11:37:54', '2025-07-18 11:37:54', 1, 1);
-INSERT INTO `product` VALUES (1946051776063545346, '可口可乐', '6901668001234', 6, '可口可乐', '瓶', '330ml', 2.50, 3.50, 101, 20, 500, 365, NULL, '', '可口可乐公司', 1, '2025-07-18 14:39:06', '2025-07-18 16:23:53', 1, 1);
-INSERT INTO `product` VALUES (1946051776063545347, '康师傅方便面', '6901668005678', 7, '康师傅', '包', '100g', 3.00, 4.50, 82, 15, 300, 180, NULL, NULL, '康师傅控股有限公司', 1, '2025-07-18 14:39:06', '2025-07-18 20:36:05', 1, 1);
-INSERT INTO `product` VALUES (1946051776063545348, '海天生抽', '6901668009012', 8, '海天', '瓶', '500ml', 8.00, 12.00, 52, 10, 200, 720, NULL, NULL, '佛山市海天调味食品股份有限公司', 1, '2025-07-18 14:39:06', '2025-07-18 20:36:05', 1, 1);
-INSERT INTO `product` VALUES (1946051776063545349, '立白洗洁精', '6901668003456', 9, '立白', '瓶', '1L', 6.00, 9.50, 62, 12, 250, 1095, NULL, NULL, '广州立白企业集团有限公司', 1, '2025-07-18 14:39:06', '2025-07-18 20:36:05', 1, 1);
-INSERT INTO `product` VALUES (1946051776063545350, '飘柔洗发水', '6901668007890', 10, '飘柔', '瓶', '400ml', 15.00, 22.00, 42, 8, 150, 1095, NULL, NULL, '宝洁公司', 1, '2025-07-18 14:39:06', '2025-07-18 20:36:05', 1, 1);
-INSERT INTO `product` VALUES (1946051776063545351, '馒头', '7889457861', 1, '杂牌', '个', '小包装', 4.00, 10.00, 6, 3, 10, 7, NULL, '测试商品', '无', 1, '2025-07-18 14:47:12', '2025-07-18 17:30:23', 1, 1);
-INSERT INTO `product` VALUES (1946051776063545358, '面条', '78945678154', 1, '自研', '袋', '小包装', 1.00, 3.00, 28, 28, 50, 365, NULL, '测试商品', '自产', 1, '2025-07-18 17:56:47', '2025-07-18 20:27:52', 1, 1);
+DROP TABLE IF EXISTS `product_batch`;
+CREATE TABLE `product_batch`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '批次ID',
+  `product_id` bigint NOT NULL COMMENT '商品ID',
+  `batch_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '批次号',
+  `production_date` date NULL DEFAULT NULL COMMENT '生产日期',
+  `expiry_date` date NULL DEFAULT NULL COMMENT '过期日期',
+  `supplier_id` bigint NULL DEFAULT NULL COMMENT '供应商ID',
+  `purchase_price` decimal(10, 2) NULL DEFAULT NULL COMMENT '进货价',
+  `total_quantity` int NOT NULL DEFAULT 0 COMMENT '批次总数量',
+  `available_quantity` int NOT NULL DEFAULT 0 COMMENT '可用数量',
+  `reserved_quantity` int NOT NULL DEFAULT 0 COMMENT '预留数量',
+  `sold_quantity` int NOT NULL DEFAULT 0 COMMENT '已售数量',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1-正常，2-临期，3-过期，0-停用',
+  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '备注',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人',
+  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_product_batch`(`product_id` ASC, `batch_code` ASC) USING BTREE,
+  INDEX `idx_product_id`(`product_id` ASC) USING BTREE,
+  INDEX `idx_batch_code`(`batch_code` ASC) USING BTREE,
+  INDEX `idx_expiry_date`(`expiry_date` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_batch_expiry_status`(`expiry_date` ASC, `status` ASC, `available_quantity` ASC) USING BTREE,
+  INDEX `idx_batch_product_expiry`(`product_id` ASC, `expiry_date` ASC, `status` ASC) USING BTREE,
+  CONSTRAINT `fk_batch_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '商品批次表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for product_category
@@ -305,21 +518,7 @@ CREATE TABLE `product_category`  (
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '商品分类表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of product_category
--- ----------------------------
-INSERT INTO `product_category` VALUES (1, '食品饮料', 0, '各类食品和饮料', 1, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
-INSERT INTO `product_category` VALUES (2, '日用百货', 0, '日常生活用品', 2, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
-INSERT INTO `product_category` VALUES (3, '个人护理', 0, '个人护理用品', 3, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
-INSERT INTO `product_category` VALUES (4, '家居用品', 0, '家居生活用品', 4, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
-INSERT INTO `product_category` VALUES (5, '文具办公', 0, '文具和办公用品', 5, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
-INSERT INTO `product_category` VALUES (6, '饮料', 1, '各类饮料', 1, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
-INSERT INTO `product_category` VALUES (7, '零食', 1, '各类零食', 2, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
-INSERT INTO `product_category` VALUES (8, '调料', 1, '调味料', 3, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
-INSERT INTO `product_category` VALUES (9, '清洁用品', 2, '清洁用品', 1, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
-INSERT INTO `product_category` VALUES (10, '洗护用品', 3, '洗发护发用品', 1, 1, '2025-07-18 14:39:06', '2025-07-18 14:39:06');
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '商品分类表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for promotion
@@ -339,11 +538,7 @@ CREATE TABLE `promotion`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_start_time`(`start_time` ASC) USING BTREE,
   INDEX `idx_end_time`(`end_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '促销活动表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of promotion
--- ----------------------------
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '促销活动表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for promotion_product
@@ -356,15 +551,12 @@ CREATE TABLE `promotion_product`  (
   `discount_type` tinyint NULL DEFAULT NULL COMMENT '折扣类型：1-固定金额，2-百分比',
   `discount_value` decimal(10, 2) NULL DEFAULT NULL COMMENT '折扣值',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_promotion_product`(`promotion_id` ASC, `product_id` ASC) USING BTREE,
   INDEX `idx_promotion_id`(`promotion_id` ASC) USING BTREE,
   INDEX `idx_product_id`(`product_id` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '促销商品关联表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of promotion_product
--- ----------------------------
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '促销商品关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for purchase_order
@@ -388,11 +580,7 @@ CREATE TABLE `purchase_order`  (
   UNIQUE INDEX `uk_order_no`(`order_no` ASC) USING BTREE,
   INDEX `idx_supplier_id`(`supplier_id` ASC) USING BTREE,
   INDEX `idx_order_date`(`order_date` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '采购订单表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of purchase_order
--- ----------------------------
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '采购订单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for purchase_order_item
@@ -407,14 +595,11 @@ CREATE TABLE `purchase_order_item`  (
   `total_price` decimal(12, 2) NOT NULL COMMENT '小计',
   `received_quantity` int NULL DEFAULT 0 COMMENT '已收货数量',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_order_id`(`order_id` ASC) USING BTREE,
   INDEX `idx_product_id`(`product_id` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '采购订单明细表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of purchase_order_item
--- ----------------------------
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '采购订单明细表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for sale
@@ -440,27 +625,7 @@ CREATE TABLE `sale`  (
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
   INDEX `idx_operator_id`(`operator_id` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '销售订单表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of sale
--- ----------------------------
-INSERT INTO `sale` VALUES (1, 'SO20240117001', 1, 156.80, 160.00, 3.20, 1, 1, 1, '管理员', '现金支付', '2024-01-17 09:15:30', '2024-01-17 09:15:30');
-INSERT INTO `sale` VALUES (2, 'SO20240117002', 1, 89.50, 89.50, 0.00, 2, 1, 1, '管理员', '支付宝支付', '2024-01-17 10:22:15', '2024-01-17 10:22:15');
-INSERT INTO `sale` VALUES (3, 'SO20240117003', 1, 234.20, 234.20, 0.00, 3, 1, 1, '管理员', '微信支付', '2024-01-17 11:45:20', '2024-01-17 11:45:20');
-INSERT INTO `sale` VALUES (4, 'SO20240117004', 1, 67.30, 70.00, 2.70, 1, 1, 1, '管理员', '现金支付', '2024-01-17 14:18:45', '2024-01-17 14:18:45');
-INSERT INTO `sale` VALUES (5, 'SO20240117005', 1, 123.90, 123.90, 0.00, 4, 1, 1, '管理员', '银行卡支付', '2024-01-17 15:33:10', '2024-01-17 15:33:10');
-INSERT INTO `sale` VALUES (6, 'SO20240117006', 1, 45.60, 50.00, 4.40, 1, 1, 1, '管理员', '现金支付', '2024-01-17 16:20:35', '2024-01-17 16:20:35');
-INSERT INTO `sale` VALUES (7, 'SO20240117007', 1, 198.75, 198.75, 0.00, 2, 1, 1, '管理员', '支付宝支付', '2024-01-17 17:55:20', '2024-01-17 17:55:20');
-INSERT INTO `sale` VALUES (8, 'SO20240117008', 1, 78.40, 78.40, 0.00, 3, 1, 1, '管理员', '微信支付', '2024-01-17 19:12:15', '2024-01-17 19:12:15');
-INSERT INTO `sale` VALUES (9, 'SO20240116001', 1, 145.30, 150.00, 4.70, 1, 1, 1, '管理员', '现金支付', '2024-01-16 09:30:20', '2024-01-16 09:30:20');
-INSERT INTO `sale` VALUES (10, 'SO20240116002', 1, 92.80, 92.80, 0.00, 2, 1, 1, '管理员', '支付宝支付', '2024-01-16 11:15:45', '2024-01-16 11:15:45');
-INSERT INTO `sale` VALUES (11, 'SO20240116003', 1, 267.50, 267.50, 0.00, 3, 1, 1, '管理员', '微信支付', '2024-01-16 13:22:30', '2024-01-16 13:22:30');
-INSERT INTO `sale` VALUES (12, 'SO20240116004', 1, 56.20, 60.00, 3.80, 1, 1, 1, '管理员', '现金支付', '2024-01-16 15:45:10', '2024-01-16 15:45:10');
-INSERT INTO `sale` VALUES (13, 'SO20240116005', 1, 189.90, 189.90, 0.00, 4, 1, 1, '管理员', '银行卡支付', '2024-01-16 17:30:25', '2024-01-16 17:30:25');
-INSERT INTO `sale` VALUES (14, 'SO20240115001', 1, 112.40, 112.40, 0.00, 2, 1, 1, '管理员', '支付宝支付', '2024-01-15 10:20:15', '2024-01-15 10:20:15');
-INSERT INTO `sale` VALUES (15, 'SO20240115002', 1, 203.60, 210.00, 6.40, 1, 1, 1, '管理员', '现金支付', '2024-01-15 14:35:40', '2024-01-15 14:35:40');
-INSERT INTO `sale` VALUES (16, 'SO20240115003', 1, 87.30, 87.30, 0.00, 3, 1, 1, '管理员', '微信支付', '2024-01-15 16:50:20', '2024-01-15 16:50:20');
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '销售订单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for sale_item
@@ -484,53 +649,7 @@ CREATE TABLE `sale_item`  (
   INDEX `idx_product_id`(`product_id` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
   CONSTRAINT `sale_item_ibfk_1` FOREIGN KEY (`sale_id`) REFERENCES `sale` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '销售明细表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of sale_item
--- ----------------------------
-INSERT INTO `sale_item` VALUES (1, 1, 1, '可口可乐 330ml', '6901234567890', 3.50, 2, 7.00, 0.00, 7.00, '2024-01-17 09:15:30', '2024-01-17 09:15:30');
-INSERT INTO `sale_item` VALUES (2, 1, 2, '康师傅红烧牛肉面', '6901234567891', 4.80, 3, 14.40, 0.00, 14.40, '2024-01-17 09:15:30', '2024-01-17 09:15:30');
-INSERT INTO `sale_item` VALUES (3, 1, 3, '金龙鱼调和油 5L', '6901234567892', 45.20, 3, 135.60, 0.20, 135.40, '2024-01-17 09:15:30', '2024-01-17 09:15:30');
-INSERT INTO `sale_item` VALUES (4, 2, 4, '蒙牛纯牛奶 250ml*12', '6901234567893', 28.50, 2, 57.00, 0.00, 57.00, '2024-01-17 10:22:15', '2024-01-17 10:22:15');
-INSERT INTO `sale_item` VALUES (5, 2, 5, '奥利奥饼干 116g', '6901234567894', 8.90, 2, 17.80, 0.00, 17.80, '2024-01-17 10:22:15', '2024-01-17 10:22:15');
-INSERT INTO `sale_item` VALUES (6, 2, 6, '海天生抽 500ml', '6901234567895', 7.30, 2, 14.60, 0.00, 14.60, '2024-01-17 10:22:15', '2024-01-17 10:22:15');
-INSERT INTO `sale_item` VALUES (7, 3, 7, '五常大米 5kg', '6901234567896', 35.80, 4, 143.20, 0.00, 143.20, '2024-01-17 11:45:20', '2024-01-17 11:45:20');
-INSERT INTO `sale_item` VALUES (8, 3, 8, '农夫山泉 550ml*24', '6901234567897', 45.50, 2, 91.00, 0.00, 91.00, '2024-01-17 11:45:20', '2024-01-17 11:45:20');
-INSERT INTO `sale_item` VALUES (9, 4, 9, '双汇火腿肠 30g*10', '6901234567898', 12.80, 3, 38.40, 0.00, 38.40, '2024-01-17 14:18:45', '2024-01-17 14:18:45');
-INSERT INTO `sale_item` VALUES (10, 4, 10, '统一绿茶 500ml', '6901234567899', 2.90, 10, 29.00, 0.10, 28.90, '2024-01-17 14:18:45', '2024-01-17 14:18:45');
-INSERT INTO `sale_item` VALUES (11, 5, 1, '可口可乐 330ml', '6901234567890', 3.50, 5, 17.50, 0.00, 17.50, '2024-01-17 15:33:10', '2024-01-17 15:33:10');
-INSERT INTO `sale_item` VALUES (12, 5, 3, '金龙鱼调和油 5L', '6901234567892', 45.20, 2, 90.40, 0.00, 90.40, '2024-01-17 15:33:10', '2024-01-17 15:33:10');
-INSERT INTO `sale_item` VALUES (13, 5, 7, '五常大米 5kg', '6901234567896', 35.80, 1, 35.80, 0.00, 35.80, '2024-01-17 15:33:10', '2024-01-17 15:33:10');
-INSERT INTO `sale_item` VALUES (14, 6, 2, '康师傅红烧牛肉面', '6901234567891', 4.80, 4, 19.20, 0.00, 19.20, '2024-01-17 16:20:35', '2024-01-17 16:20:35');
-INSERT INTO `sale_item` VALUES (15, 6, 5, '奥利奥饼干 116g', '6901234567894', 8.90, 3, 26.70, 0.30, 26.40, '2024-01-17 16:20:35', '2024-01-17 16:20:35');
-INSERT INTO `sale_item` VALUES (16, 7, 4, '蒙牛纯牛奶 250ml*12', '6901234567893', 28.50, 4, 114.00, 0.00, 114.00, '2024-01-17 17:55:20', '2024-01-17 17:55:20');
-INSERT INTO `sale_item` VALUES (17, 7, 8, '农夫山泉 550ml*24', '6901234567897', 45.50, 1, 45.50, 0.00, 45.50, '2024-01-17 17:55:20', '2024-01-17 17:55:20');
-INSERT INTO `sale_item` VALUES (18, 7, 6, '海天生抽 500ml', '6901234567895', 7.30, 5, 36.50, 0.00, 36.50, '2024-01-17 17:55:20', '2024-01-17 17:55:20');
-INSERT INTO `sale_item` VALUES (19, 8, 9, '双汇火腿肠 30g*10', '6901234567898', 12.80, 2, 25.60, 0.00, 25.60, '2024-01-17 19:12:15', '2024-01-17 19:12:15');
-INSERT INTO `sale_item` VALUES (20, 8, 10, '统一绿茶 500ml', '6901234567899', 2.90, 18, 52.20, 0.40, 51.80, '2024-01-17 19:12:15', '2024-01-17 19:12:15');
-INSERT INTO `sale_item` VALUES (21, 9, 1, '可口可乐 330ml', '6901234567890', 3.50, 8, 28.00, 0.00, 28.00, '2024-01-16 09:30:20', '2024-01-16 09:30:20');
-INSERT INTO `sale_item` VALUES (22, 9, 2, '康师傅红烧牛肉面', '6901234567891', 4.80, 6, 28.80, 0.00, 28.80, '2024-01-16 09:30:20', '2024-01-16 09:30:20');
-INSERT INTO `sale_item` VALUES (23, 9, 3, '金龙鱼调和油 5L', '6901234567892', 45.20, 2, 90.40, 1.90, 88.50, '2024-01-16 09:30:20', '2024-01-16 09:30:20');
-INSERT INTO `sale_item` VALUES (24, 10, 4, '蒙牛纯牛奶 250ml*12', '6901234567893', 28.50, 2, 57.00, 0.00, 57.00, '2024-01-16 11:15:45', '2024-01-16 11:15:45');
-INSERT INTO `sale_item` VALUES (25, 10, 7, '五常大米 5kg', '6901234567896', 35.80, 1, 35.80, 0.00, 35.80, '2024-01-16 11:15:45', '2024-01-16 11:15:45');
-INSERT INTO `sale_item` VALUES (26, 11, 8, '农夫山泉 550ml*24', '6901234567897', 45.50, 3, 136.50, 0.00, 136.50, '2024-01-16 13:22:30', '2024-01-16 13:22:30');
-INSERT INTO `sale_item` VALUES (27, 11, 9, '双汇火腿肠 30g*10', '6901234567898', 12.80, 5, 64.00, 0.00, 64.00, '2024-01-16 13:22:30', '2024-01-16 13:22:30');
-INSERT INTO `sale_item` VALUES (28, 11, 10, '统一绿茶 500ml', '6901234567899', 2.90, 23, 66.70, 0.30, 66.40, '2024-01-16 13:22:30', '2024-01-16 13:22:30');
-INSERT INTO `sale_item` VALUES (29, 12, 5, '奥利奥饼干 116g', '6901234567894', 8.90, 4, 35.60, 0.00, 35.60, '2024-01-16 15:45:10', '2024-01-16 15:45:10');
-INSERT INTO `sale_item` VALUES (30, 12, 6, '海天生抽 500ml', '6901234567895', 7.30, 3, 21.90, 1.30, 20.60, '2024-01-16 15:45:10', '2024-01-16 15:45:10');
-INSERT INTO `sale_item` VALUES (31, 13, 1, '可口可乐 330ml', '6901234567890', 3.50, 12, 42.00, 0.00, 42.00, '2024-01-16 17:30:25', '2024-01-16 17:30:25');
-INSERT INTO `sale_item` VALUES (32, 13, 3, '金龙鱼调和油 5L', '6901234567892', 45.20, 3, 135.60, 0.00, 135.60, '2024-01-16 17:30:25', '2024-01-16 17:30:25');
-INSERT INTO `sale_item` VALUES (33, 13, 7, '五常大米 5kg', '6901234567896', 35.80, 1, 35.80, 23.50, 12.30, '2024-01-16 17:30:25', '2024-01-16 17:30:25');
-INSERT INTO `sale_item` VALUES (34, 14, 2, '康师傅红烧牛肉面', '6901234567891', 4.80, 8, 38.40, 0.00, 38.40, '2024-01-15 10:20:15', '2024-01-15 10:20:15');
-INSERT INTO `sale_item` VALUES (35, 14, 4, '蒙牛纯牛奶 250ml*12', '6901234567893', 28.50, 2, 57.00, 0.00, 57.00, '2024-01-15 10:20:15', '2024-01-15 10:20:15');
-INSERT INTO `sale_item` VALUES (36, 14, 10, '统一绿茶 500ml', '6901234567899', 2.90, 6, 17.40, 0.40, 17.00, '2024-01-15 10:20:15', '2024-01-15 10:20:15');
-INSERT INTO `sale_item` VALUES (37, 15, 8, '农夫山泉 550ml*24', '6901234567897', 45.50, 2, 91.00, 0.00, 91.00, '2024-01-15 14:35:40', '2024-01-15 14:35:40');
-INSERT INTO `sale_item` VALUES (38, 15, 3, '金龙鱼调和油 5L', '6901234567892', 45.20, 2, 90.40, 0.00, 90.40, '2024-01-15 14:35:40', '2024-01-15 14:35:40');
-INSERT INTO `sale_item` VALUES (39, 15, 6, '海天生抽 500ml', '6901234567895', 7.30, 3, 21.90, 0.70, 21.20, '2024-01-15 14:35:40', '2024-01-15 14:35:40');
-INSERT INTO `sale_item` VALUES (40, 16, 5, '奥利奥饼干 116g', '6901234567894', 8.90, 5, 44.50, 0.00, 44.50, '2024-01-15 16:50:20', '2024-01-15 16:50:20');
-INSERT INTO `sale_item` VALUES (41, 16, 9, '双汇火腿肠 30g*10', '6901234567898', 12.80, 2, 25.60, 0.00, 25.60, '2024-01-15 16:50:20', '2024-01-15 16:50:20');
-INSERT INTO `sale_item` VALUES (42, 16, 1, '可口可乐 330ml', '6901234567890', 3.50, 5, 17.50, 0.30, 17.20, '2024-01-15 16:50:20', '2024-01-15 16:50:20');
+) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '销售明细表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for sale_order
@@ -560,13 +679,7 @@ CREATE TABLE `sale_order`  (
   INDEX `idx_payment_method`(`payment_method` ASC) USING BTREE,
   INDEX `idx_order_date`(`order_date` ASC) USING BTREE,
   INDEX `idx_status_date`(`status` ASC, `create_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '销售订单表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of sale_order
--- ----------------------------
-INSERT INTO `sale_order` VALUES (1, 'SO20240101001', 25.50, 30.00, 4.50, 'cash', 3, 1, '张三', 'POS001', 1, NULL, '2025-07-18 20:50:47', '2025-07-18 20:50:47', DEFAULT);
-INSERT INTO `sale_order` VALUES (2, 'SO20240101002', 18.80, 18.80, 0.00, 'alipay', 2, 1, '张三', 'POS001', 1, NULL, '2025-07-18 20:50:47', '2025-07-18 20:50:47', DEFAULT);
+) ENGINE = InnoDB AUTO_INCREMENT = 53 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '销售订单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for sale_order_item
@@ -588,16 +701,7 @@ CREATE TABLE `sale_order_item`  (
   INDEX `idx_product_id`(`product_id` ASC) USING BTREE,
   INDEX `idx_barcode`(`barcode` ASC) USING BTREE,
   CONSTRAINT `fk_sale_order_item_order` FOREIGN KEY (`order_id`) REFERENCES `sale_order` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '销售订单明细表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of sale_order_item
--- ----------------------------
-INSERT INTO `sale_order_item` VALUES (1, 1, 1, '可口可乐', '6901668001234', 3.50, 2, '瓶', 7.00, '2025-07-18 20:50:47');
-INSERT INTO `sale_order_item` VALUES (2, 1, 2, '康师傅方便面', '6901668005678', 4.50, 1, '包', 4.50, '2025-07-18 20:50:47');
-INSERT INTO `sale_order_item` VALUES (3, 1, 3, '旺旺雪饼', '6901668009876', 14.00, 1, '包', 14.00, '2025-07-18 20:50:47');
-INSERT INTO `sale_order_item` VALUES (4, 2, 1, '可口可乐', '6901668001234', 3.50, 1, '瓶', 3.50, '2025-07-18 20:50:47');
-INSERT INTO `sale_order_item` VALUES (5, 2, 4, '统一绿茶', '6901668012345', 15.30, 1, '瓶', 15.30, '2025-07-18 20:50:47');
+) ENGINE = InnoDB AUTO_INCREMENT = 54 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '销售订单明细表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for stock_alert
@@ -616,16 +720,17 @@ CREATE TABLE `stock_alert`  (
   `handle_time` datetime NULL DEFAULT NULL COMMENT '处理时间',
   `handle_remark` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '处理备注',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `batch_id` bigint NULL DEFAULT NULL COMMENT '批次ID',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_product_id`(`product_id` ASC) USING BTREE,
   INDEX `idx_alert_type`(`alert_type` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
-  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存预警记录表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of stock_alert
--- ----------------------------
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
+  INDEX `idx_update_time`(`update_time` ASC) USING BTREE,
+  INDEX `idx_batch_id`(`batch_id` ASC) USING BTREE,
+  CONSTRAINT `fk_alert_batch` FOREIGN KEY (`batch_id`) REFERENCES `product_batch` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存预警记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for stock_check
@@ -656,11 +761,7 @@ CREATE TABLE `stock_check`  (
   INDEX `idx_check_type`(`check_type` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存盘点表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of stock_check
--- ----------------------------
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存盘点表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for stock_check_item
@@ -690,11 +791,7 @@ CREATE TABLE `stock_check_item`  (
   INDEX `idx_status`(`status` ASC) USING BTREE,
   CONSTRAINT `stock_check_item_ibfk_1` FOREIGN KEY (`check_id`) REFERENCES `stock_check` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `stock_check_item_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存盘点明细表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of stock_check_item
--- ----------------------------
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存盘点明细表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for stock_record
@@ -714,24 +811,18 @@ CREATE TABLE `stock_record`  (
   `expire_date` date NULL DEFAULT NULL COMMENT '过期日期',
   `operator_id` bigint NULL DEFAULT NULL COMMENT '操作人ID',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `batch_id` bigint NULL DEFAULT NULL COMMENT '批次ID',
+  `production_date` date NULL DEFAULT NULL COMMENT '生产日期',
+  `expiry_date` date NULL DEFAULT NULL COMMENT '过期日期',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_product_id`(`product_id` ASC) USING BTREE,
   INDEX `idx_change_type`(`change_type` ASC) USING BTREE,
-  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存变动记录表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of stock_record
--- ----------------------------
-INSERT INTO `stock_record` VALUES (1, 1946051776063545358, 1, 20, 0, 20, NULL, NULL, '初始入库', NULL, NULL, 1, '2025-07-18 17:56:47');
-INSERT INTO `stock_record` VALUES (2, 1946051776063545358, 1, 2, 20, 22, NULL, NULL, '123', NULL, NULL, 1, '2025-07-18 19:15:26');
-INSERT INTO `stock_record` VALUES (3, 1946051776063545358, 1, 1, 22, 23, NULL, NULL, '测试', NULL, NULL, 1, '2025-07-18 19:16:46');
-INSERT INTO `stock_record` VALUES (4, 1946051776063545358, 1, 2, 23, 25, NULL, NULL, '测试', NULL, NULL, 1, '2025-07-18 20:07:01');
-INSERT INTO `stock_record` VALUES (5, 1946051776063545358, 1, 3, 25, 28, NULL, NULL, '测试', NULL, NULL, 1, '2025-07-18 20:07:08');
-INSERT INTO `stock_record` VALUES (6, 1946051776063545347, 1, 2, 80, 82, NULL, NULL, '测试批量调整', NULL, NULL, 1, '2025-07-18 20:36:05');
-INSERT INTO `stock_record` VALUES (7, 1946051776063545348, 1, 2, 50, 52, NULL, NULL, '测试批量调整', NULL, NULL, 1, '2025-07-18 20:36:05');
-INSERT INTO `stock_record` VALUES (8, 1946051776063545349, 1, 2, 60, 62, NULL, NULL, '测试批量调整', NULL, NULL, 1, '2025-07-18 20:36:05');
-INSERT INTO `stock_record` VALUES (9, 1946051776063545350, 1, 2, 40, 42, NULL, NULL, '测试批量调整', NULL, NULL, 1, '2025-07-18 20:36:05');
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
+  INDEX `idx_update_time`(`update_time` ASC) USING BTREE,
+  INDEX `idx_batch_id`(`batch_id` ASC) USING BTREE,
+  CONSTRAINT `fk_stock_batch` FOREIGN KEY (`batch_id`) REFERENCES `product_batch` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 50 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库存变动记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for supplier
@@ -752,15 +843,7 @@ CREATE TABLE `supplier`  (
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_supplier_name`(`supplier_name` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '供货商表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of supplier
--- ----------------------------
-INSERT INTO `supplier` VALUES (1, '康师傅食品有限公司', '张经理', '400-123-4567', '天津市西青区', NULL, 5, NULL, 3, 1, '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `supplier` VALUES (2, '统一企业有限公司', '李经理', '400-234-5678', '上海市闵行区', NULL, 4, NULL, 5, 1, '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `supplier` VALUES (3, '娃哈哈集团有限公司', '王经理', '400-345-6789', '杭州市上城区', NULL, 5, NULL, 2, 1, '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `supplier` VALUES (4, '蒙牛乳业有限公司', '赵经理', '400-456-7890', '内蒙古呼和浩特市', NULL, 4, NULL, 4, 1, '2025-07-16 15:28:03', '2025-07-16 15:28:03');
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '供货商表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for supplier_evaluation
@@ -782,11 +865,7 @@ CREATE TABLE `supplier_evaluation`  (
   INDEX `idx_supplier_id`(`supplier_id` ASC) USING BTREE,
   INDEX `idx_order_id`(`order_id` ASC) USING BTREE,
   INDEX `idx_overall_score`(`overall_score` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '供货商评价表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of supplier_evaluation
--- ----------------------------
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '供货商评价表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for supplier_product
@@ -806,11 +885,7 @@ CREATE TABLE `supplier_product`  (
   UNIQUE INDEX `uk_supplier_product`(`supplier_id` ASC, `product_id` ASC) USING BTREE,
   INDEX `idx_supplier_id`(`supplier_id` ASC) USING BTREE,
   INDEX `idx_product_id`(`product_id` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '供货商商品关联表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of supplier_product
--- ----------------------------
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '供货商商品关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for sys_config
@@ -825,18 +900,7 @@ CREATE TABLE `sys_config`  (
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_config_key`(`config_key` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统配置表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of sys_config
--- ----------------------------
-INSERT INTO `sys_config` VALUES (1, 'system.name', '个体超市智能管理系统', '系统名称', '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `sys_config` VALUES (2, 'system.version', '1.0.0', '系统版本', '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `sys_config` VALUES (3, 'low.stock.warning', '10', '低库存预警数量', '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `sys_config` VALUES (4, 'high.stock.warning', '1000', '高库存预警数量', '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `sys_config` VALUES (5, 'expire.warning.days', '7', '临期商品预警天数', '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `sys_config` VALUES (6, 'ai.analysis.enabled', 'true', '是否启用AI分析', '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `sys_config` VALUES (7, 'promotion.auto.apply', 'true', '是否自动应用促销活动', '2025-07-16 15:28:03', '2025-07-16 15:28:03');
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统配置表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -852,14 +916,7 @@ CREATE TABLE `sys_role`  (
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_role_code`(`role_code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of sys_role
--- ----------------------------
-INSERT INTO `sys_role` VALUES (1, '超级管理员', 'ADMIN', '系统超级管理员，拥有所有权限', 1, '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `sys_role` VALUES (2, '店长', 'MANAGER', '店长，拥有大部分管理权限', 1, '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `sys_role` VALUES (3, '收银员', 'CASHIER', '收银员，主要负责收银操作', 1, '2025-07-16 15:28:03', '2025-07-16 15:28:03');
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -879,13 +936,7 @@ CREATE TABLE `sys_user`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_username`(`username` ASC) USING BTREE,
   INDEX `idx_phone`(`phone` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1945391279349800963 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of sys_user
--- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'admin', '$2a$10$oiaaejS2HqIxLgQ73h7hyuWN0ihdHtPQJILr/v0gAI2ZNousVbC/e', '系统管理员', NULL, NULL, NULL, 1, '2025-07-16 15:28:03', '2025-07-16 15:28:03');
-INSERT INTO `sys_user` VALUES (1945391279349800962, 'giao', '$2a$10$fOsUjYbeqYa9..lYvZSuVeyYqT5iHP.TkMb5AObaE9LjpplXrH.1a', '咕噜', '15046049913', '1277623709@qq.com', NULL, 1, '2025-07-16 15:53:19', '2025-07-16 15:53:19');
+) ENGINE = InnoDB AUTO_INCREMENT = 1945391279349800963 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -896,15 +947,23 @@ CREATE TABLE `sys_user_role`  (
   `user_id` bigint NOT NULL COMMENT '用户ID',
   `role_id` bigint NOT NULL COMMENT '角色ID',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_user_role`(`user_id` ASC, `role_id` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_role_id`(`role_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户角色关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户角色关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Records of sys_user_role
+-- View structure for v_batch_stock_summary
 -- ----------------------------
-INSERT INTO `sys_user_role` VALUES (1, 1, 1, '2025-07-16 15:28:03');
+DROP VIEW IF EXISTS `v_batch_stock_summary`;
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_batch_stock_summary` AS select `pb`.`id` AS `batch_id`,`pb`.`product_id` AS `product_id`,`p`.`product_name` AS `product_name`,`p`.`barcode` AS `barcode`,`pb`.`batch_code` AS `batch_code`,`pb`.`production_date` AS `production_date`,`pb`.`expiry_date` AS `expiry_date`,`pb`.`available_quantity` AS `available_quantity`,`pb`.`reserved_quantity` AS `reserved_quantity`,`pb`.`sold_quantity` AS `sold_quantity`,`pb`.`status` AS `status`,(to_days(`pb`.`expiry_date`) - to_days(curdate())) AS `remaining_days`,(case when (`pb`.`expiry_date` < curdate()) then '已过期' when ((to_days(`pb`.`expiry_date`) - to_days(curdate())) <= 3) then '即将过期' when ((to_days(`pb`.`expiry_date`) - to_days(curdate())) <= 7) then '临期' else '正常' end) AS `expiry_status` from (`product_batch` `pb` left join `product` `p` on((`pb`.`product_id` = `p`.`id`))) where (`pb`.`status` = 1);
+
+-- ----------------------------
+-- View structure for v_expiring_products
+-- ----------------------------
+DROP VIEW IF EXISTS `v_expiring_products`;
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_expiring_products` AS select `p`.`id` AS `product_id`,`p`.`product_name` AS `product_name`,`p`.`barcode` AS `barcode`,count(`pb`.`id`) AS `batch_count`,sum(`pb`.`available_quantity`) AS `total_quantity`,min(`pb`.`expiry_date`) AS `earliest_expiry`,min((to_days(`pb`.`expiry_date`) - to_days(curdate()))) AS `min_remaining_days` from (`product` `p` join `product_batch` `pb` on((`p`.`id` = `pb`.`product_id`))) where ((`pb`.`status` = 1) and (`pb`.`expiry_date` is not null) and (`pb`.`expiry_date` >= curdate()) and ((to_days(`pb`.`expiry_date`) - to_days(curdate())) <= 7)) group by `p`.`id`,`p`.`product_name`,`p`.`barcode` order by `min_remaining_days`;
 
 SET FOREIGN_KEY_CHECKS = 1;

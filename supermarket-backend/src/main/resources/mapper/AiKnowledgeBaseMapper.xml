@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supermarket.mapper.AiKnowledgeBaseMapper">
+
+    <!-- 根据关键词搜索知识库 -->
+    <select id="searchByKeyword" resultType="com.supermarket.entity.AiKnowledgeBase">
+        SELECT * FROM ai_knowledge_base 
+        WHERE status = 1 
+        AND is_deleted = 0
+        AND (
+            title LIKE CONCAT('%', #{keyword}, '%') 
+            OR content LIKE CONCAT('%', #{keyword}, '%')
+            OR JSON_CONTAINS(keywords, JSON_QUOTE(#{keyword}))
+        )
+        ORDER BY priority DESC, hit_count DESC
+        LIMIT 10
+    </select>
+
+    <!-- 根据意图查询知识库 -->
+    <select id="findByIntent" resultType="com.supermarket.entity.AiKnowledgeBase">
+        SELECT * FROM ai_knowledge_base 
+        WHERE intent = #{intent} 
+        AND status = 1 
+        AND is_deleted = 0
+        ORDER BY priority DESC, hit_count DESC
+    </select>
+
+    <!-- 增加命中次数 -->
+    <update id="incrementHitCount">
+        UPDATE ai_knowledge_base 
+        SET hit_count = hit_count + 1,
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据分类查询知识库 -->
+    <select id="findByCategory" resultType="com.supermarket.entity.AiKnowledgeBase">
+        SELECT * FROM ai_knowledge_base 
+        WHERE category = #{category} 
+        AND status = 1 
+        AND is_deleted = 0
+        ORDER BY priority DESC, hit_count DESC
+    </select>
+
+</mapper>

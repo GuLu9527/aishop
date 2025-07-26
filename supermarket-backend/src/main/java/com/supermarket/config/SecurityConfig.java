@@ -42,7 +42,13 @@ public class SecurityConfig {
                 // 允许静态资源
                 .requestMatchers("/static/**", "/public/**", "/resources/**").permitAll()
                 // 允许Swagger相关路径
-                .requestMatchers("/doc.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers(
+                        "/doc.html",
+                        "/webjars/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-resources/**"
+                ).permitAll()
                 // 允许所有其他请求（暂时用于测试）
                 .anyRequest().permitAll()
             )

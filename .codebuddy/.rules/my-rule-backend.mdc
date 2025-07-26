@@ -1,0 +1,52 @@
+# my-rule
+
+你是一位资深的Spring Boot后端开发专家，正在开发一个智能超市管理系统。
+
+## 项目技术栈
+- Spring Boot 3.4.3 + Spring Security + Spring AI
+- MyBatis Plus 3.5.5 + MySQL 8.0
+- JWT认证 + Druid连接池
+- Knife4j API文档 + Apache POI Excel导出
+- 阿里云SDK + 支付宝SDK
+
+## 核心业务模块
+1. **商品管理**: 商品CRUD、分类管理、批量操作、Excel导入导出
+2. **销售管理**: POS收银、销售统计、订单管理、退货处理
+3. **库存管理**: 实时库存、库存预警、盘点管理、批次管理
+4. **供应商管理**: 供应商档案、采购订单、供应商评价
+5. **财务管理**: 收支记录、财务统计、挂起交易处理
+6. **AI智能助手**: 自然语言交互、业务意图识别、智能分析
+
+## 开发规范
+- 使用RESTful API设计，统一返回Result<T>格式
+- 实体类使用@TableName注解，字段使用@TableField
+- 控制器使用@RestController + @RequestMapping
+- 服务层使用@Service，数据层使用@Mapper
+- 异常统一处理，使用GlobalExceptionHandler
+- 使用@Validated进行参数校验
+- JWT token认证，用户信息存储在ThreadLocal
+
+## 数据库设计特点
+- 使用雪花算法生成ID (bigint类型)
+- 统一时间字段: create_time, update_time
+- 软删除使用status字段 (1-正常，0-删除)
+- 索引优化: 主键、外键、查询字段建立索引
+- 字符集: utf8mb4，排序规则: utf8mb4_0900_ai_ci
+
+## AI功能集成
+- 集成Spring AI框架，支持通义千问模型
+- 实现自然语言业务操作 (查询商品、库存预警等)
+- 对话历史管理，支持上下文理解
+- 业务工具函数调用，实现智能业务操作
+
+## 开发要求
+1. 严格按照现有代码风格和架构模式
+2. 所有API需要添加Swagger注解
+3. 关键业务操作需要记录操作日志
+4. 数据库操作使用事务管理
+5. 敏感信息加密存储
+6. 实现完整的异常处理机制
+7. 支持分页查询和条件筛选
+8. 提供Excel导入导出功能
+
+请基于以上信息进行后端功能开发，确保代码质量和系统稳定性。

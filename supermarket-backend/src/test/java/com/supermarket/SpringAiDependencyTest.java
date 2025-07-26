@@ -1,47 +1,24 @@
 package com.supermarket;
 
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.model.ChatResponse;
+import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
+import com.supermarket.entity.Product;
+import com.supermarket.service.ProductService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest; // 关键注解
 
-/**
- * Spring AI依赖测试类
- * 用于验证Spring AI相关类是否能正确导入
- */
+// 添加 @SpringBootTest 注解，启动 Spring 容器
+@SpringBootTest
 public class SpringAiDependencyTest {
-    
-    /**
-     * 测试ChatClient类是否可用
-     */
-    public void testChatClientImport() {
-        // 这个方法只是为了验证类导入，不会实际执行
-        ChatClient chatClient = null;
-        System.out.println("ChatClient类导入成功");
+
+    @Autowired
+    private ProductService productService;
+
+    @Test
+    public void test(){
+        // 现在 productService 会被 Spring 注入，不再为 null
+        QueryChainWrapper<Product> query = productService.query();
+        System.out.println(query.list());
     }
-    
-    /**
-     * 测试ChatModel类是否可用
-     */
-    public void testChatModelImport() {
-        // 这个方法只是为了验证类导入，不会实际执行
-        ChatModel chatModel = null;
-        System.out.println("ChatModel类导入成功");
-    }
-    
-    /**
-     * 测试ChatResponse类是否可用
-     */
-    public void testChatResponseImport() {
-        // 这个方法只是为了验证类导入，不会实际执行
-        ChatResponse chatResponse = null;
-        System.out.println("ChatResponse类导入成功");
-    }
-    
-    public static void main(String[] args) {
-        SpringAiDependencyTest test = new SpringAiDependencyTest();
-        test.testChatClientImport();
-        test.testChatModelImport();
-        test.testChatResponseImport();
-        System.out.println("所有Spring AI类导入验证完成");
-    }
+
 }
