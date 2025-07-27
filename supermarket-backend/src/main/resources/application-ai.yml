@@ -1,0 +1,21 @@
+# AI服务配置
+spring:
+  ai:
+    alibaba:
+      dashscope:
+        api-key: ${DASHSCOPE_API_KEY:your-key}
+        chat:
+          options:
+            model: qwen-plus
+            temperature: 0.7
+            max-tokens: 2000
+
+# 如果没有配置API Key，可以使用模拟模式
+ai:
+  mock:
+    enabled: ${AI_MOCK_ENABLED:true}
+    responses:
+      - "您好！我是AI客服助手，很高兴为您服务。请问有什么可以帮助您的吗？"
+      - "感谢您的咨询，我会尽力为您解答问题。"
+      - "如果您需要更详细的帮助，我可以为您转接人工客服。"
+      - "根据您的问题，我建议您查看我们的相关政策或联系专业客服。"

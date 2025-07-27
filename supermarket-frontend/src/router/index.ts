@@ -125,19 +125,6 @@ const routes: RouteRecordRaw[] = [
     ]
   },
   {
-    path: '/ai-customer-service',
-    component: () => import('../layouts/MainLayout.vue'),
-    meta: { title: 'AI客服', requiresAuth: true },
-    children: [
-      {
-        path: '',
-        name: 'AiCustomerService',
-        component: () => import('../views/AiCustomerService.vue'),
-        meta: { title: 'AI客服' }
-      }
-    ]
-  },
-  {
     path: '/test-chart',
     component: () => import('../layouts/MainLayout.vue'),
     meta: { title: '图表测试', requiresAuth: true },
@@ -147,19 +134,6 @@ const routes: RouteRecordRaw[] = [
         name: 'TestChart',
         component: () => import('../views/TestChart.vue'),
         meta: { title: '图表测试' }
-      }
-    ]
-  },
-  {
-    path: '/ai-test',
-    component: () => import('../layouts/MainLayout.vue'),
-    meta: { title: 'AI服务测试', requiresAuth: true },
-    children: [
-      {
-        path: '',
-        name: 'AiTest',
-        component: () => import('../views/AiTest.vue'),
-        meta: { title: 'AI服务测试' }
       }
     ]
   }

@@ -112,33 +112,6 @@ CREATE TABLE `ai_intent_config`  (
   INDEX `idx_intent_name`(`intent_name` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI意图配置表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Table structure for ai_knowledge_base
--- ----------------------------
-DROP TABLE IF EXISTS `ai_knowledge_base`;
-CREATE TABLE `ai_knowledge_base`  (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '知识库ID',
-  `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '知识标题',
-  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '知识内容',
-  `category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '知识分类',
-  `keywords` json NULL COMMENT '关键词列表（JSON格式）',
-  `intent` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '关联意图',
-  `priority` int NULL DEFAULT 0 COMMENT '优先级（数字越大优先级越高）',
-  `hit_count` int NULL DEFAULT 0 COMMENT '命中次数',
-  `effectiveness_score` decimal(3, 2) NULL DEFAULT NULL COMMENT '有效性评分（1-5分）',
-  `status` tinyint NULL DEFAULT 1 COMMENT '状态：1-启用，0-禁用',
-  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
-  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-未删除，1-已删除',
-  PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_category`(`category` ASC) USING BTREE,
-  INDEX `idx_intent`(`intent` ASC) USING BTREE,
-  INDEX `idx_status`(`status` ASC) USING BTREE,
-  INDEX `idx_priority`(`priority` ASC) USING BTREE,
-  INDEX `idx_hit_count`(`hit_count` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI知识库表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for ai_message
@@ -199,66 +172,7 @@ CREATE TABLE `ai_operation_log`  (
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI操作日志表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Table structure for ai_service_evaluation
--- ----------------------------
-DROP TABLE IF EXISTS `ai_service_evaluation`;
-CREATE TABLE `ai_service_evaluation`  (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '评价ID',
-  `session_id` bigint NOT NULL COMMENT '会话ID',
-  `customer_id` bigint NOT NULL COMMENT '客户ID',
-  `evaluation_type` tinyint NOT NULL COMMENT '评价类型：1-AI服务评价，2-人工服务评价',
-  `satisfaction_score` decimal(3, 2) NOT NULL COMMENT '满意度评分（1-5分）',
-  `response_speed_score` decimal(3, 2) NULL DEFAULT NULL COMMENT '响应速度评分（1-5分）',
-  `solution_quality_score` decimal(3, 2) NULL DEFAULT NULL COMMENT '解决质量评分（1-5分）',
-  `service_attitude_score` decimal(3, 2) NULL DEFAULT NULL COMMENT '服务态度评分（1-5分）',
-  `feedback_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '反馈内容',
-  `improvement_suggestions` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '改进建议',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-未删除，1-已删除',
-  PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_session_id`(`session_id` ASC) USING BTREE,
-  INDEX `idx_customer_id`(`customer_id` ASC) USING BTREE,
-  INDEX `idx_evaluation_type`(`evaluation_type` ASC) USING BTREE,
-  INDEX `idx_satisfaction_score`(`satisfaction_score` ASC) USING BTREE,
-  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI客服评价表' ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Table structure for ai_service_ticket
--- ----------------------------
-DROP TABLE IF EXISTS `ai_service_ticket`;
-CREATE TABLE `ai_service_ticket`  (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '工单ID',
-  `ticket_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '工单编号',
-  `session_id` bigint NULL DEFAULT NULL COMMENT '关联会话ID',
-  `customer_id` bigint NOT NULL COMMENT '客户ID',
-  `customer_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '客户姓名',
-  `customer_phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户联系方式',
-  `problem_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '问题类型',
-  `problem_title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '问题标题',
-  `problem_description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '问题描述',
-  `priority` tinyint NULL DEFAULT 2 COMMENT '优先级：1-低，2-中，3-高，4-紧急',
-  `status` tinyint NULL DEFAULT 1 COMMENT '工单状态：1-待分配，2-处理中，3-待确认，4-已解决，5-已关闭',
-  `assigned_to` bigint NULL DEFAULT NULL COMMENT '分配给（员工ID）',
-  `assigned_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分配给（员工姓名）',
-  `solution` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '解决方案',
-  `resolved_time` datetime NULL DEFAULT NULL COMMENT '解决时间',
-  `closed_time` datetime NULL DEFAULT NULL COMMENT '关闭时间',
-  `create_by` bigint NULL DEFAULT NULL COMMENT '创建人ID',
-  `update_by` bigint NULL DEFAULT NULL COMMENT '更新人ID',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-未删除，1-已删除',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `uk_ticket_no`(`ticket_no` ASC) USING BTREE,
-  INDEX `idx_session_id`(`session_id` ASC) USING BTREE,
-  INDEX `idx_customer_id`(`customer_id` ASC) USING BTREE,
-  INDEX `idx_status`(`status` ASC) USING BTREE,
-  INDEX `idx_assigned_to`(`assigned_to` ASC) USING BTREE,
-  INDEX `idx_priority`(`priority` ASC) USING BTREE,
-  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'AI客服工单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for batch_operation_record

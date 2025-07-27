@@ -49,6 +49,11 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   (response) => {
+    // 对于AI相关接口，增加调试日志
+    if (response.config.url?.includes('/ai/')) {
+      console.log('AI API响应:', response.config.url, response.data)
+    }
+    
     const { code, message } = response.data
     
     if (code === 200) {

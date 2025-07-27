@@ -1,10 +1,12 @@
 package com.supermarket.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.supermarket.entity.FinanceRecord;
 import com.supermarket.entity.Product;
 import com.supermarket.entity.SaleOrder;
 import com.supermarket.entity.SaleOrderItem;
 import com.supermarket.enums.ActionType;
+import com.supermarket.mapper.FinanceRecordMapper;
 import com.supermarket.mapper.ProductMapper;
 import com.supermarket.mapper.SaleOrderItemMapper;
 import com.supermarket.mapper.SaleOrderMapper;
@@ -32,6 +34,7 @@ public class BusinessToolsServiceImpl implements BusinessToolsService {
     private final ProductMapper productMapper;
     private final SaleOrderMapper saleOrderMapper;
     private final SaleOrderItemMapper saleOrderItemMapper;
+    private final FinanceRecordMapper financeRecordMapper;
     
     @Override
     public Map<String, Object> executeAction(String action, Map<String, Object> params, Long userId) {
@@ -52,6 +55,14 @@ public class BusinessToolsServiceImpl implements BusinessToolsService {
             } else if (ActionType.GET_FINANCIAL_OVERVIEW.getCode().equals(action)) {
                 String timeRangeForFinance = (String) params.get("time_range");
                 return getFinancialOverview(timeRangeForFinance);
+            } else if (ActionType.GENERATE_SALES_REPORT.getCode().equals(action)) {
+                String reportTimeRange = (String) params.get("time_range");
+                String reportType = (String) params.get("report_type");
+                return generateSalesReport(reportTimeRange, reportType);
+            } else if (ActionType.GET_SALES_RANKING.getCode().equals(action)) {
+                String rankingTimeRange = (String) params.get("time_range");
+                Integer limit = (Integer) params.get("limit");
+                return getSalesRanking(rankingTimeRange, limit);
             } else {
                 Map<String, Object> result = new HashMap<>();
                 result.put("success", false);
@@ -351,12 +362,12 @@ public class BusinessToolsServiceImpl implements BusinessToolsService {
         Map<String, Object> result = new HashMap<>();
         
         try {
-            if (limit == null) {
-                limit = 10;
-            }
-            
+            // 计算时间范围
             LocalDateTime startTime = calculateStartTime(timeRange);
             LocalDateTime endTime = LocalDateTime.now();
+            
+            // 设置默认限制
+            int limitCount = limit != null ? limit : 10;
             
             // 查询销售订单
             QueryWrapper<SaleOrder> orderQuery = new QueryWrapper<>();
@@ -366,24 +377,23 @@ public class BusinessToolsServiceImpl implements BusinessToolsService {
             if (orders.isEmpty()) {
                 result.put("success", true);
                 result.put("message", "该时间段内没有销售记录");
-                result.put("ranking", new ArrayList<>());
                 result.put("time_range", timeRange);
+                result.put("ranking", new ArrayList<>());
                 return result;
             }
             
-            // 获取订单ID列表
+            // 获取所有订单项
             List<Long> orderIds = orders.stream().map(SaleOrder::getId).collect(Collectors.toList());
-            
-            // 查询销售明细
             QueryWrapper<SaleOrderItem> itemQuery = new QueryWrapper<>();
             itemQuery.in("order_id", orderIds);
             List<SaleOrderItem> items = saleOrderItemMapper.selectList(itemQuery);
             
-            // 按商品统计销售数据
+            // 按商品统计销量和销售额
             Map<String, Map<String, Object>> productStats = new HashMap<>();
             
             for (SaleOrderItem item : items) {
                 String productName = item.getProductName();
+                
                 productStats.computeIfAbsent(productName, k -> {
                     Map<String, Object> stats = new HashMap<>();
                     stats.put("product_name", productName);
@@ -399,17 +409,50 @@ public class BusinessToolsServiceImpl implements BusinessToolsService {
                 stats.put("order_count", (Integer) stats.get("order_count") + 1);
             }
             
-            // 按销售金额排序
+            // 按销量排序并取前N名
             List<Map<String, Object>> ranking = productStats.values().stream()
-                    .sorted((a, b) -> ((BigDecimal) b.get("total_amount")).compareTo((BigDecimal) a.get("total_amount")))
-                    .limit(limit)
+                    .sorted((a, b) -> Integer.compare((Integer) b.get("total_quantity"), (Integer) a.get("total_quantity")))
+                    .limit(limitCount)
                     .collect(Collectors.toList());
             
+            // 添加排名信息
+            for (int i = 0; i < ranking.size(); i++) {
+                Map<String, Object> product = ranking.get(i);
+                product.put("rank", i + 1);
+                
+                // 计算平均单价
+                BigDecimal totalAmount = (BigDecimal) product.get("total_amount");
+                Integer totalQuantity = (Integer) product.get("total_quantity");
+                BigDecimal avgPrice = totalAmount.divide(new BigDecimal(totalQuantity), 2, RoundingMode.HALF_UP);
+                product.put("avg_price", avgPrice);
+            }
+            
+            // 生成排行榜总结
+            StringBuilder summary = new StringBuilder();
+            summary.append(String.format("📊 %s销售排行榜 (前%d名)\\n\\n", 
+                    getTimeRangeDescription(timeRange), ranking.size()));
+            
+            for (int i = 0; i < Math.min(5, ranking.size()); i++) {
+                Map<String, Object> product = ranking.get(i);
+                summary.append(String.format("%d. %s - 销量: %d件, 销售额: ¥%.2f\\n",
+                        i + 1,
+                        product.get("product_name"),
+                        product.get("total_quantity"),
+                        product.get("total_amount")));
+            }
+            
+            if (ranking.size() > 5) {
+                summary.append(String.format("\\n...还有%d个商品未显示", ranking.size() - 5));
+            }
+            
             result.put("success", true);
-            result.put("message", "获取销售排行成功");
-            result.put("ranking", ranking);
             result.put("time_range", timeRange);
+            result.put("period", String.format("从 %s 到 %s", 
+                    startTime.format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+                    endTime.format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))));
+            result.put("ranking", ranking);
             result.put("total_products", ranking.size());
+            result.put("summary", summary.toString());
             
         } catch (Exception e) {
             log.error("获取销售排行失败", e);
@@ -425,32 +468,94 @@ public class BusinessToolsServiceImpl implements BusinessToolsService {
         Map<String, Object> result = new HashMap<>();
         
         try {
-            // 获取销售数据
-            Map<String, Object> salesData = querySalesData(timeRange, null);
+            // 计算时间范围
+            LocalDateTime startTime = calculateStartTime(timeRange);
+            LocalDateTime endTime = LocalDateTime.now();
             
-            if (!(Boolean) salesData.get("success")) {
-                return salesData;
+            // 1. 计算销售收入和销售成本
+            Map<String, Object> salesFinance = calculateSalesFinance(startTime, endTime);
+            BigDecimal totalRevenue = (BigDecimal) salesFinance.get("total_revenue");
+            BigDecimal totalCost = (BigDecimal) salesFinance.get("total_cost");
+            Integer orderCount = (Integer) salesFinance.get("order_count");
+            Integer totalQuantity = (Integer) salesFinance.get("total_quantity");
+            
+            // 2. 计算毛利润和毛利率
+            BigDecimal grossProfit = totalRevenue.subtract(totalCost);
+            BigDecimal grossMargin = BigDecimal.ZERO;
+            if (totalRevenue.compareTo(BigDecimal.ZERO) > 0) {
+                grossMargin = grossProfit.divide(totalRevenue, 4, RoundingMode.HALF_UP)
+                        .multiply(new BigDecimal("100"));
             }
             
-            BigDecimal totalRevenue = (BigDecimal) salesData.get("total_amount");
-            Integer orderCount = (Integer) salesData.get("order_count");
+            // 3. 获取其他收入和支出（从财务记录表）
+            Map<String, BigDecimal> otherFinance = calculateOtherFinance(startTime, endTime);
+            BigDecimal otherIncome = otherFinance.get("other_income");
+            BigDecimal otherExpense = otherFinance.get("other_expense");
             
-            // 计算平均客单价
+            // 4. 计算净利润
+            BigDecimal netProfit = grossProfit.add(otherIncome).subtract(otherExpense);
+            BigDecimal netMargin = BigDecimal.ZERO;
+            BigDecimal totalIncome = totalRevenue.add(otherIncome);
+            if (totalIncome.compareTo(BigDecimal.ZERO) > 0) {
+                netMargin = netProfit.divide(totalIncome, 4, RoundingMode.HALF_UP)
+                        .multiply(new BigDecimal("100"));
+            }
+            
+            // 5. 计算平均客单价和平均毛利
             BigDecimal avgOrderAmount = BigDecimal.ZERO;
+            BigDecimal avgGrossProfit = BigDecimal.ZERO;
             if (orderCount > 0) {
                 avgOrderAmount = totalRevenue.divide(new BigDecimal(orderCount), 2, RoundingMode.HALF_UP);
+                avgGrossProfit = grossProfit.divide(new BigDecimal(orderCount), 2, RoundingMode.HALF_UP);
             }
             
+            // 6. 构建详细的财务报告
             result.put("success", true);
-            result.put("total_revenue", totalRevenue);
-            result.put("order_count", orderCount);
-            result.put("avg_order_amount", avgOrderAmount);
             result.put("time_range", timeRange);
+            result.put("period", String.format("从 %s 到 %s", 
+                    startTime.format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+                    endTime.format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))));
             
-            // 简单的利润估算（假设毛利率30%）
-            BigDecimal estimatedProfit = totalRevenue.multiply(new BigDecimal("0.3"));
-            result.put("estimated_profit", estimatedProfit);
-            result.put("profit_margin", "30%");
+            // 销售相关
+            result.put("total_revenue", totalRevenue);
+            result.put("total_cost", totalCost);
+            result.put("order_count", orderCount);
+            result.put("total_quantity", totalQuantity);
+            result.put("avg_order_amount", avgOrderAmount);
+            
+            // 利润相关
+            result.put("gross_profit", grossProfit);
+            result.put("gross_margin", grossMargin.setScale(2, RoundingMode.HALF_UP));
+            result.put("avg_gross_profit", avgGrossProfit);
+            
+            // 其他收支
+            result.put("other_income", otherIncome);
+            result.put("other_expense", otherExpense);
+            
+            // 净利润
+            result.put("net_profit", netProfit);
+            result.put("net_margin", netMargin.setScale(2, RoundingMode.HALF_UP));
+            
+            // 生成财务摘要
+            StringBuilder summary = new StringBuilder();
+            summary.append(String.format("💰 %s财务概况\\n\\n", getTimeRangeDescription(timeRange)));
+            summary.append(String.format("📊 销售收入: ¥%.2f\\n", totalRevenue));
+            summary.append(String.format("💸 销售成本: ¥%.2f\\n", totalCost));
+            summary.append(String.format("📈 毛利润: ¥%.2f (%.2f%%)\\n", grossProfit, grossMargin));
+            
+            if (otherIncome.compareTo(BigDecimal.ZERO) > 0) {
+                summary.append(String.format("💎 其他收入: ¥%.2f\\n", otherIncome));
+            }
+            if (otherExpense.compareTo(BigDecimal.ZERO) > 0) {
+                summary.append(String.format("🏢 其他支出: ¥%.2f\\n", otherExpense));
+            }
+            
+            summary.append(String.format("💵 净利润: ¥%.2f (%.2f%%)\\n", netProfit, netMargin));
+            summary.append(String.format("🛒 订单数: %d笔\\n", orderCount));
+            summary.append(String.format("📦 销售数量: %d件\\n", totalQuantity));
+            summary.append(String.format("🎯 平均客单价: ¥%.2f", avgOrderAmount));
+            
+            result.put("summary", summary.toString());
             
         } catch (Exception e) {
             log.error("获取财务概况失败", e);
@@ -483,6 +588,230 @@ public class BusinessToolsServiceImpl implements BusinessToolsService {
                 return now.minusMonths(1).withDayOfMonth(1).toLocalDate().atStartOfDay();
             default:
                 return now.minusDays(1).toLocalDate().atStartOfDay();
+        }
+    }
+    
+    /**
+     * 生成销售报表
+     */
+    private Map<String, Object> generateSalesReport(String timeRange, String reportType) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            // 计算时间范围
+            LocalDateTime startTime = calculateStartTime(timeRange);
+            LocalDateTime endTime = LocalDateTime.now();
+            
+            // 查询销售订单
+            QueryWrapper<SaleOrder> orderQuery = new QueryWrapper<>();
+            orderQuery.between("create_time", startTime, endTime);
+            orderQuery.orderByDesc("create_time");
+            List<SaleOrder> orders = saleOrderMapper.selectList(orderQuery);
+            
+            if (orders.isEmpty()) {
+                result.put("success", true);
+                result.put("message", "该时间段内没有销售记录");
+                result.put("report_type", reportType);
+                result.put("time_range", timeRange);
+                return result;
+            }
+            
+            // 基础统计
+            BigDecimal totalAmount = orders.stream()
+                    .map(SaleOrder::getTotalAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            int totalOrders = orders.size();
+            BigDecimal avgOrderAmount = totalAmount.divide(new BigDecimal(totalOrders), 2, RoundingMode.HALF_UP);
+            
+            // 按报表类型生成不同内容
+            switch (reportType != null ? reportType.toLowerCase() : "summary") {
+                case "detailed":
+                    result.put("orders", orders.stream().limit(10).collect(Collectors.toList())); // 最近10个订单
+                    // 查询订单详情
+                    List<Long> orderIds = orders.stream().map(SaleOrder::getId).collect(Collectors.toList());
+                    QueryWrapper<SaleOrderItem> itemQuery = new QueryWrapper<>();
+                    itemQuery.in("order_id", orderIds);
+                    List<SaleOrderItem> items = saleOrderItemMapper.selectList(itemQuery);
+                    
+                    // 商品销量统计
+                    Map<String, Integer> productSales = items.stream()
+                            .collect(Collectors.groupingBy(
+                                    SaleOrderItem::getProductName,
+                                    Collectors.summingInt(SaleOrderItem::getQuantity)
+                            ));
+                    
+                    result.put("top_products", productSales.entrySet().stream()
+                            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                            .limit(5)
+                            .collect(Collectors.toMap(
+                                    Map.Entry::getKey,
+                                    Map.Entry::getValue,
+                                    (e1, e2) -> e1,
+                                    LinkedHashMap::new
+                            )));
+                    break;
+                    
+                case "trend":
+                    // 按天统计趋势
+                    Map<String, BigDecimal> dailyTrend = orders.stream()
+                            .collect(Collectors.groupingBy(
+                                    order -> order.getCreateTime().toLocalDate().toString(),
+                                    Collectors.reducing(BigDecimal.ZERO, SaleOrder::getTotalAmount, BigDecimal::add)
+                            ));
+                    result.put("daily_trend", dailyTrend);
+                    break;
+                    
+                case "summary":
+                default:
+                    // 默认摘要报表
+                    result.put("summary", Map.of(
+                            "period", "从 " + startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) 
+                                    + " 到 " + endTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                            "total_orders", totalOrders,
+                            "total_amount", totalAmount,
+                            "avg_order_amount", avgOrderAmount,
+                            "growth_trend", totalOrders > 0 ? "正常营业" : "无销售记录"
+                    ));
+                    break;
+            }
+            
+            result.put("success", true);
+            result.put("report_type", reportType);
+            result.put("time_range", timeRange);
+            result.put("total_amount", totalAmount);
+            result.put("total_orders", totalOrders);
+            result.put("avg_order_amount", avgOrderAmount);
+            result.put("generated_at", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            
+        } catch (Exception e) {
+            log.error("生成销售报表失败", e);
+            result.put("success", false);
+            result.put("message", "生成销售报表失败: " + e.getMessage());
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 计算销售财务数据（收入和成本）
+     */
+    private Map<String, Object> calculateSalesFinance(LocalDateTime startTime, LocalDateTime endTime) {
+        Map<String, Object> result = new HashMap<>();
+        
+        // 查询销售订单
+        QueryWrapper<SaleOrder> orderQuery = new QueryWrapper<>();
+        orderQuery.between("create_time", startTime, endTime);
+        List<SaleOrder> orders = saleOrderMapper.selectList(orderQuery);
+        
+        if (orders.isEmpty()) {
+            result.put("total_revenue", BigDecimal.ZERO);
+            result.put("total_cost", BigDecimal.ZERO);
+            result.put("order_count", 0);
+            result.put("total_quantity", 0);
+            return result;
+        }
+        
+        // 计算总收入
+        BigDecimal totalRevenue = orders.stream()
+                .map(SaleOrder::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        // 获取所有订单项
+        List<Long> orderIds = orders.stream().map(SaleOrder::getId).collect(Collectors.toList());
+        QueryWrapper<SaleOrderItem> itemQuery = new QueryWrapper<>();
+        itemQuery.in("order_id", orderIds);
+        List<SaleOrderItem> items = saleOrderItemMapper.selectList(itemQuery);
+        
+        // 计算总成本和总数量
+        BigDecimal totalCost = BigDecimal.ZERO;
+        int totalQuantity = 0;
+        
+        for (SaleOrderItem item : items) {
+            totalQuantity += item.getQuantity();
+            
+            // 查找商品的进货价
+            QueryWrapper<Product> productQuery = new QueryWrapper<>();
+            productQuery.eq("id", item.getProductId());
+            Product product = productMapper.selectOne(productQuery);
+            
+            if (product != null && product.getPurchasePrice() != null) {
+                // 使用实际进货价计算成本
+                BigDecimal itemCost = product.getPurchasePrice()
+                        .multiply(new BigDecimal(item.getQuantity()));
+                totalCost = totalCost.add(itemCost);
+            } else {
+                // 如果没有进货价，使用销售价的70%作为估算成本
+                BigDecimal estimatedCost = item.getSellingPrice()
+                        .multiply(new BigDecimal("0.7"))
+                        .multiply(new BigDecimal(item.getQuantity()));
+                totalCost = totalCost.add(estimatedCost);
+            }
+        }
+        
+        result.put("total_revenue", totalRevenue);
+        result.put("total_cost", totalCost);
+        result.put("order_count", orders.size());
+        result.put("total_quantity", totalQuantity);
+        
+        return result;
+    }
+    
+    /**
+     * 计算其他收入和支出（从财务记录表）
+     */
+    private Map<String, BigDecimal> calculateOtherFinance(LocalDateTime startTime, LocalDateTime endTime) {
+        Map<String, BigDecimal> result = new HashMap<>();
+        
+        // 查询其他收入（record_type=1 且 business_type不是销售收入）
+        QueryWrapper<FinanceRecord> incomeQuery = new QueryWrapper<>();
+        incomeQuery.eq("record_type", 1) // 收入类型
+                .ne("business_type", 1) // 不是销售收入
+                .between("record_date", startTime, endTime);
+        List<FinanceRecord> incomeRecords = financeRecordMapper.selectList(incomeQuery);
+        
+        BigDecimal otherIncome = incomeRecords.stream()
+                .map(FinanceRecord::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        // 查询其他支出（record_type=2 且 business_type不是采购支出）
+        QueryWrapper<FinanceRecord> expenseQuery = new QueryWrapper<>();
+        expenseQuery.eq("record_type", 2) // 支出类型
+                .ne("business_type", 2) // 不是采购支出
+                .between("record_date", startTime, endTime);
+        List<FinanceRecord> expenseRecords = financeRecordMapper.selectList(expenseQuery);
+        
+        BigDecimal otherExpense = expenseRecords.stream()
+                .map(FinanceRecord::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        result.put("other_income", otherIncome);
+        result.put("other_expense", otherExpense);
+        
+        return result;
+    }
+    
+    /**
+     * 获取时间范围描述
+     */
+    private String getTimeRangeDescription(String timeRange) {
+        if (timeRange == null) return "最近";
+        
+        switch (timeRange.toLowerCase()) {
+            case "today":
+                return "今日";
+            case "yesterday":
+                return "昨日";
+            case "this_week":
+                return "本周";
+            case "this_month":
+                return "本月";
+            case "last_week":
+                return "上周";
+            case "last_month":
+                return "上月";
+            default:
+                return "最近";
         }
     }
 }

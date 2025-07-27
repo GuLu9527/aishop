@@ -44,6 +44,11 @@ public enum IntentType {
     GENERATE_REPORT("GENERATE_REPORT", "生成报表"),
     
     /**
+     * 销售排行查询
+     */
+    QUERY_SALES_RANKING("QUERY_SALES_RANKING", "销售排行查询"),
+    
+    /**
      * 普通聊天
      */
     CHAT("CHAT", "普通聊天");

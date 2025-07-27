@@ -3,7 +3,6 @@ package com.supermarket.controller;
 import com.supermarket.common.Result;
 import com.supermarket.dto.AiChatRequest;
 import com.supermarket.dto.AiChatResponse;
-import com.supermarket.repository.ChatHistoryRepository;
 import com.supermarket.service.AiChatService;
 import com.supermarket.service.impl.TongyiAiServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;

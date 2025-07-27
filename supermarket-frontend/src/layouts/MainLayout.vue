@@ -56,16 +56,6 @@
           <el-icon><ChatDotRound /></el-icon>
           <template #title>AI智能助手</template>
         </el-menu-item>
-
-        <el-menu-item index="/ai-customer-service">
-          <el-icon><Service /></el-icon>
-          <template #title>AI客服</template>
-        </el-menu-item>
-
-        <el-menu-item index="/ai-test">
-          <el-icon><Setting /></el-icon>
-          <template #title>AI服务测试</template>
-        </el-menu-item>
       </el-menu>
     </div>
 

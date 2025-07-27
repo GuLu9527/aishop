@@ -4,6 +4,7 @@ import com.supermarket.dto.AiChatRequest;
 import com.supermarket.dto.AiChatResponse;
 import com.supermarket.entity.AiConversation;
 import com.supermarket.entity.AiMessage;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -18,6 +19,13 @@ public interface AiChatService {
      * @return AI回复
      */
     AiChatResponse chat(AiChatRequest request);
+    
+    /**
+     * 流式处理用户消息并返回AI回复流
+     * @param request 聊天请求
+     * @return AI回复流
+     */
+    Flux<String> chatStream(AiChatRequest request);
     
     /**
      * 创建新的对话会话

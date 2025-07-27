@@ -24,7 +24,7 @@ public class AiIntentServiceImpl implements AiIntentService {
     static {
         // 销售查询相关
         INTENT_KEYWORDS.put(IntentType.QUERY_SALES.getCode(), new String[]{
-            "销售", "卖", "营业额", "收入", "赚", "钱", "生意", "业绩", "流水"
+            "销售", "卖", "营业额", "收入", "赚", "钱", "生意", "业绩", "流水", "今天", "昨天", "本周", "本月", "情况", "怎么样"
         });
         
         // 库存查询相关
@@ -52,7 +52,12 @@ public class AiIntentServiceImpl implements AiIntentService {
         
         // 报表相关
         INTENT_KEYWORDS.put(IntentType.GENERATE_REPORT.getCode(), new String[]{
-            "报表", "统计", "分析", "总结", "汇总"
+            "报表", "统计", "分析", "总结", "汇总", "报告", "图表", "数据", "趋势"
+        });
+        
+        // 销售排行相关
+        INTENT_KEYWORDS.put(IntentType.QUERY_SALES_RANKING.getCode(), new String[]{
+            "排行", "排名", "热销", "畅销", "卖得好", "卖的好", "最受欢迎", "销量", "哪个", "哪些", "什么商品", "top", "前几名"
         });
     }
     
@@ -120,6 +125,8 @@ public class AiIntentServiceImpl implements AiIntentService {
             extractProductEntities(userInput, entities);
         } else if (IntentType.UPDATE_PRICE.getCode().equals(intent)) {
             extractPriceEntities(userInput, entities);
+        } else if (IntentType.QUERY_SALES_RANKING.getCode().equals(intent)) {
+            extractRankingEntities(userInput, entities);
         } else {
             // 通用实体提取
             extractCommonEntities(userInput, entities);
@@ -261,5 +268,39 @@ public class AiIntentServiceImpl implements AiIntentService {
         // 基于匹配关键词数量计算置信度
         double confidence = Math.min(0.9, 0.3 + (matchCount * 0.2));
         return confidence;
+    }
+    
+    private void extractRankingEntities(String userInput, Map<String, Object> entities) {
+        // 提取时间范围
+        if (userInput.contains("今天") || userInput.contains("今日")) {
+            entities.put("time_range", "today");
+        } else if (userInput.contains("昨天")) {
+            entities.put("time_range", "yesterday");
+        } else if (userInput.contains("本周") || userInput.contains("这周")) {
+            entities.put("time_range", "this_week");
+        } else if (userInput.contains("本月") || userInput.contains("这个月")) {
+            entities.put("time_range", "this_month");
+        } else if (userInput.contains("最近")) {
+            entities.put("time_range", "this_week"); // 默认最近为本周
+        }
+        
+        // 提取数量限制
+        Pattern numberPattern = Pattern.compile("前(\\d+)名|top\\s*(\\d+)|(\\d+)个");
+        Matcher matcher = numberPattern.matcher(userInput.toLowerCase());
+        if (matcher.find()) {
+            String limitStr = matcher.group(1) != null ? matcher.group(1) : 
+                            matcher.group(2) != null ? matcher.group(2) : matcher.group(3);
+            try {
+                int limit = Integer.parseInt(limitStr);
+                entities.put("limit", Math.min(limit, 20)); // 最大20个
+            } catch (NumberFormatException e) {
+                entities.put("limit", 10); // 默认10个
+            }
+        } else {
+            entities.put("limit", 10); // 默认显示前10名
+        }
+        
+        // 标记这是排行查询
+        entities.put("query_type", "ranking");
     }
 }

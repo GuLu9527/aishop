@@ -5,14 +5,19 @@ import com.supermarket.dto.AiChatResponse;
 import com.supermarket.entity.AiConversation;
 import com.supermarket.entity.AiMessage;
 import com.supermarket.service.AiChatService;
+import com.supermarket.service.impl.TongyiAiServiceImpl;
 import com.supermarket.common.Result;
 import com.supermarket.enums.ActionType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +32,7 @@ import java.util.Map;
 public class AiChatController {
     
     private final AiChatService aiChatService;
+    private final TongyiAiServiceImpl tongyiAiService;
     
     @PostMapping("/chat")
     @Operation(summary = "发送聊天消息", description = "用户发送消息并获取AI回复，需传入userId和消息内容")
@@ -156,5 +162,76 @@ public class AiChatController {
             log.error("获取快捷操作失败", e);
             return Result.error("获取快捷操作失败");
         }
+    }
+    
+    @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(summary = "流式聊天", description = "发送消息并获取流式AI回复")
+    public SseEmitter chatStream(@RequestBody AiChatRequest request) {
+        log.info("收到流式AI聊天请求: {}", request);
+        
+        SseEmitter emitter = new SseEmitter(60000L); // 增加超时时间到60秒
+        
+        try {
+            // 参数验证
+            if (request.getMessage() == null || request.getMessage().trim().isEmpty()) {
+                emitter.send(SseEmitter.event()
+                    .name("error")
+                    .data("消息内容不能为空"));
+                emitter.complete();
+                return emitter;
+            }
+            
+            if (request.getUserId() == null) {
+                emitter.send(SseEmitter.event()
+                    .name("error")
+                    .data("用户ID不能为空"));
+                emitter.complete();
+                return emitter;
+            }
+            
+            // 使用完整的AI聊天服务（包含上下文记忆和工具调用）
+            Flux<String> stream = aiChatService.chatStream(request);
+            
+            stream.subscribe(
+                chunk -> {
+                    try {
+                        emitter.send(SseEmitter.event()
+                            .name("message")
+                            .data(chunk));
+                    } catch (IOException e) {
+                        log.error("发送流式数据失败", e);
+                        emitter.completeWithError(e);
+                    }
+                },
+                error -> {
+                    log.error("流式聊天处理失败", error);
+                    try {
+                        emitter.send(SseEmitter.event()
+                            .name("error")
+                            .data("AI服务暂时不可用，请稍后重试"));
+                    } catch (IOException e) {
+                        log.error("发送错误消息失败", e);
+                    }
+                    emitter.complete();
+                },
+                () -> {
+                    log.debug("流式聊天完成");
+                    emitter.complete();
+                }
+            );
+            
+        } catch (Exception e) {
+            log.error("启动流式聊天失败", e);
+            try {
+                emitter.send(SseEmitter.event()
+                    .name("error")
+                    .data("启动聊天服务失败"));
+            } catch (IOException ioException) {
+                log.error("发送启动错误消息失败", ioException);
+            }
+            emitter.complete();
+        }
+        
+        return emitter;
     }
 }

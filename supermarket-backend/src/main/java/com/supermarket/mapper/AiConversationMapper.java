@@ -45,14 +45,6 @@ public interface AiConversationMapper extends BaseMapper<AiConversation> {
     @Select("SELECT * FROM ai_conversation WHERE session_id = #{sessionId}")
     AiConversation selectBySessionId(@Param("sessionId") String sessionId);
 
-    /**
-     * 根据会话标识查询会话
-     *
-     * @param conversationKey 会话标识
-     * @return 会话信息
-     */
-    @Select("SELECT * FROM ai_conversation WHERE conversation_key = #{conversationKey}")
-    AiConversation selectByConversationKey(@Param("conversationKey") String conversationKey);
 
     /**
      * 查询用户活跃会话
@@ -60,6 +52,6 @@ public interface AiConversationMapper extends BaseMapper<AiConversation> {
      * @param userId 用户ID
      * @return 活跃会话列表
      */
-    @Select("SELECT * FROM ai_conversation WHERE user_id = #{userId} AND status = 'ACTIVE' ORDER BY update_time DESC")
+    @Select("SELECT * FROM ai_conversation WHERE user_id = #{userId} AND status = 1 ORDER BY update_time DESC")
     List<AiConversation> selectActiveByUserId(@Param("userId") Long userId);
 }

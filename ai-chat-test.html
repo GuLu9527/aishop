@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI客服功能完整测试</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, #67C23A 0%, #85CE61 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .test-content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e4e7ed;
+        }
+        
+        .test-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .test-title i {
+            color: #67C23A;
+        }
+        
+        .test-item {
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e4e7ed;
+        }
+        
+        .test-item h4 {
+            color: #606266;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .test-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        
+        .test-btn {
+            background: #67C23A;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        
+        .test-btn:hover {
+            background: #85CE61;
+        }
+        
+        .test-btn.danger {
+            background: #F56C6C;
+        }
+        
+        .test-btn.danger:hover {
+            background: #F78989;
+        }
+        
+        .test-result {
+            background: #f8f9fa;
+            border: 1px solid #e4e7ed;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 11px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .status-success {
+            color: #67C23A;
+        }
+        
+        .status-error {
+            color: #F56C6C;
+        }
+        
+        .quick-tests {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .quick-test-btn {
+            background: #409EFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: left;
+        }
+        
+        .quick-test-btn:hover {
+            background: #79bbff;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .stream-output {
+            background: #000;
+            color: #00ff00;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1><i class="fas fa-cogs"></i> AI客服系统完整功能测试</h1>
+            <p>测试删除记录、销售分析、工具调用等所有功能</p>
+        </div>
+        
+        <div class="test-content">
+            <!-- 左侧：API基础测试 -->
+            <div class="test-section">
+                <div class="test-title">
+                    <i class="fas fa-plug"></i>
+                    API基础功能测试
+                </div>
+                
+                <div class="test-item">
+                    <h4>1. 连接测试</h4>
+                    <button class="test-btn" onclick="testConnection()">测试后端连接</button>
+                    <div id="connection-result" class="test-result" style="display: none;"></div>
+                </div>
+                
+                <div class="test-item">
+                    <h4>2. 会话管理测试</h4>
+                    <button class="test-btn" onclick="testGetConversations()">获取会话列表</button>
+                    <button class="test-btn" onclick="testCreateConversation()">创建新会话</button>
+                    <button class="test-btn danger" onclick="testDeleteConversation()">删除会话</button>
+                    <div id="conversation-result" class="test-result" style="display: none;"></div>
+                </div>
+                
+                <div class="test-item">
+                    <h4>3. 消息历史测试</h4>
+                    <button class="test-btn" onclick="testGetHistory()">获取聊天历史</button>
+                    <button class="test-btn danger" onclick="testClearAllHistory()">清空所有历史</button>
+                    <div id="history-result" class="test-result" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <!-- 右侧：业务功能测试 -->
+            <div class="test-section">
+                <div class="test-title">
+                    <i class="fas fa-tools"></i>
+                    业务工具功能测试
+                </div>
+                
+                <div class="test-item">
+                    <h4>4. 销售数据查询</h4>
+                    <div class="quick-tests">
+                        <button class="quick-test-btn" onclick="testSalesQuery('今天的销售情况怎么样？')">今日销售</button>
+                        <button class="quick-test-btn" onclick="testSalesQuery('昨天卖了多少钱？')">昨日销售</button>
+                        <button class="quick-test-btn" onclick="testSalesQuery('本周的营业额')">本周营业额</button>
+                        <button class="quick-test-btn" onclick="testSalesQuery('本月业绩统计')">本月业绩</button>
+                    </div>
+                    <div id="sales-result" class="test-result" style="display: none;"></div>
+                </div>
+                
+                <div class="test-item">
+                    <h4>5. 库存管理测试</h4>
+                    <div class="quick-tests">
+                        <button class="quick-test-btn" onclick="testInventoryQuery('检查当前库存状况')">库存状况</button>
+                        <button class="quick-test-btn" onclick="testInventoryQuery('哪些商品需要补货？')">补货提醒</button>
+                    </div>
+                    <div id="inventory-result" class="test-result" style="display: none;"></div>
+                </div>
+                
+                <div class="test-item">
+                    <h4>6. 财务分析测试</h4>
+                    <div class="quick-tests">
+                        <button class="quick-test-btn" onclick="testFinanceQuery('显示本月财务报表')">财务报表</button>
+                        <button class="quick-test-btn" onclick="testFinanceQuery('利润分析报告')">利润分析</button>
+                    </div>
+                    <div id="finance-result" class="test-result" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <!-- 流式聊天测试 -->
+            <div class="test-section full-width">
+                <div class="test-title">
+                    <i class="fas fa-comments"></i>
+                    流式聊天完整测试
+                </div>
+                
+                <div class="test-item">
+                    <h4>实时对话测试</h4>
+                    <input type="text" id="chat-input" class="test-input" placeholder="输入您的问题..." />
+                    <button class="test-btn" onclick="testStreamChat()">发送消息</button>
+                    <button class="test-btn danger" onclick="clearStreamOutput()">清空输出</button>
+                    <div id="stream-output" class="stream-output"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const BASE_URL = 'http://localhost:8080';
+        const TEST_USER_ID = 1;
+        let currentConversationId = null;
+        
+        // 显示结果的辅助函数
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+            element.style.color = isError ? '#F56C6C' : '#303133';
+        }
+        
+        // 1. 连接测试
+        async function testConnection() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/ai/suggestions?userId=${TEST_USER_ID}`);
+                const data = await response.json();
+                showResult('connection-result', `✅ 连接成功！\\n${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                showResult('connection-result', `❌ 连接失败：${error.message}`, true);
+            }
+        }
+        
+        // 2. 获取会话列表
+        async function testGetConversations() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/ai/conversations?userId=${TEST_USER_ID}`);
+                const data = await response.json();
+                
+                if (data.code === 200 && data.data && data.data.length > 0) {
+                    currentConversationId = data.data[0].sessionId || data.data[0].id;
+                    showResult('conversation-result', `✅ 获取会话成功！\\n当前会话ID: ${currentConversationId}\\n会话数量: ${data.data.length}\\n\\n${JSON.stringify(data, null, 2)}`);
+                } else {
+                    showResult('conversation-result', `⚠️ 暂无会话记录\\n${JSON.stringify(data, null, 2)}`);
+                }
+            } catch (error) {
+                showResult('conversation-result', `❌ 获取会话失败：${error.message}`, true);
+            }
+        }
+        
+        // 3. 创建新会话
+        async function testCreateConversation() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/ai/conversation?userId=${TEST_USER_ID}&title=测试会话`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                showResult('conversation-result', `✅ 创建会话成功！\\n${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                showResult('conversation-result', `❌ 创建会话失败：${error.message}`, true);
+            }
+        }
+        
+        // 4. 删除会话
+        async function testDeleteConversation() {
+            if (!currentConversationId) {
+                showResult('conversation-result', '❌ 请先获取会话列表以获得会话ID', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/ai/conversation/${currentConversationId}?userId=${TEST_USER_ID}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                showResult('conversation-result', `✅ 删除会话成功！\\n${JSON.stringify(data, null, 2)}`);
+                currentConversationId = null;
+            } catch (error) {
+                showResult('conversation-result', `❌ 删除会话失败：${error.message}`, true);
+            }
+        }
+        
+        // 5. 获取聊天历史
+        async function testGetHistory() {
+            if (!currentConversationId) {
+                await testGetConversations();
+                if (!currentConversationId) {
+                    showResult('history-result', '❌ 无可用会话', true);
+                    return;
+                }
+            }
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/ai/conversation/${currentConversationId}/history?userId=${TEST_USER_ID}&limit=10`);
+                const data = await response.json();
+                showResult('history-result', `✅ 获取历史成功！\\n${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                showResult('history-result', `❌ 获取历史失败：${error.message}`, true);
+            }
+        }
+        
+        // 6. 清空所有历史
+        async function testClearAllHistory() {
+            showResult('history-result', '⚠️ 此功能需要在前端页面中测试，这里仅模拟API调用');
+        }
+        
+        // 7. 销售查询测试
+        async function testSalesQuery(message) {
+            await testStreamChatInternal(message, 'sales-result');
+        }
+        
+        // 8. 库存查询测试
+        async function testInventoryQuery(message) {
+            await testStreamChatInternal(message, 'inventory-result');
+        }
+        
+        // 9. 财务查询测试
+        async function testFinanceQuery(message) {
+            await testStreamChatInternal(message, 'finance-result');
+        }
+        
+        // 10. 流式聊天测试
+        async function testStreamChat() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) {
+                alert('请输入消息');
+                return;
+            }
+            
+            input.value = '';
+            await testStreamChatInternal(message, 'stream-output', true);
+        }
+        
+        // 流式聊天内部实现
+        async function testStreamChatInternal(message, outputElementId, isStreamConsole = false) {
+            const outputElement = document.getElementById(outputElementId);
+            
+            if (isStreamConsole) {
+                outputElement.textContent = `[${new Date().toLocaleTimeString()}] 用户: ${message}\\n`;
+                outputElement.textContent += `[${new Date().toLocaleTimeString()}] 正在处理...\\n`;
+            } else {
+                outputElement.style.display = 'block';
+                outputElement.textContent = '正在处理...';
+            }
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/ai/chat/stream`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'text/event-stream'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        userId: TEST_USER_ID,
+                        userName: '测试用户',
+                        messageType: 1
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let fullResponse = '';
+                
+                if (isStreamConsole) {
+                    outputElement.textContent += `[${new Date().toLocaleTimeString()}] AI助手: `;
+                }
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\\n');
+                    buffer = lines.pop() || '';
+                    
+                    for (const line of lines) {
+                        const trimmedLine = line.trim();
+                        if (trimmedLine.startsWith('data:')) {
+                            const data = trimmedLine.slice(5).trim();
+                            if (data === '[DONE]') {
+                                if (isStreamConsole) {
+                                    outputElement.textContent += `\\n[${new Date().toLocaleTimeString()}] 对话完成\\n\\n`;
+                                }
+                                return;
+                            }
+                            fullResponse += data;
+                            if (isStreamConsole) {
+                                outputElement.textContent += data;
+                                outputElement.scrollTop = outputElement.scrollHeight;
+                            }
+                        }
+                    }
+                }
+                
+                if (!isStreamConsole) {
+                    showResult(outputElementId, `✅ 流式回复完成！\\n完整回复: ${fullResponse}`);
+                }
+                
+            } catch (error) {
+                const errorMsg = `❌ 流式聊天失败：${error.message}`;
+                if (isStreamConsole) {
+                    outputElement.textContent += `\\n[${new Date().toLocaleTimeString()}] ${errorMsg}\\n\\n`;
+                } else {
+                    showResult(outputElementId, errorMsg, true);
+                }
+            }
+        }
+        
+        // 清空流式输出
+        function clearStreamOutput() {
+            document.getElementById('stream-output').textContent = '';
+        }
+        
+        // 页面加载时自动测试连接
+        window.onload = function() {
+            testConnection();
+        };
+        
+        // 支持回车发送消息
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testStreamChat();
+            }
+        });
+    </script>
+</body>
+</html>

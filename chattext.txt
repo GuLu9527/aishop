@@ -1,0 +1,162 @@
+event:message
+data:哎
+
+event:message
+data:呀，
+
+event:message
+data:亲爱的
+
+event:message
+data:顾客，我是
+
+event:message
+data:鲜享生活的客服小鲜
+
+event:message
+data:，来跟你分享
+
+event:message
+data:今天的销售小秘密
+
+event:message
+data:啦~
+data:
+data:不过呀
+
+event:message
+data:，我得先知道
+
+event:message
+data:你喜欢买些什么类型的东
+
+event:message
+data:东，是生鲜、零食
+
+event:message
+data:还是日用品呢
+
+event:message
+data:？这样我才能给你推荐
+
+event:message
+data:今天最抢手的好宝贝
+
+event:message
+data:呀！
+data:
+data:今天我们的
+
+event:message
+data:生鲜区可热闹啦
+
+event:message
+data:，三文鱼排
+
+event:message
+data:和菠萝蜜都
+
+event:message
+data:超级受欢迎呢！零食
+
+event:message
+data:区也上新了好多
+
+event:message
+data:网红小零食，
+
+event:message
+data:大家都在抢购哦
+
+event:message
+data:！
+data:
+data:要不我
+
+event:message
+data:给你列个今日
+
+event:message
+data:热销榜单？
+data:
+data:|
+
+event:message
+data: 商品名称 | 规格
+
+event:message
+data: | 库存状态 |
+data:
+
+event:message
+data:|----------|------|----------
+
+event:message
+data:|
+data:| 三文鱼
+
+event:message
+data:排 | 500
+
+event:message
+data:g/盒 | 库
+
+event:message
+data:存充足 |
+data:|
+
+event:message
+data: 菠萝蜜 | 
+
+event:message
+data:1.5kg/袋
+
+event:message
+data: | 库存紧张 |
+data:
+
+event:message
+data:| 鲜牛奶
+
+event:message
+data: | 250ml
+
+event:message
+data:×24盒 |
+
+event:message
+data: 库存充足 |
+data:|
+
+event:message
+data: 网红海盐薯
+
+event:message
+data:片 | 150
+
+event:message
+data:g/包 | 库
+
+event:message
+data:存充足 |
+data:
+data:看到
+
+event:message
+data:心动的宝贝了吗？告诉我
+
+event:message
+data:你想了解哪个商品，我可以
+
+event:message
+data:给你详细介绍哦！
+
+event:message
+data:要是有想买的
+
+event:message
+data:，我还可以帮你预约
+
+event:message
+data:配送呢~
+

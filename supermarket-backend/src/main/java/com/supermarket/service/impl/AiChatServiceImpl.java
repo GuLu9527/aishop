@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.UUID;
+import reactor.core.publisher.Flux;
 
 /**
  * AI聊天服务实现类
@@ -65,8 +67,11 @@ public class AiChatServiceImpl implements AiChatService {
             Map<String, Object> actionResult = null;
             String action = null;
             if (intent != null && !IntentType.CHAT.getCode().equals(intent)) {
-                action = intent;
-                actionResult = businessToolsService.executeAction(intent, entities, request.getUserId());
+                // 将意图映射到具体的操作
+                action = mapIntentToAction(intent);
+                if (action != null) {
+                    actionResult = businessToolsService.executeAction(action, entities, request.getUserId());
+                }
             }
             
             // 5. 生成AI回复
@@ -176,9 +181,9 @@ public class AiChatServiceImpl implements AiChatService {
         // 构建提示词
         String promptText = buildPrompt(userMessage, intent, entities, actionResult);
         
-        // 使用自定义的通义千问服务
+        // 使用通义千问服务
         try {
-            if (!tongyiAiService.isConfigured()) {
+            if (!tongyiAiService.isAvailable()) {
                 return AiChatConstants.AI_SERVICE_NOT_CONFIGURED;
             }
             
@@ -286,7 +291,10 @@ public class AiChatServiceImpl implements AiChatService {
         if (limit == null) {
             limit = 50;
         }
-        return messageMapper.selectBySessionId(sessionId, limit);
+        List<AiMessage> messages = messageMapper.selectBySessionId(sessionId, limit);
+        // 反转列表以按时间正序返回（最早的在前）
+        Collections.reverse(messages);
+        return messages;
     }
     
     @Override
@@ -318,6 +326,173 @@ public class AiChatServiceImpl implements AiChatService {
             
             // 同时删除相关消息
             messageMapper.deleteBySessionId(sessionId);
+        }
+    }
+    
+    @Override
+    @Transactional
+    public Flux<String> chatStream(AiChatRequest request) {
+        return Flux.create(sink -> {
+            try {
+                // 1. 获取或创建会话
+                final AiConversation conversation = getOrCreateConversation(request);
+                
+                // 2. 保存用户消息
+                final AiMessage userMessage = saveUserMessage(conversation, request);
+                
+                // 3. 意图识别和实体提取
+                Map<String, Object> intentResult = intentService.parseIntent(request.getMessage());
+                final String intent = (String) intentResult.get("intent");
+                final Map<String, Object> entities;
+                Object entitiesObj = intentResult.get("entities");
+                if (entitiesObj instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> entitiesMap = (Map<String, Object>) entitiesObj;
+                    entities = entitiesMap;
+                } else {
+                    entities = new HashMap<>();
+                }
+                
+                // 4. 执行业务操作
+                final Map<String, Object> actionResult;
+                final String action;
+                if (intent != null && !IntentType.CHAT.getCode().equals(intent)) {
+                    // 将意图映射到具体的操作
+                    action = mapIntentToAction(intent);
+                    if (action != null) {
+                        actionResult = businessToolsService.executeAction(action, entities, request.getUserId());
+                    } else {
+                        actionResult = null;
+                    }
+                } else {
+                    action = null;
+                    actionResult = null;
+                }
+                
+                // 5. 构建提示词（包含上下文）
+                String promptText = buildPromptWithContext(request.getMessage(), intent, entities, actionResult, conversation.getSessionId());
+                
+                // 6. 获取流式AI回复
+                if (!tongyiAiService.isAvailable()) {
+                    sink.next("抱歉，AI服务暂时不可用，请稍后重试。");
+                    sink.complete();
+                    return;
+                }
+                
+                // 用于存储完整的AI回复
+                final StringBuilder fullResponse = new StringBuilder();
+                
+                tongyiAiService.chatStream(promptText).subscribe(
+                    chunk -> {
+                        fullResponse.append(chunk);
+                        sink.next(chunk);
+                    },
+                    error -> {
+                        log.error("流式AI服务调用失败", error);
+                        if (fullResponse.length() == 0) {
+                            sink.next("抱歉，AI服务出现异常，请稍后重试。");
+                        }
+                        sink.error(error);
+                    },
+                    () -> {
+                        try {
+                            // 7. 保存AI回复到数据库
+                            saveAiMessage(conversation, fullResponse.toString(), intent, entities, action, actionResult);
+                            
+                            // 8. 更新会话信息
+                            updateConversation(conversation);
+                            
+                            sink.complete();
+                        } catch (Exception e) {
+                            log.error("保存AI消息失败", e);
+                            sink.error(e);
+                        }
+                    }
+                );
+                
+            } catch (Exception e) {
+                log.error("流式聊天处理失败", e);
+                sink.next("抱歉，处理您的请求时出现异常，请稍后重试。");
+                sink.error(e);
+            }
+        });
+    }
+    
+    private String buildPromptWithContext(String userMessage, String intent, Map<String, Object> entities, 
+                                        Map<String, Object> actionResult, String sessionId) {
+        StringBuilder prompt = new StringBuilder();
+        
+        // 获取历史对话上下文
+        List<AiMessage> recentMessages = messageMapper.selectBySessionId(sessionId, 10);
+        
+        prompt.append("你是一个超市管理系统的AI助手，请用友好、专业的语气回复用户。\n\n");
+        
+        // 添加历史对话上下文
+        if (!recentMessages.isEmpty()) {
+            prompt.append("对话历史：\n");
+            // 由于查询结果是倒序的，需要反转列表以按时间正序显示
+            Collections.reverse(recentMessages);
+            for (AiMessage msg : recentMessages) {
+                if (msg.getMessageType() == MessageType.USER.getCode()) {
+                    prompt.append("用户：").append(msg.getContent()).append("\n");
+                } else if (msg.getMessageType() == MessageType.AI.getCode()) {
+                    prompt.append("助手：").append(msg.getContent()).append("\n");
+                }
+            }
+            prompt.append("\n");
+        }
+        
+        prompt.append("当前用户消息：").append(userMessage).append("\n");
+        
+        if (intent != null) {
+            prompt.append("识别意图：").append(intent).append("\n");
+        }
+        
+        if (entities != null && !entities.isEmpty()) {
+            prompt.append("提取实体：").append(entities).append("\n");
+        }
+        
+        if (actionResult != null) {
+            prompt.append("工具调用结果：").append(actionResult).append("\n");
+        }
+        
+        prompt.append("\n请基于以上信息和对话历史生成合适的回复，要求：\n");
+        prompt.append("1. 考虑对话上下文，保持对话连贯性\n");
+        prompt.append("2. 语言通俗易懂，适合超市老板理解\n");
+        prompt.append("3. 如果有工具调用结果，要清晰地说明结果\n");
+        prompt.append("4. 如果操作失败，要给出建议\n");
+        prompt.append("5. 保持友好和专业的语气\n");
+        prompt.append("6. 回复长度控制在200字以内\n");
+        
+        return prompt.toString();
+    }
+    
+    /**
+     * 将意图映射到具体的操作
+     */
+    private String mapIntentToAction(String intent) {
+        if (intent == null) {
+            return null;
+        }
+        
+        switch (intent) {
+            case "QUERY_SALES":
+                return ActionType.QUERY_SALES_DATA.getCode();
+            case "CHECK_INVENTORY":
+                return ActionType.CHECK_INVENTORY_STATUS.getCode();
+            case "ADD_PRODUCT":
+                return ActionType.ADD_NEW_PRODUCT.getCode();
+            case "UPDATE_PRICE":
+                return ActionType.UPDATE_PRODUCT_PRICE.getCode();
+            case "QUERY_FINANCE":
+                return ActionType.GET_FINANCIAL_OVERVIEW.getCode();
+            case "GENERATE_REPORT":
+                return ActionType.GENERATE_SALES_REPORT.getCode();
+            case "QUERY_SALES_RANKING":
+                return ActionType.GET_SALES_RANKING.getCode();
+            default:
+                log.warn("未知意图类型: {}", intent);
+                return null;
         }
     }
 }

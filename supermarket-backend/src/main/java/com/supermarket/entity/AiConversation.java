@@ -59,11 +59,6 @@ public class AiConversation {
     @TableField("message_count")
     private Integer messageCount;
 
-    /**
-     * 最后一条消息内容
-     */
-    @TableField("last_message")
-    private String lastMessage;
 
     /**
      * 最后消息时间

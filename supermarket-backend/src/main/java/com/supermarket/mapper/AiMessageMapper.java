@@ -5,6 +5,7 @@ import com.supermarket.entity.AiMessage;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 import java.util.Map;
@@ -35,16 +36,16 @@ public interface AiMessageMapper extends BaseMapper<AiMessage> {
      * @param limit     限制数量
      * @return 消息列表
      */
-    @Select("SELECT * FROM ai_message WHERE session_id = #{sessionId} ORDER BY create_time ASC LIMIT #{limit}")
+    @Select("SELECT * FROM ai_message WHERE session_id = #{sessionId} AND is_deleted = 0 ORDER BY create_time DESC LIMIT #{limit}")
     List<AiMessage> selectBySessionId(@Param("sessionId") String sessionId, @Param("limit") Integer limit);
 
     /**
-     * 根据会话SessionId删除消息
+     * 根据会话SessionId删除消息（逻辑删除）
      *
      * @param sessionId 会话SessionId
      * @return 删除数量
      */
-    @Select("DELETE FROM ai_message WHERE session_id = #{sessionId}")
+    @Update("UPDATE ai_message SET is_deleted = 1, update_time = NOW() WHERE session_id = #{sessionId} AND is_deleted = 0")
     int deleteBySessionId(@Param("sessionId") String sessionId);
 
     /**

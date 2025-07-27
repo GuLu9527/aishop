@@ -10,6 +10,9 @@ spring:
   profiles:
     active: dev
 
+  main:
+    allow-bean-definition-overriding: true
+
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -62,16 +65,17 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
-  # Spring AI Alibaba配置
+  # Spring AI 配置
   ai:
-    alibaba:
-      dashscope:
-        api-key: replay-your-key
-        chat:
-          options:
-            model: qwen-plus
-            temperature: 0.7
-            max-tokens: 2000
+    openai:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      api-key: your-key
+      chat:
+        options:
+          model: qwen-plus
+          max-tokens: 2000
+          temperature: 0.7
+
 
   # Web MVC配置
   mvc:
@@ -104,19 +108,6 @@ jwt:
   secret: supermarket-jwt-secret-key-2024-very-long-and-secure-key-for-production
   expiration: 86400000  # 24小时
   refresh-expiration: 604800000  # 7天
-
-# 阿里云配置
-alicloud:
-  access-key: your-alicloud-access-key
-  secret-key: your-alicloud-secret-key
-  region: cn-hangzhou
-  pai:
-    endpoint: https://pai-eas.cn-hangzhou.aliyuncs.com
-  tongyi:
-    api-key: your-tongyi-api-key
-    model: qwen-plus
-    temperature: 0.3
-    max-tokens: 2000
 
 
 # 支付配置
@@ -169,7 +160,7 @@ knife4j:
     language: zh_cn
 
 # Spring AI配置 - 使用真实的通义千问API服务
-# AI服务配置
+# AI服务配置  
 ai:
   mock:
-    enabled: false  # 禁用模拟服务，使用真实API
+    enabled: false  # 使用真实API进行流式聊天
