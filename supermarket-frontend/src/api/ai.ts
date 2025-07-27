@@ -99,6 +99,17 @@ export const deleteConversation = (conversationId: string, userId: number) => {
 }
 
 /**
+ * 批量删除所有会话
+ */
+export const deleteAllConversations = (userId: number) => {
+  return request({
+    url: '/api/ai/conversations/all',
+    method: 'delete',
+    params: { userId }
+  })
+}
+
+/**
  * 获取智能建议
  */
 export const getSmartSuggestions = (userId: number) => {
