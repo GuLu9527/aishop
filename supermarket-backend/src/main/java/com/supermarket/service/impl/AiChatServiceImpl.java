@@ -331,6 +331,32 @@ public class AiChatServiceImpl implements AiChatService {
     
     @Override
     @Transactional
+    public int deleteAllUserConversations(Long userId) {
+        // 先获取要删除的会话数量（用于返回值）
+        List<AiConversation> conversations = conversationMapper.selectAllByUserId(userId);
+        
+        if (conversations.isEmpty()) {
+            return 0;
+        }
+        
+        int conversationCount = conversations.size();
+        
+        // 批量删除所有相关消息
+        int deletedMessageCount = messageMapper.deleteAllByUserId(userId);
+        log.info("批量删除用户消息: userId={}, deletedMessageCount={}", userId, deletedMessageCount);
+        
+        // 批量删除所有会话
+        int deletedConversationCount = conversationMapper.deleteAllByUserId(userId);
+        log.info("批量删除用户会话: userId={}, deletedConversationCount={}", userId, deletedConversationCount);
+        
+        log.info("批量删除用户会话完成: userId={}, expectedCount={}, actualCount={}", 
+                userId, conversationCount, deletedConversationCount);
+        
+        return deletedConversationCount;
+    }
+    
+    @Override
+    @Transactional
     public Flux<String> chatStream(AiChatRequest request) {
         return Flux.create(sink -> {
             try {

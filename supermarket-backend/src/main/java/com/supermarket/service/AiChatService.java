@@ -63,4 +63,11 @@ public interface AiChatService {
      * @param userId 用户ID
      */
     void deleteConversation(String sessionId, Long userId);
+    
+    /**
+     * 批量删除用户的所有会话
+     * @param userId 用户ID
+     * @return 删除的会话数量
+     */
+    int deleteAllUserConversations(Long userId);
 }

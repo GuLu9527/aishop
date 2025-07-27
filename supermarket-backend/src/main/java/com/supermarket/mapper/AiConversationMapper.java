@@ -5,6 +5,7 @@ import com.supermarket.entity.AiConversation;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public interface AiConversationMapper extends BaseMapper<AiConversation> {
      * @param limit  限制数量
      * @return 会话列表
      */
-    @Select("SELECT * FROM ai_conversation WHERE user_id = #{userId} ORDER BY update_time DESC LIMIT #{limit}")
+    @Select("SELECT * FROM ai_conversation WHERE user_id = #{userId} AND is_deleted = 0 ORDER BY update_time DESC LIMIT #{limit}")
     List<AiConversation> selectByUserId(@Param("userId") Long userId, @Param("limit") Integer limit);
 
     /**
@@ -33,7 +34,7 @@ public interface AiConversationMapper extends BaseMapper<AiConversation> {
      * @param userId 用户ID
      * @return 会话列表
      */
-    @Select("SELECT * FROM ai_conversation WHERE user_id = #{userId} ORDER BY update_time DESC")
+    @Select("SELECT * FROM ai_conversation WHERE user_id = #{userId} AND is_deleted = 0 ORDER BY update_time DESC")
     List<AiConversation> selectAllByUserId(@Param("userId") Long userId);
 
     /**
@@ -42,7 +43,7 @@ public interface AiConversationMapper extends BaseMapper<AiConversation> {
      * @param sessionId 会话ID
      * @return 会话信息
      */
-    @Select("SELECT * FROM ai_conversation WHERE session_id = #{sessionId}")
+    @Select("SELECT * FROM ai_conversation WHERE session_id = #{sessionId} AND is_deleted = 0")
     AiConversation selectBySessionId(@Param("sessionId") String sessionId);
 
 
@@ -52,6 +53,15 @@ public interface AiConversationMapper extends BaseMapper<AiConversation> {
      * @param userId 用户ID
      * @return 活跃会话列表
      */
-    @Select("SELECT * FROM ai_conversation WHERE user_id = #{userId} AND status = 1 ORDER BY update_time DESC")
+    @Select("SELECT * FROM ai_conversation WHERE user_id = #{userId} AND status = 1 AND is_deleted = 0 ORDER BY update_time DESC")
     List<AiConversation> selectActiveByUserId(@Param("userId") Long userId);
+
+    /**
+     * 批量删除用户的所有会话（逻辑删除）
+     *
+     * @param userId 用户ID
+     * @return 删除数量
+     */
+    @Update("UPDATE ai_conversation SET is_deleted = 1, update_time = NOW() WHERE user_id = #{userId} AND is_deleted = 0")
+    int deleteAllByUserId(@Param("userId") Long userId);
 }

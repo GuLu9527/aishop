@@ -26,7 +26,7 @@ public interface AiMessageMapper extends BaseMapper<AiMessage> {
      * @param limit          限制数量
      * @return 消息列表
      */
-    @Select("SELECT * FROM ai_message WHERE conversation_id = #{conversationId} ORDER BY create_time ASC LIMIT #{limit}")
+    @Select("SELECT * FROM ai_message WHERE conversation_id = #{conversationId} AND is_deleted = 0 ORDER BY create_time ASC LIMIT #{limit}")
     List<AiMessage> selectByConversationId(@Param("conversationId") String conversationId, @Param("limit") Integer limit);
 
     /**
@@ -55,7 +55,7 @@ public interface AiMessageMapper extends BaseMapper<AiMessage> {
      * @param limit          限制数量
      * @return 消息列表
      */
-    @Select("SELECT * FROM ai_message WHERE conversation_id = #{conversationId} ORDER BY create_time DESC LIMIT #{limit}")
+    @Select("SELECT * FROM ai_message WHERE conversation_id = #{conversationId} AND is_deleted = 0 ORDER BY create_time DESC LIMIT #{limit}")
     List<AiMessage> selectLatestByConversationId(@Param("conversationId") String conversationId, @Param("limit") Integer limit);
 
     /**
@@ -67,7 +67,7 @@ public interface AiMessageMapper extends BaseMapper<AiMessage> {
     @Select("SELECT COUNT(*) as total_count, " +
             "SUM(CASE WHEN role = 'USER' THEN 1 ELSE 0 END) as user_count, " +
             "SUM(CASE WHEN role = 'ASSISTANT' THEN 1 ELSE 0 END) as assistant_count " +
-            "FROM ai_message WHERE conversation_id = #{conversationId}")
+            "FROM ai_message WHERE conversation_id = #{conversationId} AND is_deleted = 0")
     Map<String, Object> selectMessageStats(@Param("conversationId") String conversationId);
 
     /**
@@ -78,4 +78,16 @@ public interface AiMessageMapper extends BaseMapper<AiMessage> {
      */
     @Select("DELETE FROM ai_message WHERE conversation_id = #{conversationId}")
     int deleteByConversationId(@Param("conversationId") String conversationId);
+
+    /**
+     * 批量删除用户的所有消息（逻辑删除）
+     *
+     * @param userId 用户ID
+     * @return 删除数量
+     */
+    @Update("UPDATE ai_message am " +
+            "INNER JOIN ai_conversation ac ON am.session_id = ac.session_id " +
+            "SET am.is_deleted = 1, am.update_time = NOW() " +
+            "WHERE ac.user_id = #{userId} AND am.is_deleted = 0")
+    int deleteAllByUserId(@Param("userId") Long userId);
 }

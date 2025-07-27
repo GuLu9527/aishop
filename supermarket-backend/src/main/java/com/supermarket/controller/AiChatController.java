@@ -125,6 +125,18 @@ public class AiChatController {
         }
     }
     
+    @DeleteMapping("/conversations/all")
+    @Operation(summary = "批量删除所有会话", description = "批量删除用户的所有AI对话会话及其历史记录")
+    public Result<Integer> deleteAllConversations(@RequestParam Long userId) {
+        try {
+            int deletedCount = aiChatService.deleteAllUserConversations(userId);
+            return Result.success(deletedCount);
+        } catch (Exception e) {
+            log.error("批量删除会话失败", e);
+            return Result.error("批量删除会话失败");
+        }
+    }
+    
     @GetMapping("/suggestions")
     @Operation(summary = "获取智能建议", description = "获取AI智能推荐的常用问题建议")
     public Result<List<String>> getSmartSuggestions(@RequestParam Long userId) {
