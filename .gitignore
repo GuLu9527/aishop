@@ -36,7 +36,6 @@ build/
 
 # Node
 node_modules/
-dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -65,6 +64,17 @@ logs/
 *.pfx
 *.jks
 *.keystore
+
+# Claude工具
+.claude/
+
+# 临时文件
+*.tmp
+*.swp
+*.bak
+
+# 部署相关
+.vercel/
 
 # 系统文件
 .DS_Store

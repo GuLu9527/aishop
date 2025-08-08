@@ -247,8 +247,6 @@ spring:
     username: root
     password: your-password
 ```
-
-#### AI服务配置 (`application-ai.yml`) ✨
 ```yaml
 spring:
   ai:
@@ -267,7 +265,6 @@ spring:
 
 配置文件位置：
 - `supermarket-backend/src/main/resources/application.yml` - 主配置
-- `supermarket-backend/src/main/resources/application-ai.yml` - AI服务配置
 
 ## 最新更新 ✨
 
@@ -290,16 +287,6 @@ spring:
 - 修复删除聊天记录后刷新页面仍显示的问题
 - 修复销售排行查询逻辑错误
 - 修复财务模块固定利润率问题
-
-## 项目文档
-
-更多详细文档请查看 `docs` 目录：
-
-- [系统方案设计](docs/个体超市智能管理系统方案（更新版）.md)
-- [开发任务文档](docs/个体超市智能管理系统开发任务文档.md)
-- [环境准备清单](docs/开发环境准备清单.md)
-- [AI界面设计](docs/零学习成本AI界面设计.md)
-- [AI架构设计](docs/AI架构设计与应用场景分析.md)
 
 ## 参与贡献
 
