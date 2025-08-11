@@ -42,7 +42,6 @@ yarn-error.log*
 
 # 环境和配置文件
 .env
-.env
 !.env
 .env.local
 .env.*.local
