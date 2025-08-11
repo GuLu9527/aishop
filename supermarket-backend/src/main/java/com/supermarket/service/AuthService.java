@@ -26,4 +26,9 @@ public interface AuthService {
      * 获取用户信息
      */
     LoginVO.UserInfoVO getUserInfo(String username);
+
+    /**
+     * 根据用户名获取用户ID
+     */
+    Long getUserIdByUsername(String username);
 }

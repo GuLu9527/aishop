@@ -123,4 +123,13 @@ public class AuthServiceImpl implements AuthService {
 
         return userInfo;
     }
+
+    @Override
+    public Long getUserIdByUsername(String username) {
+        SysUser user = sysUserMapper.selectByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        return user.getId();
+    }
 }

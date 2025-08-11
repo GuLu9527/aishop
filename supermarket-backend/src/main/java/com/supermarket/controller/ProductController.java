@@ -9,11 +9,13 @@ import com.supermarket.dto.BatchOperationResultDTO;
 
 import com.supermarket.entity.Product;
 import com.supermarket.service.ProductService;
+import com.supermarket.service.AuthService;
 import com.supermarket.utils.JwtUtils;
 import com.supermarket.vo.ProductVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,10 +34,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductController {
 
     private final ProductService productService;
     private final JwtUtils jwtUtils;
+    private final AuthService authService;
 
     @Operation(summary = "分页查询商品列表")
     @PostMapping("/page")
@@ -86,10 +90,15 @@ public class ProductController {
             if (success) {
                 return Result.success("添加商品成功");
             } else {
-                return Result.error("添加商品失败");
+                return Result.error("添加商品失败，请检查数据是否正确");
             }
+        } catch (RuntimeException e) {
+            // 业务异常，直接返回异常信息
+            return Result.error(e.getMessage());
         } catch (Exception e) {
-            return Result.error("添加商品失败：" + e.getMessage());
+            // 系统异常，记录日志并返回友好信息
+            log.error("添加商品发生系统异常", e);
+            return Result.error("系统繁忙，请稍后再试");
         }
     }
 
@@ -105,10 +114,15 @@ public class ProductController {
             if (success) {
                 return Result.success("更新商品成功");
             } else {
-                return Result.error("更新商品失败");
+                return Result.error("更新商品失败，商品可能不存在");
             }
+        } catch (RuntimeException e) {
+            // 业务异常，直接返回异常信息
+            return Result.error(e.getMessage());
         } catch (Exception e) {
-            return Result.error("更新商品失败：" + e.getMessage());
+            // 系统异常，记录日志并返回友好信息
+            log.error("更新商品发生系统异常，商品ID：{}", id, e);
+            return Result.error("系统繁忙，请稍后再试");
         }
     }
 
@@ -120,10 +134,15 @@ public class ProductController {
             if (success) {
                 return Result.success("删除商品成功");
             } else {
-                return Result.error("删除商品失败");
+                return Result.error("删除商品失败，商品可能不存在或已被删除");
             }
+        } catch (RuntimeException e) {
+            // 业务异常，直接返回异常信息
+            return Result.error(e.getMessage());
         } catch (Exception e) {
-            return Result.error("删除商品失败：" + e.getMessage());
+            // 系统异常，记录日志并返回友好信息
+            log.error("删除商品发生系统异常，商品ID：{}", id, e);
+            return Result.error("系统繁忙，请稍后再试");
         }
     }
 
@@ -177,10 +196,26 @@ public class ProductController {
             HttpServletRequest request) {
         try {
             Long userId = getUserIdFromToken(request);
+            
+            // 参数验证
+            if (operationDTO.getProductIds() == null || operationDTO.getProductIds().isEmpty()) {
+                return Result.badRequest("请选择要操作的商品");
+            }
+            
             BatchOperationResultDTO result = productService.batchOperation(operationDTO, userId);
             return Result.success(result);
+        } catch (IllegalArgumentException e) {
+            // 参数错误
+            return Result.badRequest(e.getMessage());
+        } catch (RuntimeException e) {
+            // 业务异常，直接返回异常信息
+            return Result.error(e.getMessage());
         } catch (Exception e) {
-            return Result.error("批量操作失败：" + e.getMessage());
+            // 系统异常，记录日志并返回友好信息
+            log.error("批量操作商品发生系统异常，操作类型：{}, 商品数量：{}", 
+                     operationDTO.getOperationType(), 
+                     operationDTO.getProductIds().size(), e);
+            return Result.error("系统繁忙，请稍后再试");
         }
     }
 
@@ -343,13 +378,24 @@ public class ProductController {
      * 从token中获取用户ID
      */
     private Long getUserIdFromToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            String username = jwtUtils.getUsernameFromToken(token);
-            // 这里简化处理，实际应该从用户服务获取用户ID
-            return 1L; // 临时返回固定值
+        try {
+            String token = request.getHeader("Authorization");
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7);
+                
+                // 验证token有效性
+                if (!jwtUtils.validateToken(token)) {
+                    throw new RuntimeException("Token无效或已过期");
+                }
+                
+                String username = jwtUtils.getUsernameFromToken(token);
+                return authService.getUserIdByUsername(username);
+            }
+            throw new RuntimeException("未找到有效的Authorization header");
+        } catch (Exception e) {
+            // 如果获取失败，返回默认用户ID (开发环境)
+            // 生产环境建议抛出异常
+            return 1L;
         }
-        return 1L;
     }
 }

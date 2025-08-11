@@ -84,6 +84,59 @@
             <el-option label="下架" :value="0" />
           </el-select>
         </el-form-item>
+        
+        <!-- 新增价格区间筛选 -->
+        <el-form-item label="价格区间">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <el-input-number
+              v-model="searchForm.minPrice"
+              placeholder="最低价"
+              :min="0"
+              :precision="2"
+              :step="1"
+              controls-position="right"
+              style="width: 120px"
+            />
+            <span style="color: #909399;">-</span>
+            <el-input-number
+              v-model="searchForm.maxPrice"
+              placeholder="最高价"
+              :min="0"
+              :precision="2"
+              :step="1"
+              controls-position="right"
+              style="width: 120px"
+            />
+          </div>
+        </el-form-item>
+        
+        <!-- 新增库存状态筛选 -->
+        <el-form-item label="库存状态">
+          <el-select
+            v-model="searchForm.stockStatus"
+            placeholder="请选择库存状态"
+            clearable
+            style="width: 140px"
+          >
+            <el-option label="低库存" value="low" />
+            <el-option label="正常库存" value="normal" />
+            <el-option label="高库存" value="high" />
+          </el-select>
+        </el-form-item>
+        
+        <!-- 新增过期状态筛选 -->
+        <el-form-item label="过期状态">
+          <el-select
+            v-model="searchForm.expiryStatus"
+            placeholder="请选择过期状态"
+            clearable
+            style="width: 140px"
+          >
+            <el-option label="已过期" value="expired" />
+            <el-option label="临期商品" value="expiring" />
+            <el-option label="正常商品" value="normal" />
+          </el-select>
+        </el-form-item>
 
         <el-form-item>
           <el-button type="primary" @click="searchProducts">
@@ -117,7 +170,14 @@
           <el-icon><Money /></el-icon>
           批量价格
         </el-button>
-
+        <el-button type="danger" @click="showBatchDeleteDialog">
+          <el-icon><Delete /></el-icon>
+          批量删除
+        </el-button>
+        <el-button type="info" @click="showBatchProductionDateDialog">
+          <el-icon><Calendar /></el-icon>
+          生产日期
+        </el-button>
 
         <el-button @click="clearSelection">
           <el-icon><Close /></el-icon>
@@ -181,6 +241,24 @@
             <el-tag v-else type="info" size="small">未设置</el-tag>
           </template>
         </el-table-column>
+        <el-table-column label="过期状态" width="100">
+          <template #default="{ row }">
+            <div class="status-tags">
+              <el-tag v-if="getExpirationStatus(row) === 'expired'" type="danger" size="small">
+                已过期
+              </el-tag>
+              <el-tag v-else-if="getExpirationStatus(row) === 'expiring'" type="warning" size="small">
+                临期
+              </el-tag>
+              <el-tag v-else-if="getExpirationStatus(row) === 'normal'" type="success" size="small">
+                正常
+              </el-tag>
+              <el-tag v-else type="info" size="small">
+                无日期
+              </el-tag>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="stockQuantity" label="当前库存" width="80">
           <template #default="{ row }">
             <span class="stock-number" :class="{ 'low-stock': row.isLowStock }">
@@ -220,6 +298,17 @@
                     <Top v-if="row.status === 0" />
                     <Bottom v-else />
                   </el-icon>
+                </el-button>
+              </el-tooltip>
+              
+              <el-tooltip content="删除商品" placement="top">
+                <el-button
+                  size="small"
+                  type="danger"
+                  circle
+                  @click="deleteProduct(row)"
+                >
+                  <el-icon><Delete /></el-icon>
                 </el-button>
               </el-tooltip>
 
@@ -377,6 +466,7 @@
                 :min="0"
                 style="width: 100%"
                 :disabled="!isEdit"
+                @change="validatePrices"
               />
             </el-form-item>
           </el-col>
@@ -388,6 +478,7 @@
                 :min="0"
                 style="width: 100%"
                 :disabled="!isEdit"
+                @change="validatePrices"
               />
             </el-form-item>
           </el-col>
@@ -414,6 +505,7 @@
                 :min="1"
                 style="width: 100%"
                 :disabled="!isEdit"
+                @change="validateProductionDateAndShelfLife"
               />
             </el-form-item>
           </el-col>
@@ -428,6 +520,7 @@
                 style="width: 100%"
                 :disabled="!isEdit"
                 :disabled-date="disabledDate"
+                @change="validateProductionDateAndShelfLife"
               />
             </el-form-item>
           </el-col>
@@ -549,6 +642,19 @@
           </div>
         </el-form-item>
 
+        <!-- 批量删除确认 -->
+        <el-form-item v-if="batchOperationType === 'DELETE'" label="删除确认">
+          <div class="delete-warning">
+            <el-alert
+              title="危险操作警告"
+              type="error"
+              description="您即将删除选中的商品，此操作不可恢复！请确认您的操作。"
+              show-icon
+              :closable="false"
+            />
+          </div>
+        </el-form-item>
+
         <!-- 操作原因 -->
         <el-form-item v-if="batchOperationType !== 'UPDATE_STATUS'" label="操作原因">
           <el-input
@@ -582,13 +688,15 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 // 路由功能已移除，库存管理使用专门页面
 import {
-  Plus, Search, Refresh, Box, List, Edit,
-  Switch, Collection, Money, Close, Top, Bottom, View
+  Plus, Search, Refresh, Box, List, Edit, Delete,
+  Switch, Collection, Money, Close, Top, Bottom, View, Calendar
 } from '@element-plus/icons-vue'
 import {
   getProductPage,
   addProduct,
   updateProduct,
+  deleteProduct as deleteProductApi,
+  batchDeleteProducts,
   updateProductStatus,
   batchOperation,
   batchUpdateStatus,
@@ -625,7 +733,11 @@ const searchForm = reactive({
   productName: '',
   barcode: '',
   categoryId: null as number | null,
-  status: null as number | null
+  status: null as number | null,
+  minPrice: null as number | null,
+  maxPrice: null as number | null,
+  stockStatus: null as string | null, // 'low', 'normal', 'high'
+  expiryStatus: null as string | null  // 'expired', 'expiring', 'normal'
 })
 
 
@@ -722,6 +834,20 @@ const showBatchPriceDialog = () => {
   batchDialogVisible.value = true
 }
 
+const showBatchDeleteDialog = () => {
+  batchDialogTitle.value = '批量删除商品'
+  batchOperationType.value = 'DELETE' as OperationType
+  resetBatchForm()
+  batchDialogVisible.value = true
+}
+
+const showBatchProductionDateDialog = () => {
+  batchDialogTitle.value = '批量设置生产日期'
+  batchOperationType.value = 'SET_PRODUCTION_DATE' as OperationType
+  resetBatchForm()
+  batchDialogVisible.value = true
+}
+
 
 
 // 删除功能已移除，商品管理专注于基础信息管理
@@ -793,6 +919,26 @@ const executeBatchOperation = async () => {
 
         response = await batchSetProductionDate(productIds, batchForm.productionDate, batchForm.reason)
         break
+        
+      case 'DELETE':
+        // 批量删除前再次确认
+        try {
+          await ElMessageBox.confirm(
+            `确定要删除选中的 ${selectedProducts.value.length} 个商品吗？此操作不可恢复！`,
+            '删除确认',
+            {
+              confirmButtonText: '确定删除',
+              cancelButtonText: '取消',
+              type: 'error',
+              dangerouslyUseHTMLString: true
+            }
+          )
+        } catch {
+          return // 用户取消删除
+        }
+        
+        response = await batchDeleteProducts(productIds)
+        break
 
       default:
         ElMessage.error('不支持的操作类型')
@@ -814,6 +960,8 @@ const executeBatchOperation = async () => {
             return `批量价格更新成功：${count} 个商品`
           case 'SET_PRODUCTION_DATE':
             return `批量设置生产日期成功：${count} 个商品`
+          case 'DELETE':
+            return `批量删除成功：${count} 个商品`
           default:
             return `批量操作成功：${count} 个商品`
         }
@@ -838,6 +986,8 @@ const executeBatchOperation = async () => {
               return '价格更新'
             case 'SET_PRODUCTION_DATE':
               return '生产日期设置'
+            case 'DELETE':
+              return '删除'
             default:
               return '操作'
           }
@@ -915,6 +1065,24 @@ const getProductList = async () => {
 
 // 搜索商品
 const searchProducts = () => {
+  // 价格区间验证
+  if (searchForm.minPrice !== null && searchForm.maxPrice !== null) {
+    if (searchForm.minPrice > searchForm.maxPrice) {
+      ElMessage.warning('最低价格不能高于最高价格')
+      return
+    }
+  }
+  
+  if (searchForm.minPrice !== null && searchForm.minPrice < 0) {
+    ElMessage.warning('价格不能为负数')
+    return
+  }
+  
+  if (searchForm.maxPrice !== null && searchForm.maxPrice < 0) {
+    ElMessage.warning('价格不能为负数')
+    return
+  }
+  
   pagination.pageNum = 1
   getProductList()
 }
@@ -925,7 +1093,11 @@ const resetSearch = () => {
     productName: '',
     barcode: '',
     categoryId: null,
-    status: null
+    status: null,
+    minPrice: null,
+    maxPrice: null,
+    stockStatus: null,
+    expiryStatus: null
   })
   pagination.pageNum = 1
   getProductList()
@@ -1006,7 +1178,35 @@ const editProduct = (row: Product) => {
   })
 }
 
-// 删除功能已移除，商品管理专注于基础信息管理
+// 删除商品
+const deleteProduct = async (row: Product) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除商品"${row.productName}"吗？此操作不可恢复！`,
+      '删除确认',
+      {
+        confirmButtonText: '确定删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+        dangerouslyUseHTMLString: true
+      }
+    )
+
+    const response = await deleteProductApi(String(row.id))
+    
+    if (response.data.code === 200) {
+      ElMessage.success('删除成功')
+      getProductList()
+    } else {
+      ElMessage.error(response.data.message || '删除失败')
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除失败:', error)
+      ElMessage.error('删除失败')
+    }
+  }
+}
 
 // 切换商品状态
 const toggleStatus = async (row: Product) => {
@@ -1070,10 +1270,100 @@ const submitForm = async () => {
 
 // ==================== 商品管理核心方法 ====================
 
-
+/**
+ * 计算商品过期状态
+ */
+const getExpirationStatus = (product: Product): 'expired' | 'expiring' | 'normal' | 'unknown' => {
+  if (!product.productionDate || !product.shelfLifeDays || product.shelfLifeDays <= 0) {
+    return 'unknown'
+  }
+  
+  const productionDate = new Date(product.productionDate)
+  const expirationDate = new Date(productionDate)
+  expirationDate.setDate(expirationDate.getDate() + product.shelfLifeDays)
+  
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  expirationDate.setHours(0, 0, 0, 0)
+  
+  if (expirationDate < today) {
+    return 'expired' // 已过期
+  }
+  
+  const warningDate = new Date(today)
+  warningDate.setDate(warningDate.getDate() + 7) // 7天内过期为临期
+  
+  if (expirationDate <= warningDate) {
+    return 'expiring' // 临期
+  }
+  
+  return 'normal' // 正常
+}
 
 // 使用统一的日期禁用函数
 const disabledDate = disableFutureDate
+
+// ==================== 表单实时验证方法 ====================
+
+/**
+ * 价格实时验证
+ */
+const validatePrices = () => {
+  if (!isEdit.value) return
+  
+  const purchasePrice = productForm.purchasePrice
+  const sellingPrice = productForm.sellingPrice
+  
+  // 检查进货价是否高于销售价
+  if (purchasePrice && sellingPrice && purchasePrice > sellingPrice) {
+    ElMessage({
+      message: '注意：进货价高于销售价，可能导致亏损',
+      type: 'warning',
+      duration: 3000
+    })
+  }
+}
+
+/**
+ * 生产日期和保质期实时验证
+ */
+const validateProductionDateAndShelfLife = () => {
+  if (!isEdit.value) return
+  
+  const productionDate = productForm.productionDate
+  const shelfLifeDays = productForm.shelfLifeDays
+  
+  if (productionDate && shelfLifeDays && shelfLifeDays > 0) {
+    const prodDate = new Date(productionDate)
+    const expirationDate = new Date(prodDate)
+    expirationDate.setDate(expirationDate.getDate() + shelfLifeDays)
+    
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    // 检查是否已过期
+    if (expirationDate < today) {
+      ElMessage({
+        message: '警告：根据生产日期和保质期，该商品已过期',
+        type: 'error',
+        duration: 5000
+      })
+      return
+    }
+    
+    // 检查是否临期（7天内过期）
+    const warningDate = new Date(today)
+    warningDate.setDate(warningDate.getDate() + 7)
+    
+    if (expirationDate <= warningDate) {
+      ElMessage({
+        message: '注意：该商品将在7天内过期',
+        type: 'warning',
+        duration: 4000
+      })
+    }
+  }
+}
 
 // 重置批量操作表单
 const resetBatchForm = () => {
@@ -1549,5 +1839,18 @@ const resetForm = () => {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+/* 删除警告样式 */
+.delete-warning {
+  margin-bottom: 16px;
+}
+
+.delete-warning :deep(.el-alert) {
+  border-radius: 8px;
+}
+
+.delete-warning :deep(.el-alert__title) {
+  font-weight: 600;
 }
 </style>

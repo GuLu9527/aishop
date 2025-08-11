@@ -89,6 +89,54 @@
                 AND DATE_ADD(p.production_date, INTERVAL p.shelf_life_days DAY) &lt;= DATE_ADD(CURDATE(), INTERVAL #{query.expiringDays} DAY)
                 AND DATE_ADD(p.production_date, INTERVAL p.shelf_life_days DAY) &gt;= CURDATE()
             </if>
+            
+            <!-- 价格区间查询 -->
+            <if test="query.minPrice != null">
+                AND p.selling_price &gt;= #{query.minPrice}
+            </if>
+            <if test="query.maxPrice != null">
+                AND p.selling_price &lt;= #{query.maxPrice}
+            </if>
+            
+            <!-- 库存状态查询 -->
+            <if test="query.stockStatus != null">
+                <choose>
+                    <when test="query.stockStatus == 'low'">
+                        AND p.stock_quantity &lt;= p.min_stock
+                    </when>
+                    <when test="query.stockStatus == 'high'">
+                        AND p.max_stock IS NOT NULL AND p.stock_quantity &gt;= p.max_stock
+                    </when>
+                    <when test="query.stockStatus == 'normal'">
+                        AND (p.min_stock IS NULL OR p.stock_quantity > p.min_stock)
+                        AND (p.max_stock IS NULL OR p.stock_quantity &lt; p.max_stock)
+                    </when>
+                </choose>
+            </if>
+            
+            <!-- 过期状态查询 -->
+            <if test="query.expiryStatus != null">
+                <choose>
+                    <when test="query.expiryStatus == 'expired'">
+                        AND p.production_date IS NOT NULL 
+                        AND p.shelf_life_days IS NOT NULL 
+                        AND p.shelf_life_days > 0
+                        AND DATE_ADD(p.production_date, INTERVAL p.shelf_life_days DAY) &lt; CURDATE()
+                    </when>
+                    <when test="query.expiryStatus == 'expiring'">
+                        AND p.production_date IS NOT NULL 
+                        AND p.shelf_life_days IS NOT NULL 
+                        AND p.shelf_life_days > 0
+                        AND DATE_ADD(p.production_date, INTERVAL p.shelf_life_days DAY) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+                    </when>
+                    <when test="query.expiryStatus == 'normal'">
+                        AND ((p.production_date IS NULL OR p.shelf_life_days IS NULL OR p.shelf_life_days &lt;= 0)
+                        OR (p.production_date IS NOT NULL AND p.shelf_life_days IS NOT NULL AND p.shelf_life_days > 0
+                            AND DATE_ADD(p.production_date, INTERVAL p.shelf_life_days DAY) > DATE_ADD(CURDATE(), INTERVAL 7 DAY)))
+                    </when>
+                </choose>
+            </if>
+            
             <!-- 默认只查询启用的商品，除非明确指定状态 -->
             <if test="query.status == null">
                 AND p.status = 1

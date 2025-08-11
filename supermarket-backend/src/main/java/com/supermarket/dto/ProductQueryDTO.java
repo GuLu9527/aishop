@@ -68,6 +68,26 @@ public class ProductQueryDTO {
     private Integer expiringDays = 7;
 
     /**
+     * 最低价格
+     */
+    private java.math.BigDecimal minPrice;
+
+    /**
+     * 最高价格
+     */
+    private java.math.BigDecimal maxPrice;
+
+    /**
+     * 库存状态：low-低库存，normal-正常库存，high-高库存
+     */
+    private String stockStatus;
+
+    /**
+     * 过期状态：expired-已过期，expiring-临期，normal-正常
+     */
+    private String expiryStatus;
+
+    /**
      * 当前页码
      */
     private Integer pageNum = 1;

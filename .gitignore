@@ -42,8 +42,8 @@ yarn-error.log*
 
 # 环境和配置文件
 .env
-.env.*
-!.env.example
+.env
+!.env
 .env.local
 .env.*.local
 application-dev.yml
