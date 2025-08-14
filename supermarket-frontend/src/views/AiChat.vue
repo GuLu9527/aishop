@@ -827,22 +827,47 @@ watch(chatSettings, (newSettings) => {
 }, { deep: true })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+// iOS 黑白灰色彩系统
+:root {
+  --ios-primary: #000000;
+  --ios-secondary: #1C1C1E;
+  --ios-tertiary: #2C2C2E;
+  --ios-gray: #8E8E93;
+  --ios-gray-light: #F2F2F7;
+  --ios-gray-medium: #C7C7CC;
+  --ios-gray-dark: #48484A;
+  --ios-white: #FFFFFF;
+  --ios-system-background: #F2F2F7;
+  --ios-secondary-background: #FFFFFF;
+  --ios-label: #000000;
+  --ios-secondary-label: #3C3C43;
+  --ios-tertiary-label: #3C3C4399;
+  --ios-separator: #C7C7CC;
+  --ios-accent: #1C1C1E;
+  --ios-message-blue: #007AFF;
+  --ios-message-gray: #F2F2F7;
+}
+
 .ai-chat-container {
   height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
-  background: #f8f9fa;
+  background: var(--ios-system-background);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 }
 
-/* 页面标题样式 */
+/* iOS风格页面头部 */
 .page-header {
-  background: #ffffff;
-  padding: 20px 24px;
-  margin-bottom: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid #ebeef5;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .header-content {
@@ -854,36 +879,64 @@ watch(chatSettings, (newSettings) => {
 .header-left {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .header-title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .header-icon {
   font-size: 28px;
-  color: #409eff;
+  color: var(--ios-accent);
+  opacity: 0.9;
 }
 
 .header-title h2 {
   margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #303133;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ios-label);
+  letter-spacing: -0.6px;
+  line-height: 1.2;
 }
 
 .header-desc {
   margin: 0;
-  color: #909399;
-  font-size: 14px;
+  color: var(--ios-secondary-label);
+  font-size: 16px;
+  font-weight: 400;
+  opacity: 0.8;
 }
 
 .header-right {
   display: flex;
-  gap: 12px;
+  gap: 16px;
+  
+  .el-button {
+    height: 44px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 0 20px;
+    border: none;
+    background: rgba(28, 28, 30, 0.08);
+    color: var(--ios-label);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    &:hover {
+      background: rgba(28, 28, 30, 0.12);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    
+    &:active {
+      transform: scale(0.98);
+    }
+  }
 }
 
 /* 主内容区域 */
@@ -894,19 +947,42 @@ watch(chatSettings, (newSettings) => {
   overflow: hidden;
 }
 
-/* 快捷面板 */
+/* iOS风格快捷面板 */
 .quick-panel {
   width: 280px;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid #ebeef5;
+  min-width: 260px;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   overflow-y: auto;
+  
+  // 自定义滚动条
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--ios-separator);
+    border-radius: 2px;
+    
+    &:hover {
+      background: var(--ios-gray);
+    }
+  }
 }
 
 .panel-section {
-  padding: 20px;
-  border-bottom: 1px solid #f0f2f5;
+  padding: 24px;
+  border-bottom: 1px solid rgba(199, 199, 204, 0.3);
 }
 
 .panel-section:last-child {
@@ -914,247 +990,313 @@ watch(chatSettings, (newSettings) => {
 }
 
 .section-header {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .section-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ios-label);
+  letter-spacing: -0.3px;
 }
 
-/* 快捷操作 */
+/* iOS风格快捷操作 */
 .quick-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .action-item {
   display: flex;
   align-items: center;
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  padding: 20px 16px;
+  background: rgba(28, 28, 30, 0.04);
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.3s;
-  border: 1px solid #ebeef5;
-}
-
-.action-item:hover {
-  background: #ecf5ff;
-  border-color: #409eff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid transparent;
+  
+  &:hover {
+    background: rgba(28, 28, 30, 0.08);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(28, 28, 30, 0.1);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .action-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 12px;
-  font-size: 18px;
+  margin-right: 16px;
+  font-size: 20px;
   color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &.sales { background: linear-gradient(135deg, #34C759, #30B753); }
+  &.inventory { background: linear-gradient(135deg, var(--ios-accent), var(--ios-secondary)); }
+  &.finance { background: linear-gradient(135deg, #FF9500, #E6850E); }
+  &.warning { background: linear-gradient(135deg, #FF3B30, #E0342E); }
 }
-
-.action-icon.sales { background: linear-gradient(135deg, #67c23a, #85ce61); }
-.action-icon.inventory { background: linear-gradient(135deg, #409eff, #79bbff); }
-.action-icon.finance { background: linear-gradient(135deg, #e6a23c, #ebb563); }
-.action-icon.warning { background: linear-gradient(135deg, #f56c6c, #f78989); }
 
 .action-content {
   flex: 1;
 }
 
 .action-title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-  color: #303133;
-  margin-bottom: 4px;
+  color: var(--ios-label);
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
 }
 
 .action-desc {
-  font-size: 12px;
-  color: #909399;
+  font-size: 14px;
+  color: var(--ios-secondary-label);
+  opacity: 0.8;
 }
 
-/* 常见问题 */
+/* iOS风格常见问题 */
 .faq-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .faq-item {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-radius: 6px;
+  padding: 16px;
+  background: rgba(28, 28, 30, 0.04);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s;
-  border: 1px solid #ebeef5;
-}
-
-.faq-item:hover {
-  background: #ecf5ff;
-  border-color: #409eff;
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid transparent;
+  
+  &:hover {
+    background: rgba(28, 28, 30, 0.08);
+    border: 1px solid rgba(28, 28, 30, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .faq-icon {
-  margin-right: 10px;
-  color: #409eff;
-  font-size: 16px;
+  margin-right: 12px;
+  color: var(--ios-accent);
+  font-size: 18px;
+  opacity: 0.8;
 }
 
 .faq-text {
-  font-size: 14px;
-  color: #606266;
+  font-size: 15px;
+  color: var(--ios-label);
+  font-weight: 500;
 }
 
-/* 聊天容器 */
+/* iOS风格聊天容器 */
 .chat-container {
   flex: 1;
+  min-width: 0; /* 确保flex item能够收缩 */
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid #ebeef5;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
 .chat-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid #ebeef5;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(199, 199, 204, 0.3);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fafbfc;
+  background: rgba(28, 28, 30, 0.02);
 }
 
 .ai-status {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .status-indicator {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: #67c23a;
-  animation: pulse 2s infinite;
+  background: #34C759;
+  animation: pulse-green 2s infinite;
+  box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7);
 }
 
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(52, 199, 89, 0);
+  }
 }
 
 .status-text {
-  font-size: 14px;
-  color: #606266;
-  font-weight: 500;
+  font-size: 16px;
+  color: var(--ios-label);
+  font-weight: 600;
 }
 
-/* 聊天消息区域 */
+/* iOS风格聊天消息区域 */
 .chat-messages {
   flex: 1;
-  padding: 20px;
+  padding: 24px;
   overflow-y: auto;
   scroll-behavior: smooth;
+  
+  // 自定义滚动条
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--ios-separator);
+    border-radius: 2px;
+    
+    &:hover {
+      background: var(--ios-gray);
+    }
+  }
 }
 
-/* 欢迎区域 */
+/* iOS风格欢迎区域 */
 .welcome-section {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
-  min-height: 400px;
+  min-height: 450px;
 }
 
 .welcome-card {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 32px;
+  background: rgba(28, 28, 30, 0.04);
+  border-radius: 20px;
+  padding: 40px;
   text-align: center;
-  max-width: 500px;
-  border: 1px solid #ebeef5;
+  max-width: 550px;
+  border: 1px solid rgba(199, 199, 204, 0.3);
+  backdrop-filter: saturate(180%) blur(10px);
 }
 
-.ai-avatar {
-  width: 60px;
-  height: 60px;
+.welcome-card .ai-avatar {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #409eff, #79bbff);
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px;
+  margin: 0 auto 24px;
   color: white;
-  font-size: 28px;
+  font-size: 32px;
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  
+  .el-icon {
+    font-size: 36px !important;
+    opacity: 1 !important;
+  }
 }
 
 .welcome-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #303133;
-  margin-bottom: 12px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ios-label);
+  margin-bottom: 16px;
+  letter-spacing: -0.4px;
 }
 
 .welcome-desc {
-  color: #606266;
-  margin-bottom: 20px;
+  color: var(--ios-secondary-label);
+  margin-bottom: 24px;
   line-height: 1.6;
+  font-size: 16px;
+  opacity: 0.9;
 }
 
 .service-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .service-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #ebeef5;
-  font-size: 13px;
-  color: #606266;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  border: 1px solid rgba(199, 199, 204, 0.3);
+  font-size: 14px;
+  color: var(--ios-label);
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .service-icon {
-  color: #409eff;
-  font-size: 16px;
+  color: var(--ios-accent);
+  font-size: 18px;
+  opacity: 0.8;
 }
 
 .service-emoji {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .welcome-prompt {
-  color: #909399;
-  font-size: 14px;
+  color: var(--ios-secondary-label);
+  font-size: 15px;
   margin: 0;
+  opacity: 0.8;
 }
 
-/* 消息样式 */
+/* iOS风格消息样式 */
 .message-wrapper {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   width: 100%;
 }
 
@@ -1175,120 +1317,198 @@ watch(chatSettings, (newSettings) => {
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: #67c23a;
+  background: linear-gradient(135deg, #34C759, #30B753);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
 }
 
 .ai-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #409eff, #79bbff);
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  
+  .el-icon {
+    font-size: 18px !important;
+    opacity: 1 !important;
+  }
 }
 
 .message-content {
-  max-width: 70%;
-  min-width: 100px;
-  padding: 16px;
-  border-radius: 12px;
-  line-height: 1.6;
+  max-width: 75%;
+  min-width: 120px;
+  padding: 16px 20px;
+  line-height: 1.5;
   word-wrap: break-word;
   flex-shrink: 1;
   flex-grow: 0;
+  font-size: 16px;
 }
 
 .user-content {
-  background: #409eff;
-  color: white;
-  border-radius: 12px 12px 4px 12px;
+  background: var(--ios-message-blue);
+  color: #000000 !important;
+  border-radius: 20px 20px 6px 20px;
+  box-shadow: 0 2px 12px rgba(0, 122, 255, 0.3);
+  
+  .message-text,
+  .message-text *,
+  .message-text p,
+  .message-text div,
+  .message-text span {
+    color: #000000 !important;
+  }
+  
+  .message-time {
+    color: rgba(0, 0, 0, 0.7) !important;
+  }
+}
+
+/* 使用:deep()确保动态生成的HTML内容也应用样式 */
+:deep(.user-content) {
+  background: var(--ios-message-blue) !important;
+  color: #000000 !important;
+  
+  .message-text,
+  .message-text *,
+  .message-text p,
+  .message-text div,
+  .message-text span {
+    color: #000000 !important;
+  }
 }
 
 .ai-content {
-  background: #f8f9fa;
-  color: #303133;
-  border-radius: 12px 12px 12px 4px;
-  border: 1px solid #ebeef5;
+  background: var(--ios-message-gray);
+  color: var(--ios-label);
+  border-radius: 20px 20px 20px 6px;
+  border: 1px solid rgba(199, 199, 204, 0.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .message-time {
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 8px;
   opacity: 0.7;
+  font-weight: 400;
 }
 
 .user-message .message-time {
   text-align: right;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* 额外的用户消息文本颜色确保 - 使用:deep()穿透scoped样式 */
+:deep(.user-message .user-content) {
+  color: #000000 !important;
+}
+
+:deep(.user-message .user-content .message-text) {
+  color: #000000 !important;
+}
+
+:deep(.user-message .user-content .message-text *) {
+  color: #000000 !important;
+}
+
+:deep(.user-message .user-content .message-text p) {
+  color: #000000 !important;
+  margin: 0 !important;
+}
+
+:deep(.user-message .user-content .message-text div) {
+  color: #000000 !important;
+}
+
+:deep(.user-message .user-content .message-text span) {
+  color: #000000 !important;
 }
 
 .ai-message .message-time {
-  color: #c0c4cc;
+  color: var(--ios-secondary-label);
 }
 
-/* 操作结果 */
+/* iOS风格操作结果 */
 .action-result {
-  margin-top: 12px;
-  border: 1px solid #ebeef5;
-  border-radius: 6px;
-  background: white;
+  margin-top: 16px;
+  border: 1px solid rgba(199, 199, 204, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: saturate(180%) blur(10px);
 }
 
 .result-header {
-  padding: 8px 12px;
-  background: #f5f7fa;
-  border-bottom: 1px solid #ebeef5;
+  padding: 12px 16px;
+  background: rgba(28, 28, 30, 0.04);
+  border-bottom: 1px solid rgba(199, 199, 204, 0.3);
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #606266;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ios-label);
+  border-radius: 12px 12px 0 0;
 }
 
 .result-content {
-  padding: 12px;
-  max-height: 200px;
+  padding: 16px;
+  max-height: 250px;
   overflow-y: auto;
+  
+  // 自定义滚动条
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--ios-separator);
+    border-radius: 2px;
+  }
 }
 
 .result-content pre {
   margin: 0;
-  font-size: 12px;
-  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 13px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
   white-space: pre-wrap;
   word-wrap: break-word;
+  color: var(--ios-label);
+  line-height: 1.4;
 }
 
-/* 打字效果 */
+/* iOS风格打字效果 */
 .typing-indicator {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  padding: 12px 0;
 }
 
 .typing-animation {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .typing-dot {
-  width: 8px;
-  height: 8px;
-  background: #c0c4cc;
+  width: 10px;
+  height: 10px;
+  background: var(--ios-gray);
   border-radius: 50%;
   animation: typing 1.4s infinite ease-in-out;
 }
@@ -1299,7 +1519,7 @@ watch(chatSettings, (newSettings) => {
 @keyframes typing {
   0%, 80%, 100% {
     transform: scale(0.8);
-    opacity: 0.5;
+    opacity: 0.4;
   }
   40% {
     transform: scale(1);
@@ -1308,164 +1528,627 @@ watch(chatSettings, (newSettings) => {
 }
 
 .typing-text {
-  font-size: 14px;
-  color: #909399;
+  font-size: 15px;
+  color: var(--ios-secondary-label);
+  font-weight: 500;
+  opacity: 0.8;
 }
 
-/* 输入区域 */
+/* iOS风格输入区域 */
 .chat-input-container {
-  padding: 16px 20px;
-  border-top: 1px solid #ebeef5;
-  background: #fafbfc;
+  padding: 20px 24px;
+  border-top: 1px solid rgba(199, 199, 204, 0.3);
+  background: rgba(28, 28, 30, 0.02);
+  backdrop-filter: saturate(180%) blur(10px);
 }
 
 .input-wrapper {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: flex-end;
 }
 
 .message-input {
   flex: 1;
+  
+  :deep(.el-textarea__inner) {
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(199, 199, 204, 0.3);
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 12px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--ios-accent);
+    }
+    
+    &:focus {
+      background: rgba(255, 255, 255, 1);
+      border-color: var(--ios-accent);
+      box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.1);
+    }
+    
+    &::placeholder {
+      color: var(--ios-secondary-label);
+      opacity: 0.8;
+    }
+  }
 }
 
 .send-btn {
-  height: 40px;
-  min-width: 80px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background: var(--ios-message-blue);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &:hover {
+    background: #0056CC;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &:disabled {
+    background: var(--ios-separator);
+    color: var(--ios-secondary-label);
+    box-shadow: none;
+    transform: none;
+  }
 }
 
-/* 对话框样式 */
+/* iOS风格对话框样式 */
 .dialog-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .dialog-icon {
   font-size: 20px;
-  color: #409eff;
+  color: var(--ios-accent);
+  opacity: 0.9;
 }
 
-/* 历史记录 */
+/* iOS风格历史记录 */
 .history-content {
-  max-height: 60vh;
+  max-height: 65vh;
 }
 
 .history-controls {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 24px;
   align-items: center;
-}
-
-.search-input {
-  flex: 1;
+  
+  .search-input {
+    flex: 1;
+    
+    :deep(.el-input__wrapper) {
+      border-radius: 12px;
+      background: rgba(28, 28, 30, 0.06);
+      border: 1px solid rgba(199, 199, 204, 0.3);
+      
+      &:hover {
+        background: rgba(28, 28, 30, 0.08);
+        border-color: var(--ios-accent);
+      }
+      
+      &.is-focus {
+        background: rgba(28, 28, 30, 0.1);
+        border-color: var(--ios-accent);
+        box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.1);
+      }
+    }
+  }
+  
+  .el-button {
+    border-radius: 12px;
+    font-weight: 500;
+    
+    &--danger {
+      background: rgba(255, 59, 48, 0.1);
+      color: #FF3B30;
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      
+      &:hover {
+        background: rgba(255, 59, 48, 0.15);
+        border-color: #FF3B30;
+      }
+    }
+  }
 }
 
 .history-list {
-  max-height: 400px;
+  max-height: 450px;
   overflow-y: auto;
+  
+  // 自定义滚动条
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--ios-separator);
+    border-radius: 2px;
+  }
 }
 
 .loading-state {
   text-align: center;
-  padding: 40px 20px;
-  color: #909399;
-}
-
-.loading-state .el-icon {
-  font-size: 24px;
-  margin-bottom: 12px;
-  color: #409eff;
+  padding: 48px 24px;
+  color: var(--ios-secondary-label);
+  
+  .el-icon {
+    font-size: 28px;
+    margin-bottom: 16px;
+    color: var(--ios-accent);
+  }
+  
+  p {
+    font-size: 16px;
+    font-weight: 500;
+  }
 }
 
 .conversation-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .conversation-item {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 16px;
+  background: rgba(28, 28, 30, 0.04);
+  border-radius: 16px;
+  padding: 20px;
   cursor: pointer;
-  transition: all 0.3s;
-  border: 1px solid #ebeef5;
-}
-
-.conversation-item:hover {
-  background: #ecf5ff;
-  border-color: #409eff;
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid rgba(199, 199, 204, 0.3);
+  
+  &:hover {
+    background: rgba(28, 28, 30, 0.08);
+    border-color: var(--ios-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .conversation-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-}
-
-.conversation-header h4 {
-  margin: 0;
-  font-size: 14px;
-  color: #303133;
+  margin-bottom: 12px;
+  
+  h4 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--ios-label);
+    font-weight: 600;
+    letter-spacing: -0.2px;
+  }
 }
 
 .conversation-info {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
-  color: #909399;
+  font-size: 14px;
+  color: var(--ios-secondary-label);
+  opacity: 0.8;
 }
 
-/* 设置 */
+/* iOS风格设置 */
 .settings-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .setting-group {
-  border-bottom: 1px solid #ebeef5;
-  padding-bottom: 16px;
-}
-
-.setting-group:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+  border-bottom: 1px solid rgba(199, 199, 204, 0.3);
+  padding-bottom: 20px;
+  
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
 }
 
 .group-title {
-  margin: 0 0 12px 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #303133;
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ios-label);
+  letter-spacing: -0.3px;
 }
 
 .setting-item {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  :deep(.el-switch) {
+    .el-switch__core {
+      border-radius: 16px;
+      height: 32px;
+      background: var(--ios-separator);
+      border: none;
+      
+      &:after {
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        top: 2px;
+        left: 2px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+    }
+    
+    &.is-checked .el-switch__core {
+      background: #34C759;
+      
+      &:after {
+        left: calc(100% - 30px);
+      }
+    }
+    
+    .el-switch__label {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ios-label);
+      
+      &.is-active {
+        color: var(--ios-label);
+      }
+    }
+  }
 }
 
-.setting-item:last-child {
-  margin-bottom: 0;
+/* iOS风格Element Plus组件覆盖 */
+:deep(.el-dialog) {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  .el-dialog__header {
+    padding: 24px 24px 0;
+    border: none;
+    
+    .el-dialog__title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ios-label);
+      letter-spacing: -0.3px;
+    }
+  }
+  
+  .el-dialog__body {
+    padding: 24px;
+    color: var(--ios-label);
+  }
+  
+  .el-dialog__close {
+    font-size: 18px;
+    color: var(--ios-secondary-label);
+    
+    &:hover {
+      color: var(--ios-label);
+    }
+  }
 }
 
-/* 滚动条样式 */
+:deep(.el-tag) {
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: none;
+  
+  &.el-tag--success {
+    background: rgba(52, 199, 89, 0.15);
+    color: #34C759;
+  }
+  
+  &.el-tag--info {
+    background: rgba(28, 28, 30, 0.15);
+    color: var(--ios-accent);
+  }
+}
+
+:deep(.el-empty) {
+  .el-empty__image {
+    .el-icon {
+      font-size: 48px;
+      color: var(--ios-separator);
+    }
+  }
+  
+  .el-empty__description {
+    color: var(--ios-secondary-label);
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .el-button {
+    border-radius: 12px;
+    font-weight: 500;
+    
+    &--primary {
+      background: var(--ios-accent);
+      border: none;
+      
+      &:hover {
+        background: var(--ios-secondary);
+      }
+    }
+  }
+}
+
+/* iOS风格全局滚动条 */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f5f7fa;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #dcdfe6;
-  border-radius: 3px;
+  background: var(--ios-separator);
+  border-radius: 2px;
+  
+  &:hover {
+    background: var(--ios-gray);
+  }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #c0c4cc;
+/* 响应式设计 */
+@media (max-width: 1600px) {
+  .quick-panel {
+    width: 260px;
+    min-width: 240px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .quick-panel {
+    width: 240px;
+    min-width: 220px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .main-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .quick-panel {
+    width: 100%;
+    min-width: auto;
+    max-width: none;
+    order: 2;
+    max-height: 300px;
+    
+    .panel-section {
+      padding: 16px;
+    }
+    
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+  }
+  
+  .chat-container {
+    order: 1;
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ai-chat-container {
+    height: calc(100vh - 80px);
+  }
+  
+  .page-header {
+    padding: 20px;
+    margin-bottom: 16px;
+    
+    .header-content {
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+    
+    .header-title h2 {
+      font-size: 24px;
+    }
+    
+    .header-desc {
+      font-size: 14px;
+    }
+    
+    .header-right {
+      width: 100%;
+      justify-content: center;
+      
+      .el-button {
+        flex: 1;
+        max-width: 120px;
+      }
+    }
+  }
+  
+  .quick-panel {
+    .quick-actions {
+      grid-template-columns: 1fr;
+    }
+    
+    .action-item {
+      padding: 16px;
+      
+      .action-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+      }
+      
+      .action-title {
+        font-size: 15px;
+      }
+      
+      .action-desc {
+        font-size: 13px;
+      }
+    }
+    
+    .faq-list {
+      gap: 8px;
+      
+      .faq-item {
+        padding: 12px;
+        
+        .faq-text {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+  
+  .chat-container {
+    .chat-messages {
+      padding: 16px;
+    }
+    
+    .message-content {
+      max-width: 85%;
+      font-size: 15px;
+      padding: 14px 16px;
+    }
+    
+    .welcome-card {
+      padding: 24px;
+      
+      .ai-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 28px;
+      }
+      
+      .welcome-title {
+        font-size: 20px;
+      }
+      
+      .service-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        
+        .service-item {
+          padding: 12px;
+        }
+      }
+    }
+    
+    .chat-input-container {
+      padding: 16px;
+      
+      .input-wrapper {
+        gap: 12px;
+      }
+      
+      .send-btn {
+        height: 44px;
+        min-width: 44px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 16px;
+    
+    .header-title h2 {
+      font-size: 20px;
+    }
+  }
+  
+  .quick-panel {
+    .panel-section {
+      padding: 12px;
+    }
+    
+    .section-title {
+      font-size: 16px;
+    }
+    
+    .action-item {
+      padding: 12px;
+      
+      .action-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+      }
+    }
+  }
+  
+  .chat-container {
+    .chat-header {
+      padding: 16px;
+      
+      .status-text {
+        font-size: 14px;
+      }
+    }
+    
+    .chat-messages {
+      padding: 12px;
+    }
+    
+    .message-content {
+      font-size: 14px;
+      padding: 12px 14px;
+    }
+    
+    .welcome-card {
+      padding: 20px;
+      
+      .welcome-title {
+        font-size: 18px;
+      }
+    }
+    
+    .chat-input-container {
+      padding: 12px;
+      
+      .send-btn {
+        height: 40px;
+        min-width: 40px;
+      }
+    }
+  }
 }
 </style>
