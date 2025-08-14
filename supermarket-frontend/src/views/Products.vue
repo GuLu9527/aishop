@@ -1403,119 +1403,367 @@ const resetForm = () => {
 }
 </script>
 
-<style scoped>
-.products-container {
-  padding: 24px;
-  background: #f5f7fa;
-  min-height: 100vh;
+<style scoped lang="scss">
+// iOS 黑白灰色彩系统
+:root {
+  --ios-primary: #000000;
+  --ios-secondary: #1C1C1E;
+  --ios-tertiary: #2C2C2E;
+  --ios-gray: #8E8E93;
+  --ios-gray-light: #F2F2F7;
+  --ios-gray-medium: #C7C7CC;
+  --ios-gray-dark: #48484A;
+  --ios-white: #FFFFFF;
+  --ios-system-background: #F2F2F7;
+  --ios-secondary-background: #FFFFFF;
+  --ios-label: #000000;
+  --ios-secondary-label: #3C3C43;
+  --ios-tertiary-label: #3C3C4399;
+  --ios-separator: #C7C7CC;
+  --ios-accent: #1C1C1E;
 }
 
+.products-container {
+  padding: 24px;
+  background: var(--ios-system-background);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+}
+
+/* iOS风格页面头部 */
 .page-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
   padding: 32px;
-  margin-bottom: 24px;
-  color: white;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .page-header h2 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #fff;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ios-label);
+  letter-spacing: -0.6px;
+  line-height: 1.2;
 }
 
+/* iOS风格搜索区域 */
 .search-section {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
+.search-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.search-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--ios-separator);
+}
+
+.search-icon {
+  font-size: 24px;
+  color: var(--ios-accent);
+  margin-right: 12px;
+  opacity: 0.9;
+}
+
+.search-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ios-label);
+  letter-spacing: -0.3px;
+}
+
+/* iOS风格表格区域 */
 .table-section {
   background: transparent;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
+}
+
+.table-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  background: rgba(248, 248, 248, 0.8);
+  border-bottom: 1px solid var(--ios-separator);
+}
+
+.table-title {
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ios-label);
+  letter-spacing: -0.3px;
+}
+
+.table-icon {
+  font-size: 22px;
+  color: var(--ios-accent);
+  margin-right: 12px;
+  opacity: 0.9;
 }
 
 .pagination-section {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(248, 248, 248, 0.6);
+  border-top: 1px solid var(--ios-separator);
 }
 
 .low-stock {
-  color: #f56c6c;
-  font-weight: bold;
+  color: #FF3B30;
+  font-weight: 600;
 }
 
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* 表格样式优化 */
+/* iOS风格表格样式 */
 :deep(.el-table) {
-  border-radius: 6px;
-  overflow: hidden;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 }
 
 :deep(.el-table th) {
-  background-color: #f5f7fa;
-  color: #606266;
+  background: transparent;
+  color: var(--ios-secondary-label);
   font-weight: 600;
+  font-size: 14px;
+  border-bottom: 1px solid var(--ios-separator);
+  padding: 16px 12px;
 }
 
 :deep(.el-table td) {
-  padding: 12px 0;
+  padding: 16px 12px;
+  border-bottom: 1px solid rgba(199, 199, 204, 0.3);
+  font-size: 15px;
+  color: var(--ios-label);
 }
 
-/* 表单样式优化 */
+:deep(.el-table tr:hover > td) {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+:deep(.el-table .el-table__body tr.current-row > td) {
+  background: rgba(0, 122, 255, 0.05) !important;
+}
+
+// 表格内的标签样式
+:deep(.el-tag) {
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border: none;
+  
+  &.el-tag--success {
+    background: rgba(52, 199, 89, 0.15);
+    color: #34C759;
+  }
+  
+  &.el-tag--danger {
+    background: rgba(255, 59, 48, 0.15);
+    color: #FF3B30;
+  }
+  
+  &.el-tag--warning {
+    background: rgba(255, 149, 0, 0.15);
+    color: #FF9500;
+  }
+  
+  &.el-tag--info {
+    background: rgba(142, 142, 147, 0.15);
+    color: #8E8E93;
+  }
+}
+
+/* iOS风格表单样式 */
 :deep(.el-form-item__label) {
   font-weight: 500;
-  color: #606266;
+  color: var(--ios-secondary-label);
+  font-size: 15px;
+}
+
+:deep(.el-form) {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+}
+
+:deep(.el-form--inline .el-form-item) {
+  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
 :deep(.el-input__wrapper) {
-  border-radius: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--ios-separator);
+  background: var(--ios-secondary-background);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  min-height: 40px;
+  
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-color: var(--ios-gray);
+  }
+  
+  &.is-focus {
+    border-color: var(--ios-accent);
+    box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.15);
+  }
+}
+
+:deep(.el-input__inner) {
+  font-size: 15px;
+  color: var(--ios-label);
+  
+  &::placeholder {
+    color: var(--ios-tertiary-label);
+  }
 }
 
 :deep(.el-select .el-input__wrapper) {
-  border-radius: 4px;
+  border-radius: 10px;
 }
 
-/* 按钮样式优化 */
+:deep(.el-input-number .el-input__wrapper) {
+  border-radius: 10px;
+}
+
+:deep(.el-textarea .el-textarea__inner) {
+  border-radius: 12px;
+  border: 1px solid var(--ios-separator);
+  background: var(--ios-secondary-background);
+  font-size: 15px;
+  color: var(--ios-label);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  
+  &:focus {
+    border-color: var(--ios-accent);
+    box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.15);
+  }
+  
+  &::placeholder {
+    color: var(--ios-tertiary-label);
+  }
+}
+
+/* iOS风格按钮样式 */
 :deep(.el-button) {
-  border-radius: 4px;
+  border-radius: 10px;
   font-weight: 500;
+  font-size: 14px;
+  min-height: 36px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+  
+  &.is-circle {
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
 }
 
 :deep(.el-button--primary) {
-  background-color: #409eff;
-  border-color: #409eff;
+  background: var(--ios-accent);
+  border-color: var(--ios-accent);
+  color: var(--ios-white);
+  box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+  
+  &:hover {
+    background: var(--ios-secondary);
+    border-color: var(--ios-secondary);
+    box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+  }
 }
 
-:deep(.el-button--primary:hover) {
-  background-color: #66b1ff;
-  border-color: #66b1ff;
+:deep(.el-button--default) {
+  background: rgba(28, 28, 30, 0.06);
+  border-color: rgba(28, 28, 30, 0.15);
+  color: var(--ios-label);
+  
+  &:hover {
+    background: rgba(28, 28, 30, 0.1);
+    border-color: rgba(28, 28, 30, 0.2);
+  }
 }
 
-/* 对话框样式优化 */
+/* iOS风格对话框样式 */
 :deep(.el-dialog) {
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(20px);
 }
 
 :deep(.el-dialog__header) {
-  padding: 20px 20px 10px;
-  border-bottom: 1px solid #e6e6e6;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--ios-separator);
+}
+
+:deep(.el-dialog__title) {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ios-label);
+  letter-spacing: -0.3px;
 }
 
 :deep(.el-dialog__body) {
-  padding: 20px;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 }
 
 :deep(.el-dialog__footer) {
-  padding: 10px 20px 20px;
-  border-top: 1px solid #e6e6e6;
+  padding: 16px 24px 24px;
+  border-top: 1px solid var(--ios-separator);
 }
 
 /* 查看模式样式 */
@@ -1545,7 +1793,7 @@ const resetForm = () => {
   color: #495057 !important;
 }
 
-/* 新增美化样式 */
+/* iOS风格头部内容 */
 .header-content {
   display: flex;
   justify-content: space-between;
@@ -1563,16 +1811,18 @@ const resetForm = () => {
 }
 
 .header-icon {
-  font-size: 32px;
+  font-size: 28px;
   margin-right: 16px;
-  color: #fff;
+  color: var(--ios-accent);
+  opacity: 0.9;
 }
 
 .header-desc {
   margin: 0;
   font-size: 16px;
-  opacity: 0.9;
-  color: #fff;
+  color: var(--ios-secondary-label);
+  opacity: 0.8;
+  font-weight: 400;
 }
 
 .header-right {
@@ -1583,47 +1833,82 @@ const resetForm = () => {
 
 .header-stats {
   display: flex;
-  gap: 16px;
+  gap: 20px;
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 16px;
+  padding: 20px 24px;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: transform 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  min-width: 100px;
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.1),
+    0 3px 10px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .stat-card.warning {
-  background: rgba(245, 108, 108, 0.2);
-  border-color: rgba(245, 108, 108, 0.3);
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #FF9500, #FFB340);
+    border-radius: 16px 16px 0 0;
+  }
+  position: relative;
 }
 
 .stat-number {
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 4px;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ios-label);
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
 }
 
 .stat-label {
-  font-size: 12px;
-  opacity: 0.9;
-  color: #fff;
+  font-size: 14px;
+  color: var(--ios-secondary-label);
+  opacity: 0.8;
+  font-weight: 500;
 }
 
 .add-btn {
-  height: 48px;
+  height: 44px;
   padding: 0 24px;
   font-size: 16px;
+  font-weight: 500;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  background: var(--ios-accent);
+  color: var(--ios-white);
+  border: none;
+  box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &:hover {
+    background: var(--ios-secondary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .search-card {
@@ -1738,39 +2023,117 @@ const resetForm = () => {
   border-top: 1px solid #e4e7ed;
 }
 
-/* 批量操作工具栏样式 */
+/* iOS风格批量操作工具栏 */
 .batch-toolbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 15px 20px;
-  margin: 20px 0;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 20px 28px;
+  margin: 24px 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .batch-info {
-  font-weight: 500;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ios-label);
+  display: flex;
+  align-items: center;
+  
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #34C759;
+    border-radius: 50%;
+    margin-right: 12px;
+    animation: pulse-green 2s infinite;
+  }
 }
 
 .batch-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .batch-actions .el-button {
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  transition: all 0.3s ease;
-}
-
-.batch-actions .el-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+  height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 10px;
+  border: 1px solid rgba(28, 28, 30, 0.15);
+  background: rgba(28, 28, 30, 0.06);
+  color: var(--ios-label);
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &:hover {
+    background: rgba(28, 28, 30, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+  
+  // 特定类型按钮颜色
+  &.el-button--success {
+    background: rgba(52, 199, 89, 0.1);
+    border-color: rgba(52, 199, 89, 0.2);
+    color: #34C759;
+    
+    &:hover {
+      background: rgba(52, 199, 89, 0.15);
+    }
+  }
+  
+  &.el-button--primary {
+    background: rgba(0, 122, 255, 0.1);
+    border-color: rgba(0, 122, 255, 0.2);
+    color: #007AFF;
+    
+    &:hover {
+      background: rgba(0, 122, 255, 0.15);
+    }
+  }
+  
+  &.el-button--warning {
+    background: rgba(255, 149, 0, 0.1);
+    border-color: rgba(255, 149, 0, 0.2);
+    color: #FF9500;
+    
+    &:hover {
+      background: rgba(255, 149, 0, 0.15);
+    }
+  }
+  
+  &.el-button--danger {
+    background: rgba(255, 59, 48, 0.1);
+    border-color: rgba(255, 59, 48, 0.2);
+    color: #FF3B30;
+    
+    &:hover {
+      background: rgba(255, 59, 48, 0.15);
+    }
+  }
+  
+  &.el-button--info {
+    background: rgba(142, 142, 147, 0.1);
+    border-color: rgba(142, 142, 147, 0.2);
+    color: #8E8E93;
+    
+    &:hover {
+      background: rgba(142, 142, 147, 0.15);
+    }
+  }
 }
 
 .form-tip {
