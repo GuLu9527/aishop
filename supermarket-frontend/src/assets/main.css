@@ -1,4 +1,5 @@
 @import './base.css';
+@import './ios-variables.css';
 
 #app {
   max-width: 1280px;

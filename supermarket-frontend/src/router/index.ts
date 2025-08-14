@@ -125,6 +125,19 @@ const routes: RouteRecordRaw[] = [
     ]
   },
   {
+    path: '/suppliers',
+    component: () => import('../layouts/MainLayout.vue'),
+    meta: { title: '供应商管理', requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'Suppliers',
+        component: () => import('../views/Suppliers.vue'),
+        meta: { title: '供应商管理' }
+      }
+    ]
+  },
+  {
     path: '/test-chart',
     component: () => import('../layouts/MainLayout.vue'),
     meta: { title: '图表测试', requiresAuth: true },
