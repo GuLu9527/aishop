@@ -1,107 +1,177 @@
 <template>
   <div class="suppliers-container">
-    <!-- 页面头部 -->
+    <!-- iOS风格页面头部 -->
     <div class="page-header">
-      <div class="header-left">
-        <h2>供货商管理</h2>
-        <p>管理供货商信息，维护供应链关系</p>
-      </div>
-      <div class="header-stats">
-        <div class="stat-card">
-          <div class="stat-number">{{ supplierStats.totalCount || 0 }}</div>
-          <div class="stat-label">供货商总数</div>
+      <div class="header-content">
+        <div class="header-left">
+          <div class="header-title">
+            <el-icon class="header-icon"><OfficeBuilding /></el-icon>
+            <h2>供应商管理中心</h2>
+          </div>
+          <p class="header-desc">统一管理供应商信息，优化供应链合作关系</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ supplierStats.activeCount || 0 }}</div>
-          <div class="stat-label">正常供货商</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ supplierStats.inactiveCount || 0 }}</div>
-          <div class="stat-label">停用供货商</div>
+        <div class="header-right">
+          <el-button type="primary" @click="getSupplierList" :loading="loading">
+            <el-icon><Refresh /></el-icon>
+            刷新数据
+          </el-button>
+          <el-button @click="handleExport" :loading="exportLoading">
+            <el-icon><Download /></el-icon>
+            导出数据
+          </el-button>
         </div>
       </div>
     </div>
 
-    <!-- 搜索和操作区域 -->
+    <!-- iOS风格统计卡片 -->
+    <div class="stats-section">
+      <div class="header-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <el-icon><OfficeBuilding /></el-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ supplierStats.totalCount || 0 }}</div>
+            <div class="stat-label">供应商总数</div>
+          </div>
+          <div class="stat-trend up">
+            <el-icon><TrendCharts /></el-icon>
+            总览
+          </div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-icon">
+            <el-icon><Check /></el-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ supplierStats.activeCount || 0 }}</div>
+            <div class="stat-label">正常供应</div>
+          </div>
+          <div class="stat-trend up">
+            <el-icon><ArrowUp /></el-icon>
+            +5%
+          </div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-icon">
+            <el-icon><Warning /></el-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ supplierStats.inactiveCount || 0 }}</div>
+            <div class="stat-label">暂停合作</div>
+          </div>
+          <div class="stat-trend down">
+            <el-icon><ArrowDown /></el-icon>
+            -2%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- iOS风格搜索区域 -->
     <div class="search-section">
-      <el-card>
-        <el-form :model="searchForm" inline>
-          <el-form-item label="供货商名称">
-            <el-input
-              v-model="searchForm.supplierName"
-              placeholder="请输入供货商名称"
-              clearable
-              style="width: 200px"
-            />
-          </el-form-item>
-          <el-form-item label="联系人">
-            <el-input
-              v-model="searchForm.contactPerson"
-              placeholder="请输入联系人"
-              clearable
-              style="width: 150px"
-            />
-          </el-form-item>
-          <el-form-item label="信用等级">
-            <el-select v-model="searchForm.creditRating" placeholder="请选择信用等级" clearable>
-              <el-option label="全部" value="" />
-              <el-option label="1星" :value="1" />
-              <el-option label="2星" :value="2" />
-              <el-option label="3星" :value="3" />
-              <el-option label="4星" :value="4" />
-              <el-option label="5星" :value="5" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="状态">
-            <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
-              <el-option label="全部" value="" />
-              <el-option label="正常" :value="1" />
-              <el-option label="停用" :value="0" />
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="getSupplierList">
+      <div class="section-header">
+        <h3 class="section-title">
+          <el-icon><Search /></el-icon>
+          搜索筛选
+        </h3>
+      </div>
+      <div class="search-card">
+        <el-form :model="searchForm" class="search-form">
+          <div class="search-row">
+            <div class="search-item">
+              <label class="search-label">供应商名称</label>
+              <el-input
+                v-model="searchForm.supplierName"
+                placeholder="搜索供应商名称"
+                clearable
+                size="large"
+              >
+                <template #prefix>
+                  <el-icon><OfficeBuilding /></el-icon>
+                </template>
+              </el-input>
+            </div>
+            <div class="search-item">
+              <label class="search-label">联系人</label>
+              <el-input
+                v-model="searchForm.contactPerson"
+                placeholder="搜索联系人"
+                clearable
+                size="large"
+              >
+                <template #prefix>
+                  <el-icon><User /></el-icon>
+                </template>
+              </el-input>
+            </div>
+            <div class="search-item">
+              <label class="search-label">信用等级</label>
+              <el-select v-model="searchForm.creditRating" placeholder="选择信用等级" clearable size="large">
+                <el-option label="全部" value="" />
+                <el-option label="1星" :value="1" />
+                <el-option label="2星" :value="2" />
+                <el-option label="3星" :value="3" />
+                <el-option label="4星" :value="4" />
+                <el-option label="5星" :value="5" />
+              </el-select>
+            </div>
+            <div class="search-item">
+              <label class="search-label">状态</label>
+              <el-select v-model="searchForm.status" placeholder="选择状态" clearable size="large">
+                <el-option label="全部" value="" />
+                <el-option label="正常" :value="1" />
+                <el-option label="停用" :value="0" />
+              </el-select>
+            </div>
+          </div>
+          <div class="search-actions">
+            <el-button type="primary" @click="getSupplierList" size="large">
               <el-icon><Search /></el-icon>
               搜索
             </el-button>
-            <el-button @click="resetSearch">
+            <el-button @click="resetSearch" size="large">
               <el-icon><Refresh /></el-icon>
               重置
             </el-button>
-          </el-form-item>
+          </div>
         </el-form>
-      </el-card>
+      </div>
     </div>
 
-    <!-- 操作按钮区域 -->
+    <!-- iOS风格操作区域 -->
     <div class="action-section">
-      <div class="action-left">
-        <el-button type="primary" @click="showAddDialog">
-          <el-icon><Plus /></el-icon>
-          添加供货商
-        </el-button>
-        <el-button
-          type="danger"
-          :disabled="selectedSuppliers.length === 0"
-          @click="batchDeleteConfirm"
-        >
-          <el-icon><Delete /></el-icon>
-          批量删除
-        </el-button>
-        <el-button
-          type="success"
-          @click="handleExport"
-          :loading="exportLoading"
-        >
-          <el-icon><Download /></el-icon>
-          导出数据
-        </el-button>
+      <div class="section-header">
+        <h3 class="section-title">
+          <el-icon><Setting /></el-icon>
+          快捷操作
+        </h3>
       </div>
-      <div class="action-right">
-        <el-button size="small" @click="getSupplierList">
-          <el-icon><Refresh /></el-icon>
-          刷新
-        </el-button>
+      <div class="action-cards">
+        <div class="action-card primary" @click="showAddDialog">
+          <div class="action-icon">
+            <el-icon><Plus /></el-icon>
+          </div>
+          <div class="action-content">
+            <div class="action-title">添加供应商</div>
+            <div class="action-desc">新增供应商信息</div>
+          </div>
+          <el-icon class="action-arrow"><ArrowRight /></el-icon>
+        </div>
+        <div 
+          class="action-card danger" 
+          :class="{ disabled: selectedSuppliers.length === 0 }"
+          @click="selectedSuppliers.length > 0 && batchDeleteConfirm()"
+        >
+          <div class="action-icon">
+            <el-icon><Delete /></el-icon>
+          </div>
+          <div class="action-content">
+            <div class="action-title">批量删除</div>
+            <div class="action-desc">已选中 {{ selectedSuppliers.length }} 项</div>
+          </div>
+          <el-icon class="action-arrow"><ArrowRight /></el-icon>
+        </div>
       </div>
     </div>
 
@@ -116,7 +186,7 @@
           style="width: 100%"
         >
           <el-table-column type="selection" width="55" />
-          <el-table-column prop="supplierName" label="供货商名称" min-width="150">
+          <el-table-column prop="supplierName" label="供货商名称" width="260">
             <template #default="{ row }">
               <div class="supplier-name">
                 <span class="name">{{ row.supplierName }}</span>
@@ -125,66 +195,76 @@
             </template>
           </el-table-column>
           <el-table-column prop="contactPerson" label="联系人" width="100" />
-          <el-table-column prop="phone" label="联系电话" width="130" />
-          <el-table-column prop="creditRating" label="信用等级" width="100">
+          <el-table-column prop="phone" label="联系电话" width="200" />
+          <el-table-column prop="creditRating" label="信用等级" width="200">
             <template #default="{ row }">
-              <el-rate
-                v-model="row.creditRating"
-                disabled
-                show-score
-                text-color="#ff9900"
-                score-template="{value}星"
-              />
+              <div class="credit-rating-display">
+                <el-rate
+                  v-model="row.creditRating"
+                  disabled
+                  show-score
+                  text-color="#ff9900"
+                  score-template="{value}星"
+                  size="small"
+                />
+              </div>
             </template>
           </el-table-column>
-          <el-table-column prop="deliveryCycle" label="供货周期" width="100">
+          <el-table-column prop="deliveryCycle" label="供货周期" width="130">
             <template #default="{ row }">
               <span v-if="row.deliveryCycle">{{ row.deliveryCycle }}天</span>
               <span v-else>-</span>
             </template>
           </el-table-column>
-          <el-table-column prop="productCount" label="合作商品" width="100">
+          <el-table-column prop="productCount" label="合作商品" width="130">
             <template #default="{ row }">
               <el-tag type="info" size="small">{{ row.productCount || 0 }}个</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="createTime" label="创建时间" width="160">
+          <el-table-column prop="createTime" label="创建时间" width="200">
             <template #default="{ row }">
-              {{ formatDateTime(row.createTime) }}
+              <div class="enhanced-date-cell">
+                <div class="date-text">{{ formatDateTime(row.createTime).split(' ')[0] }}</div>
+                <div class="time-text">{{ formatDateTime(row.createTime).split(' ')[1] }}</div>
+              </div>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="200" fixed="right">
+          <el-table-column label="操作" width="220" fixed="right">
             <template #default="{ row }">
-              <el-tooltip content="查看详情" placement="top">
-                <el-button size="small" type="primary" circle @click="viewSupplier(row)">
-                  <el-icon><View /></el-icon>
-                </el-button>
-              </el-tooltip>
-              <el-tooltip content="编辑供货商" placement="top">
-                <el-button size="small" type="success" circle @click="editSupplier(row)">
-                  <el-icon><Edit /></el-icon>
-                </el-button>
-              </el-tooltip>
-              <el-tooltip :content="row.status === 1 ? '停用供货商' : '启用供货商'" placement="top">
-                <el-button 
-                  size="small" 
-                  :type="row.status === 1 ? 'warning' : 'success'" 
-                  circle 
-                  @click="toggleStatus(row)"
-                >
-                  <el-icon><Switch /></el-icon>
-                </el-button>
-              </el-tooltip>
-              <el-tooltip content="删除供货商" placement="top">
-                <el-button
-                  size="small"
-                  type="danger"
-                  circle
-                  @click="handleDeleteSupplier(row)"
-                >
-                  <el-icon><Delete /></el-icon>
-                </el-button>
-              </el-tooltip>
+              <div class="operation-buttons">
+                <el-tooltip content="查看详情" placement="top">
+                  <el-button size="small" type="primary" circle @click="viewSupplier(row)" class="op-btn">
+                    <el-icon><View /></el-icon>
+                  </el-button>
+                </el-tooltip>
+                <el-tooltip content="编辑供货商" placement="top">
+                  <el-button size="small" type="success" circle @click="editSupplier(row)" class="op-btn">
+                    <el-icon><Edit /></el-icon>
+                  </el-button>
+                </el-tooltip>
+                <el-tooltip :content="row.status === 1 ? '停用供货商' : '启用供货商'" placement="top">
+                  <el-button 
+                    size="small" 
+                    :type="row.status === 1 ? 'warning' : 'success'" 
+                    circle 
+                    @click="toggleStatus(row)"
+                    class="op-btn"
+                  >
+                    <el-icon><Switch /></el-icon>
+                  </el-button>
+                </el-tooltip>
+                <el-tooltip content="删除供货商" placement="top">
+                  <el-button
+                    size="small"
+                    type="danger"
+                    circle
+                    @click="handleDeleteSupplier(row)"
+                    class="op-btn"
+                  >
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                </el-tooltip>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -373,7 +453,9 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
 import {
   Plus, Search, Refresh, View, Edit, Delete, Switch,
-  User, Phone, Message, Setting, Check, Close, Download
+  User, Phone, Message, Setting, Check, Close, Download,
+  OfficeBuilding, TrendCharts, ArrowUp, ArrowDown, Warning,
+  ArrowRight
 } from '@element-plus/icons-vue'
 import {
   getSupplierPage,
@@ -845,257 +927,1164 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+// iOS 黑白灰色彩系统
+:root {
+  --ios-primary: #000000;
+  --ios-secondary: #1C1C1E;
+  --ios-tertiary: #2C2C2E;
+  --ios-gray: #8E8E93;
+  --ios-gray-light: #F2F2F7;
+  --ios-gray-medium: #C7C7CC;
+  --ios-gray-dark: #48484A;
+  --ios-white: #FFFFFF;
+  --ios-system-background: #F2F2F7;
+  --ios-secondary-background: #FFFFFF;
+  --ios-label: #000000;
+  --ios-secondary-label: #3C3C43;
+  --ios-tertiary-label: #3C3C4399;
+  --ios-separator: #C7C7CC;
+  --ios-accent: #1C1C1E;
+}
+
 .suppliers-container {
-  padding: 20px;
-  background-color: #f5f5f5;
   min-height: 100vh;
+  background: var(--ios-system-background);
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 }
 
+/* iOS风格页面头部 */
 .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-left {
+    .header-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+
+      .header-icon {
+        margin-right: 16px;
+        font-size: 28px;
+        color: var(--ios-accent);
+        opacity: 0.9;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--ios-label);
+        letter-spacing: -0.6px;
+        line-height: 1.2;
+      }
+    }
+
+    .header-desc {
+      margin: 0;
+      color: var(--ios-secondary-label);
+      font-size: 16px;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+  }
+
+  .header-right {
+    display: flex;
+    gap: 16px;
+    
+    .el-button {
+      height: 44px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 0 20px;
+      border: none;
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      
+      &--primary {
+        background: var(--ios-accent);
+        color: var(--ios-white);
+        box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+        
+        &:hover {
+          background: var(--ios-secondary);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+        }
+        
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+      
+      &:not(.el-button--primary) {
+        background: rgba(28, 28, 30, 0.08);
+        color: var(--ios-label);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        
+        &:hover {
+          background: rgba(28, 28, 30, 0.12);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+      }
+    }
+  }
 }
 
-.header-left h2 {
-  margin: 0 0 8px 0;
-  color: #303133;
-  font-size: 24px;
-  font-weight: 600;
-}
+/* iOS风格统计卡片区域 */
+.stats-section {
+  margin-bottom: 32px;
 
-.header-left p {
-  margin: 0;
-  color: #909399;
-  font-size: 14px;
-}
-
-.header-stats {
-  display: flex;
-  gap: 20px;
+  .header-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
 }
 
 .stat-card {
-  text-align: center;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 8px;
-  color: white;
-  min-width: 100px;
-}
-
-.stat-card:nth-child(2) {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.stat-card:nth-child(3) {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.stat-number {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-.search-section {
-  margin-bottom: 20px;
-}
-
-.action-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 28px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+    color: var(--ios-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(28, 28, 30, 0.25);
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .stat-content {
+    flex: 1;
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--ios-label);
+      margin-bottom: 8px;
+      letter-spacing: -0.8px;
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      font-size: 16px;
+      color: var(--ios-secondary-label);
+      font-weight: 500;
+      opacity: 0.8;
+    }
+  }
+
+  .stat-trend {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 12px;
+    margin-left: 12px;
+
+    &.up {
+      color: #1C1C1E;
+      background: rgba(52, 199, 89, 0.15);
+      border: 1px solid rgba(52, 199, 89, 0.2);
+      
+      .el-icon {
+        color: #34C759;
+      }
+    }
+
+    &.down {
+      color: #1C1C1E;
+      background: rgba(255, 59, 48, 0.15);
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      
+      .el-icon {
+        color: #FF3B30;
+      }
+    }
+  }
+
+  &.success {
+    .stat-icon {
+      background: linear-gradient(135deg, #34C759 0%, #30B753 100%);
+    }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #34C759, #30B753);
+      border-radius: 18px 18px 0 0;
+    }
+  }
+
+  &.warning {
+    .stat-icon {
+      background: linear-gradient(135deg, #FF9500 0%, #E6850E 100%);
+    }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #FF9500, #E6850E);
+      border-radius: 18px 18px 0 0;
+    }
+  }
 }
 
-.action-left {
+/* iOS风格搜索区域 */
+.search-section {
+  margin-bottom: 32px;
+
+  .section-header {
+    margin-bottom: 24px;
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ios-label);
+      letter-spacing: -0.4px;
+
+      .el-icon {
+        margin-right: 12px;
+        color: var(--ios-accent);
+        font-size: 26px;
+        opacity: 0.9;
+      }
+    }
+  }
+
+  .search-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-radius: 18px;
+    padding: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.06),
+      0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .search-form {
+    .search-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .search-item {
+      .search-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--ios-label);
+        font-size: 16px;
+      }
+
+      :deep(.el-input),
+      :deep(.el-select) {
+        .el-input__wrapper {
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.8);
+          border: 1px solid rgba(199, 199, 204, 0.3);
+          transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: var(--ios-accent);
+          }
+          
+          &.is-focus {
+            background: rgba(255, 255, 255, 1);
+            border-color: var(--ios-accent);
+            box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.1);
+          }
+        }
+      }
+    }
+
+    .search-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+  }
+}
+
+/* iOS风格操作区域 */
+.action-section {
+  margin-bottom: 32px;
+
+  .section-header {
+    margin-bottom: 24px;
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ios-label);
+      letter-spacing: -0.4px;
+
+      .el-icon {
+        margin-right: 12px;
+        color: var(--ios-accent);
+        font-size: 26px;
+        opacity: 0.9;
+      }
+    }
+  }
+
+  .action-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+}
+
+.action-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 24px;
   display: flex;
-  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+
+    &:hover {
+      transform: none !important;
+      box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.06),
+        0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  .action-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(28, 28, 30, 0.25);
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .action-content {
+    flex: 1;
+
+    .action-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ios-label);
+      margin-bottom: 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .action-desc {
+      font-size: 15px;
+      color: var(--ios-secondary-label);
+      opacity: 0.8;
+      font-weight: 400;
+    }
+  }
+
+  .action-arrow {
+    color: var(--ios-tertiary-label);
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+    font-size: 18px;
+  }
+
+  &.primary {
+    .action-icon {
+      background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+      color: var(--ios-white);
+    }
+  }
+
+  &.danger {
+    .action-icon {
+      background: linear-gradient(135deg, rgba(255, 59, 48, 0.9) 0%, rgba(255, 107, 90, 0.9) 100%);
+      color: var(--ios-white);
+    }
+  }
+
+  &:hover:not(.disabled) {
+    .action-icon {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(28, 28, 30, 0.35);
+    }
+    
+    .action-arrow {
+      color: var(--ios-accent);
+      transform: translateX(6px);
+    }
+  }
 }
 
 .table-section {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
+  :deep(.el-card) {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.06),
+      0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    
+    .el-card__body {
+      padding: 28px;
+    }
+  }
 }
 
 .supplier-name {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+
+  .name {
+    font-weight: 600;
+    color: var(--ios-label);
+    font-size: 15px;
+    letter-spacing: -0.1px;
+  }
 }
 
-.supplier-name .name {
-  font-weight: 500;
-  color: #303133;
+/* 增强的日期时间显示 */
+.enhanced-date-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 8px;
+
+  .date-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ios-label);
+    letter-spacing: -0.1px;
+  }
+
+  .time-text {
+    font-size: 13px;
+    color: var(--ios-secondary-label);
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
+    background: rgba(28, 28, 30, 0.06);
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: inline-block;
+    width: fit-content;
+  }
 }
 
 .pagination-container {
   display: flex;
   justify-content: center;
-  padding: 20px 0;
+  padding: 24px 0;
 }
 
 .dialog-footer {
   text-align: right;
-}
-
-/* 供货商对话框样式 */
-.supplier-dialog {
-  .el-dialog__body {
-    padding: 30px;
-    max-height: 70vh;
-    overflow-y: auto;
+  
+  .el-button {
+    border-radius: 12px;
+    font-weight: 500;
+    padding: 10px 20px;
+    
+    &--primary {
+      background: var(--ios-accent);
+      border: none;
+      
+      &:hover {
+        background: var(--ios-secondary);
+      }
+    }
   }
 }
 
-/* 供货商表单样式 */
+/* iOS风格供货商对话框样式 */
+:deep(.supplier-dialog) {
+  .el-dialog {
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.12),
+      0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+  
+  .el-dialog__header {
+    padding: 24px 24px 0;
+    border: none;
+    
+    .el-dialog__title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ios-label);
+      letter-spacing: -0.3px;
+    }
+  }
+  
+  .el-dialog__body {
+    padding: 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+    
+    // 自定义滚动条
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--ios-separator);
+      border-radius: 2px;
+    }
+  }
+}
+
+/* iOS风格供货商表单样式 */
 .supplier-form {
   .form-section {
     margin-bottom: 32px;
-    padding: 24px;
-    background: #fafafa;
-    border-radius: 8px;
-    border: 1px solid #e4e7ed;
+    padding: 28px;
+    background: rgba(28, 28, 30, 0.04);
+    border-radius: 16px;
+    border: 1px solid rgba(199, 199, 204, 0.3);
+    backdrop-filter: saturate(180%) blur(10px);
   }
 
   .section-title {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #303133;
+    margin-bottom: 24px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ios-label);
+    letter-spacing: -0.3px;
 
     .el-icon {
-      margin-right: 8px;
-      color: #409eff;
-      font-size: 18px;
+      margin-right: 12px;
+      color: var(--ios-accent);
+      font-size: 20px;
+      opacity: 0.9;
     }
   }
 
-  .el-form-item {
+  :deep(.el-form-item) {
     margin-bottom: 24px;
-  }
 
-  .el-form-item__label {
-    font-weight: 500;
-    color: #606266;
-  }
-
-  .el-input, .el-textarea {
-    .el-input__inner, .el-textarea__inner {
-      border-radius: 6px;
-      transition: all 0.3s ease;
+    .el-form-item__label {
+      font-weight: 600;
+      color: var(--ios-label);
+      font-size: 16px;
     }
   }
 
-  .el-input:hover .el-input__inner,
-  .el-textarea:hover .el-textarea__inner {
-    border-color: #c0c4cc;
-  }
-
-  .el-input.is-focus .el-input__inner,
-  .el-textarea.is-focus .el-textarea__inner {
-    border-color: #409eff;
-    box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+  :deep(.el-input),
+  :deep(.el-textarea),
+  :deep(.el-select),
+  :deep(.el-input-number) {
+    .el-input__wrapper,
+    .el-textarea__inner {
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(199, 199, 204, 0.3);
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--ios-accent);
+      }
+      
+      &.is-focus {
+        background: rgba(255, 255, 255, 1);
+        border-color: var(--ios-accent);
+        box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.1);
+      }
+    }
   }
 
   .credit-rating-container {
-    padding: 8px 0;
+    padding: 12px 0;
 
-    .el-rate {
+    :deep(.el-rate) {
       display: flex;
       align-items: center;
+      
+      .el-rate__item {
+        margin-right: 8px;
+      }
     }
 
-    .el-rate__text {
-      margin-left: 12px;
-      font-weight: 500;
-      color: #606266;
+    :deep(.el-rate__text) {
+      margin-left: 16px;
+      font-weight: 600;
+      color: var(--ios-label);
+      font-size: 16px;
     }
   }
 
-  .el-radio-group {
+  :deep(.el-radio-group) {
     .el-radio {
-      margin-right: 24px;
-
+      margin-right: 32px;
+      
       .el-radio__label {
         display: flex;
         align-items: center;
+        color: var(--ios-label);
+        font-weight: 500;
+        font-size: 16px;
 
         .el-icon {
-          margin-right: 4px;
+          margin-right: 8px;
+        }
+      }
+      
+      .el-radio__inner {
+        border-color: var(--ios-separator);
+        
+        &:hover {
+          border-color: var(--ios-accent);
+        }
+      }
+      
+      &.is-checked {
+        .el-radio__inner {
+          background: var(--ios-accent);
+          border-color: var(--ios-accent);
+        }
+        
+        .el-radio__label {
+          color: var(--ios-accent);
         }
       }
     }
   }
 
-  .el-input-number {
+  :deep(.el-input-number) {
+    width: 100%;
+    
     .el-input-number__increase,
     .el-input-number__decrease {
       border-radius: 0;
+      background: rgba(28, 28, 30, 0.06);
+      border-color: rgba(199, 199, 204, 0.3);
+      
+      &:hover {
+        background: rgba(28, 28, 30, 0.1);
+        color: var(--ios-accent);
+      }
     }
   }
 }
 
-/* 表单验证错误样式 */
-.supplier-form .el-form-item.is-error {
-  .el-input__inner,
+/* iOS风格表单验证错误样式 */
+.supplier-form :deep(.el-form-item.is-error) {
+  .el-input__wrapper,
   .el-textarea__inner {
-    border-color: #f56c6c;
+    border-color: #FF3B30;
+    background: rgba(255, 59, 48, 0.08);
   }
 
   .el-form-item__error {
-    font-size: 12px;
-    margin-top: 4px;
+    font-size: 14px;
+    margin-top: 8px;
+    color: #FF3B30;
+    font-weight: 500;
+  }
+}
+
+/* iOS风格Element Plus组件覆盖 */
+:deep(.el-form) {
+  .el-button {
+    border-radius: 12px;
+    font-weight: 500;
+    padding: 10px 20px;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    border: none;
+
+    &--primary {
+      background: var(--ios-accent);
+      color: var(--ios-white);
+      box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+
+      &:hover {
+        background: var(--ios-secondary);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+      }
+    }
+    
+    &--success {
+      background: #34C759;
+      color: var(--ios-white);
+      box-shadow: 0 2px 8px rgba(52, 199, 89, 0.25);
+
+      &:hover {
+        background: #30B753;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(52, 199, 89, 0.35);
+      }
+    }
+    
+    &--danger {
+      background: rgba(255, 59, 48, 0.1);
+      color: #FF3B30;
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      box-shadow: none;
+      
+      &:hover {
+        background: rgba(255, 59, 48, 0.15);
+        border-color: #FF3B30;
+        transform: translateY(-1px);
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        transform: none;
+      }
+    }
+
+    &:not([class*="--"]) {
+      background: rgba(28, 28, 30, 0.08);
+      color: var(--ios-label);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+      &:hover {
+        background: rgba(28, 28, 30, 0.12);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+:deep(.el-table) {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-border-color: var(--ios-separator);
+  --el-table-header-text-color: var(--ios-label);
+  --el-table-text-color: var(--ios-label);
+  
+  th {
+    background: rgba(28, 28, 30, 0.04);
+    border-bottom: 1px solid var(--ios-separator);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 16px 12px;
+  }
+
+  td {
+    border-bottom: 1px solid rgba(199, 199, 204, 0.3);
+    padding: 16px 12px;
+  }
+
+  .el-button {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* iOS风格操作按钮组 */
+.operation-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 4px;
+  
+  .op-btn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 12px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+    
+    &:hover {
+      transform: translateY(-1px) scale(1.05) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
+    }
+    
+    &:active {
+      transform: scale(0.95) !important;
+    }
+    
+    .el-icon {
+      font-size: 18px !important;
+    }
+    
+    // 不同类型按钮的个性化样式
+    &.el-button--primary {
+      background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%) !important;
+      border: none !important;
+      
+      &:hover {
+        background: linear-gradient(135deg, #0051D5 0%, #003F99 100%) !important;
+      }
+    }
+    
+    &.el-button--success {
+      background: linear-gradient(135deg, #34C759 0%, #30B753 100%) !important;
+      border: none !important;
+      
+      &:hover {
+        background: linear-gradient(135deg, #30B753 0%, #2CA44D 100%) !important;
+      }
+    }
+    
+    &.el-button--warning {
+      background: linear-gradient(135deg, #FF9500 0%, #E6850E 100%) !important;
+      border: none !important;
+      
+      &:hover {
+        background: linear-gradient(135deg, #E6850E 0%, #CC7A0C 100%) !important;
+      }
+    }
+    
+    &.el-button--danger {
+      background: linear-gradient(135deg, #FF3B30 0%, #E6342A 100%) !important;
+      border: none !important;
+      
+      &:hover {
+        background: linear-gradient(135deg, #E6342A 0%, #CC2E24 100%) !important;
+      }
+    }
+  }
+}
+
+:deep(.el-tag) {
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: none;
+  
+  &.el-tag--info {
+    background: rgba(28, 28, 30, 0.15);
+    color: var(--ios-accent);
+  }
+  
+  &.el-tag--danger {
+    background: rgba(255, 59, 48, 0.15);
+    color: #FF3B30;
+  }
+}
+
+:deep(.el-rate) {
+  .el-rate__item {
+    margin-right: 4px;
+  }
+}
+
+/* 表格中信用等级显示优化 */
+.credit-rating-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+  
+  :deep(.el-rate) {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    
+    .el-rate__item {
+      margin-right: 2px;
+      flex-shrink: 0;
+    }
+    
+    .el-rate__text {
+      margin-left: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ios-secondary-label);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    
+    // 小尺寸星星样式
+    &.el-rate--small {
+      .el-rate__item {
+        font-size: 14px;
+        margin-right: 1px;
+      }
+      
+      .el-rate__text {
+        font-size: 11px;
+        margin-left: 4px;
+      }
+    }
+  }
+}
+
+:deep(.el-tooltip__popper) {
+  background: rgba(28, 28, 30, 0.9);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 8px;
+  border: none;
+  
+  &.is-dark {
+    background: rgba(28, 28, 30, 0.9);
+    
+    .el-tooltip__arrow::before {
+      background: rgba(28, 28, 30, 0.9);
+      border: none;
+    }
+  }
+}
+
+:deep(.el-pagination) {
+  .el-pager li {
+    background: transparent;
+    border-radius: 8px;
+    margin: 0 2px;
+    color: var(--ios-secondary-label);
+    font-weight: 500;
+    
+    &.is-active {
+      background: var(--ios-accent);
+      color: var(--ios-white);
+    }
+    
+    &:hover {
+      background: rgba(28, 28, 30, 0.08);
+      color: var(--ios-label);
+    }
+  }
+  
+  .btn-prev,
+  .btn-next {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--ios-secondary-label);
+    
+    &:hover {
+      background: rgba(28, 28, 30, 0.08);
+      color: var(--ios-label);
+    }
+  }
+  
+  .el-select {
+    .el-input__wrapper {
+      border-radius: 8px;
+    }
   }
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
   .suppliers-container {
-    padding: 10px;
+    padding: 20px;
   }
 
   .page-header {
     flex-direction: column;
-    gap: 16px;
+    gap: 24px;
     text-align: center;
+    
+    .header-stats {
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
   }
-
-  .header-stats {
-    justify-content: center;
-    flex-wrap: wrap;
+  
+  .stat-card {
+    min-width: 100px;
+    padding: 20px;
+    
+    .stat-number {
+      font-size: 28px;
+    }
+    
+    .stat-label {
+      font-size: 13px;
+    }
   }
 
   .action-section {
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
+
+    .action-left {
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .suppliers-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    padding: 20px;
+    
+    .header-left {
+      h2 {
+        font-size: 24px;
+      }
+      
+      p {
+        font-size: 14px;
+      }
+    }
+    
+    .header-stats {
+      gap: 12px;
+      
+      .stat-card {
+        min-width: 80px;
+        padding: 16px;
+        
+        .stat-number {
+          font-size: 24px;
+        }
+        
+        .stat-label {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  :deep(.search-section .el-card),
+  :deep(.table-section .el-card) {
+    .el-card__body {
+      padding: 16px;
+    }
+  }
+
+  :deep(.el-form--inline) {
+    .el-form-item {
+      display: block;
+      margin-right: 0;
+      margin-bottom: 16px;
+      width: 100%;
+      
+      .el-select,
+      .el-input {
+        width: 100%;
+      }
+    }
   }
 
   .action-left {
-    width: 100%;
-    justify-content: center;
+    gap: 12px;
+    
+    .el-button {
+      flex: 1;
+      min-width: 0;
+    }
   }
 
   /* 移动端对话框优化 */
-  .supplier-dialog {
-    width: 95% !important;
-    margin: 0 auto;
-
+  :deep(.supplier-dialog) {
+    .el-dialog {
+      width: 95% !important;
+      margin: 0 auto;
+    }
+    
     .el-dialog__body {
       padding: 20px;
       max-height: 60vh;
@@ -1109,40 +2098,133 @@ onMounted(() => {
     }
 
     .section-title {
-      font-size: 14px;
+      font-size: 16px;
       margin-bottom: 16px;
     }
 
-    .el-form-item {
+    :deep(.el-form-item) {
       margin-bottom: 16px;
-    }
-
-    .el-form-item__label {
-      font-size: 14px;
+      
+      .el-form-item__label {
+        font-size: 14px;
+      }
     }
 
     /* 移动端单列布局 */
-    .el-row .el-col {
+    :deep(.el-row .el-col) {
       width: 100% !important;
       margin-bottom: 8px;
     }
 
-    .el-radio-group .el-radio {
+    :deep(.el-radio-group .el-radio) {
       margin-right: 16px;
       margin-bottom: 8px;
+      
+      .el-radio__label {
+        font-size: 14px;
+      }
+    }
+  }
+
+  :deep(.el-table) {
+    font-size: 14px;
+    
+    th,
+    td {
+      padding: 12px 8px;
+    }
+    
+    .el-button {
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+    }
+  }
+  
+  // 移动端操作按钮优化
+  .operation-buttons {
+    gap: 6px;
+    padding: 6px 2px;
+    
+    .op-btn {
+      width: 32px !important;
+      height: 32px !important;
+      border-radius: 10px !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+      
+      .el-icon {
+        font-size: 16px !important;
+      }
+      
+      &:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+      }
+    }
+  }
+  
+  // 移动端信用等级显示优化
+  .credit-rating-display {
+    :deep(.el-rate) {
+      .el-rate__item {
+        font-size: 12px;
+        margin-right: 1px;
+      }
+      
+      .el-rate__text {
+        font-size: 10px;
+        margin-left: 3px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .suppliers-container {
+    padding: 12px;
+  }
+
+  .page-header {
+    padding: 16px;
+    
+    .header-left h2 {
+      font-size: 20px;
+    }
+    
+    .header-stats {
+      grid-template-columns: 1fr;
+      
+      .stat-card {
+        width: 100%;
+      }
+    }
+  }
+
+  :deep(.search-section .el-card),
+  :deep(.table-section .el-card) {
+    .el-card__body {
+      padding: 12px;
+    }
+  }
+
+  .supplier-form {
+    .form-section {
+      padding: 12px;
     }
   }
 }
 
 /* 平板设备优化 */
 @media (max-width: 1024px) and (min-width: 769px) {
-  .supplier-dialog {
-    width: 90% !important;
+  :deep(.supplier-dialog) {
+    .el-dialog {
+      width: 90% !important;
+    }
   }
 
   .supplier-form {
     .form-section {
-      padding: 20px;
+      padding: 24px;
     }
   }
 }
