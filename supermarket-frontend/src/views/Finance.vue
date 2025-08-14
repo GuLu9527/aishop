@@ -373,200 +373,578 @@ const getRelativeTime = (dateTime: string | Date | number[]) => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+// iOS 黑白灰色彩系统
+:root {
+  --ios-primary: #000000;
+  --ios-secondary: #1C1C1E;
+  --ios-tertiary: #2C2C2E;
+  --ios-gray: #8E8E93;
+  --ios-gray-light: #F2F2F7;
+  --ios-gray-medium: #C7C7CC;
+  --ios-gray-dark: #48484A;
+  --ios-white: #FFFFFF;
+  --ios-system-background: #F2F2F7;
+  --ios-secondary-background: #FFFFFF;
+  --ios-label: #000000;
+  --ios-secondary-label: #3C3C43;
+  --ios-tertiary-label: #3C3C4399;
+  --ios-separator: #C7C7CC;
+  --ios-accent: #1C1C1E;
+}
+
 .finance-container {
-  padding: 20px;
+  min-height: 100vh;
+  background: var(--ios-system-background);
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 }
 
+/* iOS风格页面头部 */
 .page-header {
-  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+
+  h1 {
+    margin: 0 0 12px 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ios-label);
+    letter-spacing: -0.6px;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0;
+    color: var(--ios-secondary-label);
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.8;
+  }
 }
 
-.page-header h1 {
-  margin: 0 0 10px 0;
-  color: #333;
-  font-size: 28px;
-}
-
-.page-header p {
-  margin: 0;
-  color: #666;
-  font-size: 14px;
-}
-
+/* iOS风格统计区域 */
 .stats-section {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
+
+  :deep(.el-col) {
+    margin-bottom: 20px;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 16px;
+    }
+  }
 }
 
-.stats-card {
-  height: 120px;
+:deep(.stats-card) {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  height: 130px;
   cursor: default;
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  .el-card__body {
+    padding: 24px;
+    height: 100%;
+  }
+
+  &:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 
+      0 6px 20px rgba(0, 0, 0, 0.08),
+      0 3px 10px rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .stats-content {
   display: flex;
   align-items: center;
   height: 100%;
+  gap: 20px;
 }
 
 .stats-icon {
-  font-size: 40px;
-  margin-right: 20px;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .income-card .stats-icon {
-  color: #67c23a;
+  background: linear-gradient(135deg, #34C759 0%, #30B753 100%);
+  color: var(--ios-white);
 }
 
 .expense-card .stats-icon {
-  color: #f56c6c;
+  background: linear-gradient(135deg, #FF3B30 0%, #E0342E 100%);
+  color: var(--ios-white);
 }
 
 .profit-card .stats-icon {
-  color: #409eff;
+  background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+  color: var(--ios-white);
 }
 
 .rate-card .stats-icon {
-  color: #e6a23c;
+  background: linear-gradient(135deg, #FF9500 0%, #E6850E 100%);
+  color: var(--ios-white);
 }
 
 .stats-info {
   flex: 1;
+  min-width: 0;
 }
 
 .stats-value {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.4px;
+  line-height: 1.1;
 }
 
 .income-card .stats-value {
-  color: #67c23a;
+  color: #34C759;
 }
 
 .expense-card .stats-value {
-  color: #f56c6c;
+  color: #FF3B30;
 }
 
 .profit-card .stats-value {
-  color: #409eff;
+  color: var(--ios-accent);
 }
 
 .rate-card .stats-value {
-  color: #e6a23c;
+  color: #FF9500;
 }
 
 .stats-label {
-  color: #666;
-  font-size: 14px;
+  color: var(--ios-secondary-label);
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
+/* iOS风格导航区域 */
 .nav-section {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
+  
+  :deep(.el-col) {
+    margin-bottom: 20px;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 16px;
+    }
+  }
 }
 
-.nav-card {
-  height: 100px;
+:deep(.nav-card) {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  height: 120px;
   cursor: pointer;
-  transition: all 0.3s;
-}
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
 
-.nav-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  .el-card__body {
+    padding: 24px;
+    height: 100%;
+  }
+
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.98);
+
+    .nav-icon {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(28, 28, 30, 0.25);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .nav-content {
   display: flex;
   align-items: center;
   height: 100%;
+  gap: 20px;
 }
 
 .nav-icon {
-  font-size: 32px;
-  color: #409eff;
-  margin-right: 15px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+  color: var(--ios-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(28, 28, 30, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .nav-info {
   flex: 1;
+  min-width: 0;
 }
 
 .nav-title {
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 5px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ios-label);
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
 }
 
 .nav-desc {
-  color: #666;
-  font-size: 12px;
+  color: var(--ios-secondary-label);
+  font-size: 15px;
+  font-weight: 400;
+  opacity: 0.8;
+  line-height: 1.3;
 }
 
+/* iOS风格最近记录区域 */
 .recent-section {
-  margin-bottom: 30px;
-}
+  margin-bottom: 32px;
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  :deep(.el-card) {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.06),
+      0 2px 8px rgba(0, 0, 0, 0.04);
+
+    .el-card__header {
+      background: transparent;
+      border-bottom: 1px solid var(--ios-separator);
+      padding: 24px 24px 20px;
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        span {
+          font-size: 20px;
+          font-weight: 600;
+          color: var(--ios-label);
+          letter-spacing: -0.3px;
+        }
+
+        .el-button {
+          height: 36px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 500;
+          padding: 0 16px;
+          border: none;
+          background: var(--ios-accent);
+          color: var(--ios-white);
+          box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+          transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+          &:hover {
+            background: var(--ios-secondary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+          }
+
+          &:active {
+            transform: scale(0.98);
+          }
+        }
+      }
+    }
+
+    .el-card__body {
+      padding: 24px;
+    }
+
+    .el-table {
+      --el-table-bg-color: transparent;
+      --el-table-tr-bg-color: transparent;
+      --el-table-border-color: var(--ios-separator);
+      --el-table-header-text-color: var(--ios-label);
+      --el-table-text-color: var(--ios-label);
+
+      th {
+        background: rgba(28, 28, 30, 0.04);
+        border-bottom: 1px solid var(--ios-separator);
+        font-weight: 600;
+        font-size: 15px;
+      }
+
+      td {
+        border-bottom: 1px solid rgba(199, 199, 204, 0.3);
+        padding: 16px 12px;
+      }
+    }
+  }
 }
 
 .income-amount {
-  color: #67c23a;
-  font-weight: bold;
+  color: #34C759;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .expense-amount {
-  color: #f56c6c;
-  font-weight: bold;
+  color: #FF3B30;
+  font-weight: 600;
+  font-size: 16px;
 }
 
-/* 增强的日期时间单元格样式 */
+/* iOS风格增强的日期时间单元格 */
 .enhanced-date-cell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px 0;
+  gap: 6px;
+  padding: 12px 8px;
 }
 
 .date-main, .time-main {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .date-icon {
-  color: #409eff;
-  font-size: 14px;
+  color: var(--ios-accent);
+  font-size: 16px;
+  opacity: 0.8;
 }
 
 .time-icon {
-  color: #67c23a;
-  font-size: 12px;
+  color: #34C759;
+  font-size: 14px;
+  opacity: 0.8;
 }
 
 .date-text {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ios-label);
+  letter-spacing: -0.1px;
 }
 
 .time-text {
-  font-size: 12px;
-  color: #606266;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  background: #f5f7fa;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 13px;
+  color: var(--ios-secondary-label);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
+  background: rgba(28, 28, 30, 0.06);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 500;
 }
 
 .relative-time {
-  font-size: 11px;
-  color: #909399;
+  font-size: 12px;
+  color: var(--ios-gray);
   font-style: italic;
-  margin-left: 20px;
+  margin-left: 24px;
+  opacity: 0.7;
+}
+
+/* iOS风格标签 */
+:deep(.el-tag) {
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  padding: 4px 12px;
+  border: none;
+  
+  &.el-tag--success {
+    background: rgba(52, 199, 89, 0.15);
+    color: #34C759;
+  }
+  
+  &.el-tag--danger {
+    background: rgba(255, 59, 48, 0.15);
+    color: #FF3B30;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .finance-container {
+    padding: 20px;
+  }
+
+  :deep(.el-col) {
+    &[class*="span-6"] {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+
+    &[class*="span-8"] {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .finance-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    padding: 20px;
+
+    h1 {
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+
+  :deep(.el-col) {
+    &[class*="span-6"],
+    &[class*="span-8"] {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  }
+
+  .stats-content,
+  .nav-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .stats-icon,
+  .nav-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .stats-value {
+    font-size: 24px;
+  }
+
+  .nav-title {
+    font-size: 16px;
+  }
+
+  .nav-desc {
+    font-size: 13px;
+  }
+
+  .enhanced-date-cell {
+    padding: 8px 4px;
+    gap: 4px;
+
+    .date-text {
+      font-size: 14px;
+    }
+
+    .time-text {
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+
+    .relative-time {
+      font-size: 11px;
+      margin-left: 16px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .finance-container {
+    padding: 12px;
+  }
+
+  .page-header {
+    padding: 16px;
+
+    h1 {
+      font-size: 20px;
+    }
+  }
+
+  :deep(.stats-card),
+  :deep(.nav-card) {
+    .el-card__body {
+      padding: 16px;
+    }
+  }
+
+  .stats-icon,
+  .nav-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .stats-value {
+    font-size: 20px;
+  }
+
+  .stats-label,
+  .nav-title {
+    font-size: 14px;
+  }
+
+  .nav-desc {
+    font-size: 12px;
+  }
+
+  :deep(.recent-section .el-card) {
+    .el-card__header {
+      padding: 16px;
+
+      .card-header span {
+        font-size: 18px;
+      }
+    }
+
+    .el-card__body {
+      padding: 16px;
+    }
+  }
 }
 </style>

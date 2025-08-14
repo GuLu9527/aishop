@@ -585,168 +585,679 @@ const formatAmount = (amount: number) => {
 
 </script>
 
-<style scoped>
-.finance-records-container {
-  padding: 20px;
+<style scoped lang="scss">
+// iOS 黑白灰色彩系统
+:root {
+  --ios-primary: #000000;
+  --ios-secondary: #1C1C1E;
+  --ios-tertiary: #2C2C2E;
+  --ios-gray: #8E8E93;
+  --ios-gray-light: #F2F2F7;
+  --ios-gray-medium: #C7C7CC;
+  --ios-gray-dark: #48484A;
+  --ios-white: #FFFFFF;
+  --ios-system-background: #F2F2F7;
+  --ios-secondary-background: #FFFFFF;
+  --ios-label: #000000;
+  --ios-secondary-label: #3C3C43;
+  --ios-tertiary-label: #3C3C4399;
+  --ios-separator: #C7C7CC;
+  --ios-accent: #1C1C1E;
 }
 
+.finance-records-container {
+  min-height: 100vh;
+  background: var(--ios-system-background);
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+}
+
+/* iOS风格页面头部 */
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-}
+  margin-bottom: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 
-.page-header h1 {
-  margin: 0;
-  color: #333;
+  h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ios-label);
+    letter-spacing: -0.6px;
+    line-height: 1.2;
+  }
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 16px;
+  
+  .el-button {
+    height: 44px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 0 20px;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    &--primary {
+      background: var(--ios-accent);
+      color: var(--ios-white);
+      box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+      
+      &:hover {
+        background: var(--ios-secondary);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+      }
+      
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+    
+    &:not(.el-button--primary) {
+      background: rgba(28, 28, 30, 0.08);
+      color: var(--ios-label);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      
+      &:hover {
+        background: rgba(28, 28, 30, 0.12);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+    }
+  }
 }
 
-.search-card {
-  margin-bottom: 20px;
+/* iOS风格搜索卡片 */
+:deep(.search-card) {
+  margin-bottom: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .el-card__body {
+    padding: 28px;
+  }
 }
 
-.table-card {
-  margin-bottom: 20px;
+/* iOS风格表格卡片 */
+:deep(.table-card) {
+  margin-bottom: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+
+  .el-card__body {
+    padding: 28px;
+  }
 }
 
 .batch-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-top: 1px solid #ebeef5;
-  margin-top: 10px;
+  padding: 20px 0;
+  border-top: 1px solid rgba(199, 199, 204, 0.3);
+  margin-top: 20px;
+  
+  span {
+    font-size: 16px;
+    color: var(--ios-secondary-label);
+    font-weight: 500;
+  }
+  
+  .el-button {
+    border-radius: 12px;
+    font-weight: 500;
+    
+    &--danger {
+      background: rgba(255, 59, 48, 0.1);
+      color: #FF3B30;
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      
+      &:hover {
+        background: rgba(255, 59, 48, 0.15);
+        border-color: #FF3B30;
+        transform: translateY(-1px);
+      }
+    }
+  }
 }
 
 .pagination-container {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
+/* iOS风格金额显示 */
 .income-amount {
-  color: #67c23a;
-  font-weight: bold;
+  color: #34C759;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.2px;
 }
 
 .expense-amount {
-  color: #f56c6c;
-  font-weight: bold;
+  color: #FF3B30;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.2px;
 }
 
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 16px;
+  
+  .el-button {
+    border-radius: 12px;
+    font-weight: 500;
+    padding: 10px 20px;
+    
+    &--primary {
+      background: var(--ios-accent);
+      border: none;
+      
+      &:hover {
+        background: var(--ios-secondary);
+      }
+    }
+  }
 }
 
-/* 增强的日期时间单元格样式 */
+/* iOS风格增强的日期时间单元格样式 */
 .enhanced-date-cell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px 0;
-}
-
-.enhanced-date-cell.secondary {
-  opacity: 0.8;
+  gap: 6px;
+  padding: 12px 8px;
+  
+  &.secondary {
+    opacity: 0.8;
+  }
 }
 
 .date-main, .time-main {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .date-icon {
-  color: #409eff;
-  font-size: 14px;
+  color: var(--ios-accent);
+  font-size: 16px;
+  opacity: 0.8;
 }
 
 .time-icon {
-  color: #67c23a;
-  font-size: 12px;
+  color: #34C759;
+  font-size: 14px;
+  opacity: 0.8;
 }
 
 .date-text {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ios-label);
+  letter-spacing: -0.1px;
 }
 
 .time-text {
-  font-size: 12px;
-  color: #606266;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  background: #f5f7fa;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 13px;
+  color: var(--ios-secondary-label);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
+  background: rgba(28, 28, 30, 0.06);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 500;
 }
 
 .relative-time {
-  font-size: 11px;
-  color: #909399;
+  font-size: 12px;
+  color: var(--ios-gray);
   font-style: italic;
-  margin-left: 20px;
+  margin-left: 24px;
+  opacity: 0.7;
 }
 
-/* 增强的日期选择器样式 */
+/* iOS风格增强的日期选择器样式 */
 .enhanced-date-picker {
   width: 100%;
+  
+  :deep(.el-input__wrapper) {
+    border-radius: 12px;
+    background: rgba(28, 28, 30, 0.04);
+    border: 1px solid var(--ios-separator);
+    box-shadow: none;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    &:hover {
+      background: rgba(28, 28, 30, 0.06);
+      border-color: var(--ios-accent);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    
+    &.is-focus {
+      background: rgba(28, 28, 30, 0.08);
+      border-color: var(--ios-accent);
+      box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.1);
+    }
+  }
 }
 
-.enhanced-date-picker .el-input__wrapper {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.enhanced-date-picker .el-input__wrapper:hover {
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
-}
-
-.enhanced-date-picker .el-input__wrapper.is-focus {
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-}
-
-/* 日期选择器提示 */
+/* iOS风格日期选择器提示 */
 .date-picker-tip {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-  font-size: 12px;
-  color: #909399;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--ios-secondary-label);
+  opacity: 0.8;
+  
+  .el-icon {
+    color: var(--ios-accent);
+    opacity: 0.8;
+  }
 }
 
-.date-picker-tip .el-icon {
-  color: #409eff;
-}
-
-/* 日期时间单元格样式（保留兼容性） */
+/* iOS风格日期时间单元格样式（保留兼容性） */
 .date-time-cell {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  line-height: 1.2;
+  line-height: 1.3;
+  gap: 4px;
 }
 
 .date-part {
-  font-size: 14px;
-  font-weight: 500;
-  color: #303133;
-  margin-bottom: 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ios-label);
+  letter-spacing: -0.1px;
 }
 
 .time-part {
-  font-size: 12px;
-  color: #909399;
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  color: var(--ios-secondary-label);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
+  background: rgba(28, 28, 30, 0.06);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* iOS风格Element Plus组件覆盖 */
+:deep(.el-form) {
+  .el-form-item {
+    margin-bottom: 20px;
+
+    .el-form-item__label {
+      color: var(--ios-label);
+      font-weight: 500;
+      font-size: 16px;
+    }
+  }
+
+  .el-select,
+  .el-input {
+    .el-input__wrapper {
+      border-radius: 12px;
+      background: rgba(28, 28, 30, 0.04);
+      box-shadow: none;
+      border: 1px solid var(--ios-separator);
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+      &:hover {
+        background: rgba(28, 28, 30, 0.06);
+        border-color: var(--ios-accent);
+      }
+
+      &.is-focus {
+        background: rgba(28, 28, 30, 0.08);
+        border-color: var(--ios-accent);
+        box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.1);
+      }
+    }
+  }
+  
+  .el-radio-group {
+    .el-radio {
+      margin-right: 24px;
+      
+      .el-radio__label {
+        color: var(--ios-label);
+        font-weight: 500;
+      }
+      
+      .el-radio__inner {
+        border-color: var(--ios-separator);
+        
+        &:hover {
+          border-color: var(--ios-accent);
+        }
+      }
+      
+      &.is-checked {
+        .el-radio__inner {
+          background: var(--ios-accent);
+          border-color: var(--ios-accent);
+        }
+        
+        .el-radio__label {
+          color: var(--ios-accent);
+        }
+      }
+    }
+  }
+
+  .el-button {
+    border-radius: 12px;
+    font-weight: 500;
+    padding: 10px 20px;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    border: none;
+
+    &--primary {
+      background: var(--ios-accent);
+      color: var(--ios-white);
+      box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+
+      &:hover {
+        background: var(--ios-secondary);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+      }
+    }
+
+    &:not(.el-button--primary) {
+      background: rgba(28, 28, 30, 0.08);
+      color: var(--ios-label);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+      &:hover {
+        background: rgba(28, 28, 30, 0.12);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+:deep(.el-table) {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-border-color: var(--ios-separator);
+  --el-table-header-text-color: var(--ios-label);
+  --el-table-text-color: var(--ios-label);
+  
+  th {
+    background: rgba(28, 28, 30, 0.04);
+    border-bottom: 1px solid var(--ios-separator);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 16px 12px;
+  }
+
+  td {
+    border-bottom: 1px solid rgba(199, 199, 204, 0.3);
+    padding: 16px 12px;
+  }
+
+  .el-button {
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+    
+    &--danger {
+      background: rgba(255, 59, 48, 0.1);
+      color: #FF3B30;
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      
+      &:hover {
+        background: rgba(255, 59, 48, 0.15);
+        border-color: #FF3B30;
+      }
+    }
+  }
+}
+
+:deep(.el-tag) {
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: none;
+  
+  &.el-tag--success {
+    background: rgba(52, 199, 89, 0.15);
+    color: #34C759;
+  }
+  
+  &.el-tag--danger {
+    background: rgba(255, 59, 48, 0.15);
+    color: #FF3B30;
+  }
+}
+
+:deep(.el-dialog) {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 4px 16px rgba(0, 0, 0, 0.08);
+
+  .el-dialog__header {
+    padding: 24px 24px 0;
+    border: none;
+
+    .el-dialog__title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ios-label);
+      letter-spacing: -0.3px;
+    }
+  }
+
+  .el-dialog__body {
+    padding: 24px;
+  }
+}
+
+:deep(.el-pagination) {
+  .el-pager li {
+    background: transparent;
+    border-radius: 8px;
+    margin: 0 2px;
+    color: var(--ios-secondary-label);
+    font-weight: 500;
+    
+    &.is-active {
+      background: var(--ios-accent);
+      color: var(--ios-white);
+    }
+    
+    &:hover {
+      background: rgba(28, 28, 30, 0.08);
+      color: var(--ios-label);
+    }
+  }
+  
+  .btn-prev,
+  .btn-next {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--ios-secondary-label);
+    
+    &:hover {
+      background: rgba(28, 28, 30, 0.08);
+      color: var(--ios-label);
+    }
+  }
+  
+  .el-select {
+    .el-input__wrapper {
+      border-radius: 8px;
+    }
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .finance-records-container {
+    padding: 20px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+    
+    .header-actions {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  :deep(.search-card),
+  :deep(.table-card) {
+    .el-card__body {
+      padding: 20px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .finance-records-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    padding: 20px;
+    
+    h1 {
+      font-size: 24px;
+    }
+    
+    .header-actions {
+      flex-direction: column;
+      gap: 12px;
+      
+      .el-button {
+        width: 100%;
+      }
+    }
+  }
+
+  :deep(.search-card),
+  :deep(.table-card) {
+    .el-card__body {
+      padding: 16px;
+    }
+  }
+
+  :deep(.el-form--inline) {
+    .el-form-item {
+      display: block;
+      margin-right: 0;
+      margin-bottom: 16px;
+      width: 100%;
+      
+      .el-select,
+      .el-input,
+      .el-date-picker {
+        width: 100%;
+      }
+    }
+  }
+
+  .batch-actions {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  :deep(.el-table) {
+    font-size: 14px;
+    
+    th,
+    td {
+      padding: 12px 8px;
+    }
+    
+    .el-button {
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+  }
+
+  .enhanced-date-cell {
+    padding: 8px 4px;
+    gap: 4px;
+    
+    .date-text {
+      font-size: 14px;
+    }
+    
+    .time-text {
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+    
+    .relative-time {
+      font-size: 11px;
+      margin-left: 16px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .finance-records-container {
+    padding: 12px;
+  }
+
+  .page-header {
+    padding: 16px;
+    
+    h1 {
+      font-size: 20px;
+    }
+  }
+
+  :deep(.search-card),
+  :deep(.table-card) {
+    .el-card__body {
+      padding: 12px;
+    }
+  }
 }
 </style>

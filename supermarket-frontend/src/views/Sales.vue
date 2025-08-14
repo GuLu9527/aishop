@@ -1069,137 +1069,289 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
-.sales-analysis-container {
-  padding: 20px;
-  background: #f5f7fa;
-  min-height: 100vh;
+<style scoped lang="scss">
+// iOS 黑白灰色彩系统
+:root {
+  --ios-primary: #000000;
+  --ios-secondary: #1C1C1E;
+  --ios-tertiary: #2C2C2E;
+  --ios-gray: #8E8E93;
+  --ios-gray-light: #F2F2F7;
+  --ios-gray-medium: #C7C7CC;
+  --ios-gray-dark: #48484A;
+  --ios-white: #FFFFFF;
+  --ios-system-background: #F2F2F7;
+  --ios-secondary-background: #FFFFFF;
+  --ios-label: #000000;
+  --ios-secondary-label: #3C3C43;
+  --ios-tertiary-label: #3C3C4399;
+  --ios-separator: #C7C7CC;
+  --ios-accent: #1C1C1E;
 }
 
+.sales-analysis-container {
+  min-height: 100vh;
+  background: var(--ios-system-background);
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+}
+
+/* iOS风格页面头部 */
 .page-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
-.header-left .page-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 8px 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #303133;
-}
+.header-left {
+  .page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 12px 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ios-label);
+    letter-spacing: -0.6px;
 
-.header-left .page-subtitle {
-  margin: 0;
-  color: #909399;
-  font-size: 14px;
+    .el-icon {
+      font-size: 28px;
+      color: var(--ios-accent);
+      opacity: 0.9;
+    }
+  }
+
+  .page-subtitle {
+    margin: 0;
+    color: var(--ios-secondary-label);
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.8;
+  }
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
+
+  .date-picker {
+    width: 300px;
+    
+    :deep(.el-input__wrapper) {
+      border-radius: 12px;
+      border: 1px solid var(--ios-separator);
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      
+      &:hover {
+        border-color: var(--ios-gray);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      
+      &.is-focus {
+        border-color: var(--ios-accent);
+        box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.15);
+      }
+    }
+  }
+
+  .el-button {
+    height: 44px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 0 20px;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+    &--primary {
+      background: var(--ios-accent);
+      color: var(--ios-white);
+      box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+
+      &:hover {
+        background: var(--ios-secondary);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+
+    &--success {
+      background: #34C759;
+      color: var(--ios-white);
+      box-shadow: 0 2px 8px rgba(52, 199, 89, 0.25);
+
+      &:hover {
+        background: #30B753;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(52, 199, 89, 0.35);
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
 }
 
-.date-picker {
-  width: 300px;
-}
-
-/* 实时数据卡片样式 */
-.realtime-card {
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* iOS风格实时数据卡片 */
+:deep(.realtime-card) {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  margin-bottom: 32px;
+  
+  .el-card__header {
+    background: transparent;
+    border-bottom: 1px solid var(--ios-separator);
+    padding: 24px 24px 20px;
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      span {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--ios-label);
+        letter-spacing: -0.3px;
+      }
+      
+      .el-button {
+        background: rgba(28, 28, 30, 0.08);
+        border: none;
+        color: var(--ios-accent);
+        border-radius: 8px;
+        height: 32px;
+        
+        &:hover {
+          background: rgba(28, 28, 30, 0.12);
+        }
+      }
+    }
+  }
+  
+  .el-card__body {
+    padding: 24px;
   }
 }
 
 .realtime-item {
   text-align: center;
-  padding: 16px;
+  padding: 20px;
 
   .realtime-label {
-    font-size: 14px;
-    color: #909399;
+    font-size: 15px;
+    color: var(--ios-secondary-label);
     margin-bottom: 8px;
+    font-weight: 400;
+    opacity: 0.8;
   }
 
   .realtime-value {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 28px;
+    font-weight: 700;
     margin-bottom: 4px;
+    letter-spacing: -0.4px;
 
     &.primary {
-      color: #409EFF;
+      color: var(--ios-accent);
     }
 
     &.success {
-      color: #67C23A;
+      color: #34C759;
     }
 
     &.info {
-      color: #909399;
-      font-size: 16px;
+      color: var(--ios-gray);
+      font-size: 18px;
     }
   }
 }
 
+/* iOS风格概览卡片 */
 .overview-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
 .overview-card {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
   align-items: center;
-  gap: 15px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+  gap: 20px;
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
 
-.overview-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .card-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   font-size: 24px;
-}
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
 
-.card-icon.sales {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
+  &.sales {
+    background: linear-gradient(135deg, var(--ios-secondary) 0%, var(--ios-tertiary) 100%);
+    color: var(--ios-white);
+  }
 
-.card-icon.orders {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
+  &.orders {
+    background: linear-gradient(135deg, #48484A 0%, #636366 100%);
+    color: var(--ios-white);
+  }
 
-.card-icon.products {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
+  &.products {
+    background: linear-gradient(135deg, var(--ios-gray-dark) 0%, var(--ios-gray) 100%);
+    color: var(--ios-white);
+  }
 
-.card-icon.avg {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  &.avg {
+    background: linear-gradient(135deg, #8E8E93 0%, #AEAEB2 100%);
+    color: var(--ios-white);
+  }
 }
 
 .card-content {
@@ -1207,66 +1359,143 @@ onMounted(async () => {
 }
 
 .card-value {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
-  color: #303133;
-  margin-bottom: 5px;
+  color: var(--ios-label);
+  margin-bottom: 6px;
+  letter-spacing: -0.6px;
+  line-height: 1.1;
 }
 
 .card-label {
-  font-size: 14px;
-  color: #909399;
-  margin-bottom: 8px;
+  font-size: 16px;
+  color: var(--ios-secondary-label);
+  margin-bottom: 12px;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 .card-trend {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 12px;
+  display: inline-flex;
+
+  &.up {
+    color: #1C1C1E;
+    background: rgba(52, 199, 89, 0.15);
+    border: 1px solid rgba(52, 199, 89, 0.2);
+    
+    .el-icon {
+      color: #34C759;
+    }
+  }
+
+  &.down {
+    color: #1C1C1E;
+    background: rgba(255, 59, 48, 0.15);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    
+    .el-icon {
+      color: #FF3B30;
+    }
+  }
 }
 
-.card-trend.up {
-  color: #67c23a;
-}
-
-.card-trend.down {
-  color: #f56c6c;
-}
-
+/* iOS风格图表容器 */
 .charts-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
 .chart-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 6px 20px rgba(0, 0, 0, 0.08),
+      0 3px 10px rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.98);
+  }
 }
 
 .chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #ebeef5;
-  background: #fafafa;
-}
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--ios-separator);
+  background: transparent;
 
-.chart-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ios-label);
+    letter-spacing: -0.3px;
+  }
+
+  .el-radio-group,
+  .el-switch,
+  .el-select {
+    :deep(.el-radio-button) {
+      --el-radio-button-checked-bg-color: var(--ios-accent);
+      --el-radio-button-checked-text-color: var(--ios-white);
+      --el-radio-button-checked-border-color: var(--ios-accent);
+    }
+    
+    :deep(.el-radio-button__inner) {
+      border-radius: 8px;
+      border-color: var(--ios-separator);
+      color: var(--ios-label);
+      font-weight: 500;
+      
+      &:first-child {
+        border-radius: 8px;
+      }
+      
+      &:last-child {
+        border-radius: 8px;
+      }
+    }
+  }
+
+  .el-switch {
+    :deep(.el-switch__core) {
+      background-color: var(--ios-separator);
+      border-color: transparent;
+      
+      &.is-checked {
+        background-color: #34C759;
+      }
+    }
+  }
+
+  .el-select {
+    :deep(.el-input__wrapper) {
+      border-radius: 8px;
+      border-color: var(--ios-separator);
+    }
+  }
 }
 
 .chart-content {
-  padding: 20px;
+  padding: 24px;
 }
 
 .chart {
@@ -1279,9 +1508,159 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  :deep(.el-empty) {
+    padding: 0;
+    
+    .el-empty__description {
+      color: var(--ios-secondary-label);
+      font-weight: 400;
+    }
+  }
 }
 
-.empty-chart .el-empty {
-  padding: 0;
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .page-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .overview-cards {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .charts-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sales-analysis-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    padding: 20px;
+
+    .header-left .page-title {
+      font-size: 24px;
+    }
+
+    .header-right {
+      flex-direction: column;
+      width: 100%;
+      gap: 12px;
+
+      .date-picker {
+        width: 100%;
+      }
+
+      .el-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .overview-cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .overview-card {
+    padding: 16px;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 20px;
+    }
+
+    .card-value {
+      font-size: 24px;
+    }
+
+    .card-label {
+      font-size: 14px;
+    }
+  }
+
+  .chart-header {
+    padding: 16px;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+
+    h3 {
+      font-size: 18px;
+    }
+  }
+
+  .chart-content {
+    padding: 16px;
+  }
+
+  .chart {
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sales-analysis-container {
+    padding: 12px;
+  }
+
+  .page-header {
+    padding: 16px;
+
+    .header-left .page-title {
+      font-size: 20px;
+    }
+  }
+
+  .overview-cards {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .overview-card {
+    padding: 12px;
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+    }
+
+    .card-value {
+      font-size: 20px;
+    }
+
+    .card-label {
+      font-size: 13px;
+    }
+  }
+
+  .chart-header {
+    padding: 12px;
+
+    h3 {
+      font-size: 16px;
+    }
+  }
+
+  .chart-content {
+    padding: 12px;
+  }
+
+  .chart {
+    height: 250px;
+  }
 }
 </style>
