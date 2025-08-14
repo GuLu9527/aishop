@@ -6,13 +6,13 @@
         <div class="cashier-info">
           <el-icon class="cashier-icon"><ShoppingCart /></el-icon>
           <div class="cashier-details">
-            <h2>收银台</h2>
-            <p>
+            <h2 class="cashier-title">收银台</h2>
+            <p class="cashier-subtitle">
               <span v-if="cashierName === '加载中...'" class="loading-text">
                 <el-icon class="is-loading"><Loading /></el-icon>
                 正在加载用户信息...
               </span>
-              <span v-else>
+              <span v-else class="user-info-text">
                 收银员：{{ cashierName }}{{ cashierRole ? ` (${cashierRole})` : '' }} | 收银机：{{ terminalId }}
               </span>
             </p>
@@ -171,7 +171,7 @@
             <span>支付方式</span>
           </div>
           <div class="payment-methods">
-            <el-radio-group v-model="paymentMethod" size="large">
+            <el-radio-group v-model="paymentMethod" class="payment-radio-group">
               <el-radio-button label="cash">
                 <el-icon><Money /></el-icon>
                 现金
@@ -181,11 +181,25 @@
                 刷卡
               </el-radio-button>
               <el-radio-button label="alipay">
-                <el-icon><CreditCard /></el-icon>
+                <div class="alipay-icon">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="3" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M2 7h16" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="6" cy="11" r="1" fill="currentColor"/>
+                    <path d="M9 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
                 支付宝
               </el-radio-button>
               <el-radio-button label="wechat">
-                <el-icon><CreditCard /></el-icon>
+                <div class="wechat-icon">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.5 8.5c1.5-2 4-3 6.5-2.5s4.5 2 5 4.5-1 5-3.5 6-5.5.5-7.5-1.5-2-4.5 0-6.5z" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="8" cy="11" r="0.5" fill="currentColor"/>
+                    <circle cx="12" cy="11" r="0.5" fill="currentColor"/>
+                    <path d="M3 6c.5-1.5 2-2.5 4-2.5s3.5 1 4 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
                 微信
               </el-radio-button>
             </el-radio-group>
@@ -226,17 +240,23 @@
           </el-button>
 
           <div class="quick-actions">
-            <el-button size="default" @click="holdTransaction">
-              <el-icon><Clock /></el-icon>
-              挂单
+            <el-button class="quick-action-btn" @click="holdTransaction">
+              <div class="action-content">
+                <el-icon class="action-icon"><Clock /></el-icon>
+                <span>挂单</span>
+              </div>
             </el-button>
-            <el-button size="default" @click="showHeldTransactions">
-              <el-icon><List /></el-icon>
-              取单
+            <el-button class="quick-action-btn" @click="showHeldTransactions">
+              <div class="action-content">
+                <el-icon class="action-icon"><List /></el-icon>
+                <span>取单</span>
+              </div>
             </el-button>
-            <el-button size="default" @click="showProductSelector">
-              <el-icon><Search /></el-icon>
-              选择商品
+            <el-button class="quick-action-btn" @click="showProductSelector">
+              <div class="action-content">
+                <el-icon class="action-icon"><Search /></el-icon>
+                <span>选择商品</span>
+              </div>
             </el-button>
           </div>
         </div>
@@ -302,39 +322,49 @@
     >
       <!-- 搜索区域 -->
       <div class="product-search">
-        <el-form :model="productSearchForm" inline>
-          <el-form-item label="商品名称">
-            <el-input
-              v-model="productSearchForm.keyword"
-              placeholder="请输入商品名称或条码"
-              style="width: 200px"
-              @keyup.enter="searchProducts"
-            />
-          </el-form-item>
-          <el-form-item label="商品分类">
-            <el-select
-              v-model="productSearchForm.categoryId"
-              placeholder="请选择分类"
-              style="width: 150px"
-              clearable
-            >
-              <el-option
-                v-for="category in categories"
-                :key="category.id"
-                :label="category.categoryName"
-                :value="category.id"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="searchProducts">
+        <div class="search-header">
+          <el-icon class="search-icon"><Search /></el-icon>
+          <span>商品搜索</span>
+        </div>
+        <el-form :model="productSearchForm" class="search-form">
+          <div class="search-row">
+            <el-form-item label="商品名称" class="search-item">
+              <el-input
+                v-model="productSearchForm.keyword"
+                placeholder="请输入商品名称或条码"
+                @keyup.enter="searchProducts"
+                clearable
+              >
+                <template #prefix>
+                  <el-icon><Search /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="商品分类" class="search-item">
+              <el-select
+                v-model="productSearchForm.categoryId"
+                placeholder="请选择分类"
+                clearable
+              >
+                <el-option
+                  v-for="category in categories"
+                  :key="category.id"
+                  :label="category.categoryName"
+                  :value="category.id"
+                />
+              </el-select>
+            </el-form-item>
+          </div>
+          <div class="search-actions">
+            <el-button type="primary" @click="searchProducts" class="search-btn">
               <el-icon><Search /></el-icon>
-              搜索
+              搜索商品
             </el-button>
-            <el-button @click="resetProductSearch">
-              重置
+            <el-button @click="resetProductSearch" class="reset-btn">
+              <el-icon><Refresh /></el-icon>
+              重置条件
             </el-button>
-          </el-form-item>
+          </div>
         </el-form>
       </div>
 
@@ -413,7 +443,7 @@ import { useRouter } from 'vue-router'
 import {
   ShoppingCart, Search, Plus, Delete, Close, CreditCard,
   Money, Check, Clock, List, Setting,
-  Box, Printer, Document, Loading, Calendar
+  Box, Printer, Document, Loading, Calendar, Refresh
 } from '@element-plus/icons-vue'
 import {
   getProductList,
@@ -1182,26 +1212,49 @@ const getStockClass = (product: any) => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+// iOS 黑白灰色彩系统
+:root {
+  --ios-primary: #000000;
+  --ios-secondary: #1C1C1E;
+  --ios-tertiary: #2C2C2E;
+  --ios-gray: #8E8E93;
+  --ios-gray-light: #F2F2F7;
+  --ios-gray-medium: #C7C7CC;
+  --ios-gray-dark: #48484A;
+  --ios-white: #FFFFFF;
+  --ios-system-background: #F2F2F7;
+  --ios-secondary-background: #FFFFFF;
+  --ios-label: #000000;
+  --ios-secondary-label: #3C3C43;
+  --ios-tertiary-label: #3C3C4399;
+  --ios-separator: #C7C7CC;
+  --ios-accent: #1C1C1E;
+}
 .cashier-container {
   height: 100vh;
-  background: #f5f7fa;
+  background: var(--ios-system-background);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 }
 
-/* 收银台头部 */
+/* iOS风格收银台头部 */
 .cashier-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 12px 20px;
+  background: rgba(28, 28, 30, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  color: var(--ios-white);
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
-  height: 60px;
+  height: 70px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header-left {
@@ -1212,66 +1265,93 @@ const getStockClass = (product: any) => {
 .cashier-info {
   display: flex;
   align-items: center;
+  gap: 16px;
 }
 
 .cashier-icon {
-  font-size: 32px;
-  margin-right: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--ios-white);
+  backdrop-filter: blur(10px);
 }
 
-.cashier-details h2 {
-  margin: 0 0 2px 0;
-  font-size: 18px;
-  font-weight: 600;
-}
+.cashier-details {
+  .cashier-title {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ios-white) !important;
+    letter-spacing: -0.3px;
+  }
 
-.cashier-details p {
-  margin: 0;
-  opacity: 0.9;
-  font-size: 12px;
+  .cashier-subtitle {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  
+  .user-info-text {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-weight: 500;
+  }
 }
 
 .header-right {
   text-align: right;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
 }
 
 .current-time {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 2px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--ios-white) !important;
+  letter-spacing: -0.2px;
 }
 
 .current-date {
-  font-size: 12px;
-  opacity: 0.9;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 500;
 }
 
 .loading-text {
   display: flex;
   align-items: center;
   gap: 6px;
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 500;
+  
+  .el-icon {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
 }
 
-.loading-text .el-icon {
-  font-size: 14px;
-}
-
-/* 主要内容区域 */
+/* iOS风格主要内容区域 */
 .cashier-main {
   flex: 1;
   display: flex;
-  gap: 12px;
-  padding: 12px;
+  gap: 16px;
+  padding: 16px;
   overflow: hidden;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 70px);
 }
 
 .left-panel {
   flex: 2;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   overflow: hidden;
   height: 100%;
 }
@@ -1280,50 +1360,131 @@ const getStockClass = (product: any) => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-width: 320px;
+  gap: 12px;
+  min-width: 360px;
   height: 100%;
   overflow: hidden;
 }
 
-/* 扫码区域 */
+/* iOS风格扫码区域 */
 .scan-section {
-  background: white;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   flex-shrink: 0;
 }
 
 .scan-header {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
-  font-size: 16px;
+  margin-bottom: 20px;
+  font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ios-label);
+  letter-spacing: -0.2px;
 }
 
 .scan-icon {
-  font-size: 18px;
-  color: #409eff;
-  margin-right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+  color: var(--ios-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-right: 12px;
+  box-shadow: 0 2px 8px rgba(28, 28, 30, 0.2);
 }
 
 .scan-input {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+
+  :deep(.el-input) {
+    .el-input__wrapper {
+      border-radius: 12px;
+      border: 1px solid var(--ios-separator);
+      background: var(--ios-secondary-background);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      min-height: 48px;
+
+      &:hover {
+        border-color: var(--ios-gray);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+
+      &.is-focus {
+        border-color: var(--ios-accent);
+        box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.15);
+      }
+    }
+
+    .el-input__inner {
+      font-size: 16px;
+      color: var(--ios-label);
+      font-weight: 400;
+    }
+
+    .el-input-group__prepend {
+      background: var(--ios-gray-light);
+      border: none;
+      border-radius: 12px 0 0 12px;
+    }
+
+    .el-input-group__append {
+      background: transparent;
+      border: none;
+      border-radius: 0 12px 12px 0;
+      padding: 0;
+
+      .el-button {
+        border-radius: 0 10px 10px 0;
+        background: var(--ios-accent);
+        color: var(--ios-white);
+        border: none;
+        height: 44px;
+        font-weight: 500;
+
+        &:hover {
+          background: var(--ios-secondary);
+        }
+      }
+    }
+  }
 }
 
 .scan-tips {
-  margin-top: 12px;
+  margin-top: 16px;
+
+  :deep(.el-alert) {
+    border-radius: 12px;
+    border: 1px solid rgba(52, 199, 89, 0.2);
+    background: rgba(52, 199, 89, 0.08);
+    
+    .el-alert__content {
+      color: var(--ios-secondary-label);
+      font-weight: 400;
+    }
+  }
 }
 
-/* 购物车区域 */
+/* iOS风格购物车区域 */
 .cart-section {
   flex: 1;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1334,28 +1495,44 @@ const getStockClass = (product: any) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e4e7ed;
-  background: #fafbfc;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ios-separator);
+  background: rgba(28, 28, 30, 0.02);
   flex-shrink: 0;
 }
 
 .cart-title {
   display: flex;
   align-items: center;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ios-label);
+  letter-spacing: -0.2px;
 }
 
 .cart-icon {
-  font-size: 20px;
-  color: #409eff;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+  color: var(--ios-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
   margin-right: 12px;
+  box-shadow: 0 2px 8px rgba(28, 28, 30, 0.2);
 }
 
 .cart-badge {
   margin-left: 12px;
+  
+  :deep(.el-badge__content) {
+    background: #FF3B30;
+    border: 2px solid var(--ios-white);
+    font-weight: 600;
+    font-size: 12px;
+  }
 }
 
 .cart-content {
@@ -1370,80 +1547,124 @@ const getStockClass = (product: any) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  :deep(.el-empty) {
+    .el-empty__description {
+      color: var(--ios-secondary-label);
+      font-weight: 400;
+    }
+  }
 }
 
 .cart-list {
   flex: 1;
   overflow-y: auto;
-  padding: 12px;
+  padding: 20px;
   min-height: 0;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--ios-separator);
+    border-radius: 2px;
+    
+    &:hover {
+      background: var(--ios-gray);
+    }
+  }
 }
 
 .cart-item {
   display: flex;
   align-items: center;
-  padding: 10px;
-  border: 1px solid #e4e7ed;
-  border-radius: 6px;
-  margin-bottom: 8px;
+  padding: 16px;
+  border: 1px solid var(--ios-separator);
+  border-radius: 12px;
+  margin-bottom: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.cart-item:hover {
-  border-color: #409eff;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
-}
-
-.cart-item.selected {
-  border-color: #409eff;
-  background: #f0f9ff;
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  background: var(--ios-secondary-background);
+  
+  &:hover {
+    border-color: var(--ios-accent);
+    box-shadow: 0 4px 12px rgba(28, 28, 30, 0.15);
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.98);
+  }
+  
+  &.selected {
+    border-color: var(--ios-accent);
+    background: rgba(28, 28, 30, 0.05);
+    box-shadow: 0 0 0 2px rgba(28, 28, 30, 0.1);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .item-info {
   flex: 1;
-  margin-right: 16px;
+  margin-right: 20px;
 }
 
 .item-name {
   font-weight: 600;
-  color: #303133;
-  margin-bottom: 4px;
+  color: var(--ios-label);
+  margin-bottom: 6px;
+  font-size: 16px;
+  letter-spacing: -0.1px;
+  line-height: 1.3;
 }
 
 .item-details {
   display: flex;
-  gap: 12px;
-  font-size: 12px;
-  color: #909399;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--ios-secondary-label);
+  opacity: 0.8;
 }
 
 .item-price {
-  color: #f56c6c;
+  color: #FF3B30;
   font-weight: 600;
+  font-size: 15px;
 }
 
-/* 批次信息样式 */
+/* iOS风格批次信息样式 */
 .batch-info {
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .batch-details {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 8px;
   align-items: center;
 }
 
-.batch-tag {
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.batch-tag .el-icon {
-  font-size: 10px;
-  margin-right: 2px;
+:deep(.batch-tag) {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: none;
+  
+  &.el-tag--success {
+    background: rgba(52, 199, 89, 0.15);
+    color: #34C759;
+  }
+  
+  .el-icon {
+    font-size: 11px;
+    margin-right: 4px;
+  }
 }
 
 .expiry-info {
@@ -1451,36 +1672,95 @@ const getStockClass = (product: any) => {
   align-items: center;
 }
 
-.expiry-tag {
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.expiry-tag .el-icon {
-  font-size: 10px;
-  margin-right: 2px;
+:deep(.expiry-tag) {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: none;
+  
+  &.el-tag--success {
+    background: rgba(52, 199, 89, 0.15);
+    color: #34C759;
+  }
+  
+  &.el-tag--warning {
+    background: rgba(255, 149, 0, 0.15);
+    color: #FF9500;
+  }
+  
+  &.el-tag--danger {
+    background: rgba(255, 59, 48, 0.15);
+    color: #FF3B30;
+  }
+  
+  .el-icon {
+    font-size: 11px;
+    margin-right: 4px;
+  }
 }
 
 .item-quantity {
-  margin-right: 16px;
+  margin-right: 20px;
+  
+  :deep(.el-input-number) {
+    .el-input__wrapper {
+      border-radius: 8px;
+      border: 1px solid var(--ios-separator);
+      background: var(--ios-secondary-background);
+      
+      &:hover {
+        border-color: var(--ios-gray);
+      }
+      
+      &.is-focus {
+        border-color: var(--ios-accent);
+      }
+    }
+    
+    .el-input__inner {
+      color: var(--ios-label);
+      font-weight: 500;
+    }
+  }
 }
 
 .item-total {
-  font-size: 16px;
-  font-weight: 600;
-  color: #409eff;
-  margin-right: 16px;
-  min-width: 80px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ios-accent);
+  margin-right: 20px;
+  min-width: 90px;
   text-align: right;
+  letter-spacing: -0.2px;
 }
 
-/* 金额显示区域 */
+.item-actions {
+  :deep(.el-button) {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    color: #FF3B30;
+    
+    &:hover {
+      background: rgba(255, 59, 48, 0.15);
+      border-color: rgba(255, 59, 48, 0.3);
+    }
+  }
+}
+
+/* iOS风格金额显示区域 */
 .amount-section {
-  background: white;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   flex-shrink: 0;
 }
 
@@ -1488,134 +1768,243 @@ const getStockClass = (product: any) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
 }
 
 .total-amount {
   text-align: center;
   flex: 1;
+  padding: 12px;
+  background: rgba(255, 59, 48, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 59, 48, 0.1);
 }
 
 .amount-label {
-  font-size: 14px;
-  color: #909399;
-  margin-bottom: 6px;
+  font-size: 15px;
+  color: var(--ios-secondary-label);
+  margin-bottom: 8px;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 .amount-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #f56c6c;
-  line-height: 1.2;
+  font-size: 28px;
+  font-weight: 700;
+  color: #FF3B30;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
 }
 
 .item-count {
   text-align: center;
   flex: 1;
+  padding: 12px;
+  background: rgba(28, 28, 30, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(28, 28, 30, 0.1);
 }
 
 .count-label {
-  font-size: 12px;
-  color: #909399;
-  margin-bottom: 4px;
+  font-size: 14px;
+  color: var(--ios-secondary-label);
+  margin-bottom: 6px;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 .count-value {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
-  color: #409eff;
-  line-height: 1.2;
+  color: var(--ios-accent);
+  line-height: 1.1;
+  letter-spacing: -0.2px;
 }
 
-/* 支付方式区域 */
+/* iOS风格支付方式区域 */
 .payment-section {
-  background: white;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   flex-shrink: 0;
 }
 
 .payment-header {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
-  font-size: 14px;
+  margin-bottom: 16px;
+  font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ios-label);
+  letter-spacing: -0.2px;
 }
 
 .payment-icon {
-  font-size: 18px;
-  color: #409eff;
-  margin-right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+  color: var(--ios-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-right: 12px;
+  box-shadow: 0 2px 8px rgba(28, 28, 30, 0.2);
 }
 
 .payment-methods {
   margin-bottom: 12px;
+  
+  .payment-radio-group {
+    width: 100%;
+    display: flex;
+    gap: 6px;
+    
+    :deep(.el-radio-button) {
+      flex: 1;
+      
+      .el-radio-button__inner {
+        width: 100%;
+        padding: 8px 4px;
+        font-size: 12px;
+        font-weight: 500;
+        border-radius: 8px;
+        border: 1px solid var(--ios-separator);
+        background: var(--ios-secondary-background);
+        color: var(--ios-secondary-label);
+        transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        min-height: 32px;
+        
+        &:first-child {
+          border-radius: 8px;
+        }
+        
+        &:last-child {
+          border-radius: 8px;
+        }
+        
+        &:hover {
+          background: rgba(28, 28, 30, 0.05);
+          border-color: var(--ios-gray);
+        }
+      }
+      
+      &.is-active {
+        .el-radio-button__inner {
+          background: var(--ios-accent);
+          color: var(--ios-white);
+          border-color: var(--ios-accent);
+          box-shadow: 0 2px 6px rgba(28, 28, 30, 0.25);
+          
+          .alipay-icon,
+          .wechat-icon {
+            svg {
+              color: var(--ios-white);
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
-.payment-methods .el-radio-group {
-  width: 100%;
-  display: flex;
-}
-
-.payment-methods .el-radio-button {
-  flex: 1;
-}
-
-.payment-methods .el-radio-button__inner {
-  width: 100%;
-  padding: 6px 8px;
-  font-size: 11px;
+.alipay-icon,
+.wechat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  svg {
+    color: currentColor;
+  }
 }
 
 .cash-payment {
-  border-top: 1px solid #e4e7ed;
-  padding-top: 12px;
+  border-top: 1px solid var(--ios-separator);
+  padding-top: 16px;
 }
 
 .received-amount {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
-  gap: 6px;
-}
-
-.received-amount label {
-  font-weight: 600;
-  font-size: 12px;
-  white-space: nowrap;
+  margin-bottom: 16px;
+  gap: 12px;
+  
+  label {
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+    color: var(--ios-label);
+  }
+  
+  :deep(.el-input-number) {
+    .el-input__wrapper {
+      border-radius: 10px;
+      border: 1px solid var(--ios-separator);
+      background: var(--ios-secondary-background);
+      min-height: 40px;
+      
+      &:hover {
+        border-color: var(--ios-gray);
+      }
+      
+      &.is-focus {
+        border-color: var(--ios-accent);
+        box-shadow: 0 0 0 2px rgba(28, 28, 30, 0.15);
+      }
+    }
+    
+    .el-input__inner {
+      color: var(--ios-label);
+      font-weight: 600;
+      font-size: 16px;
+    }
+  }
 }
 
 .change-amount {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 10px;
-  background: #f0f9ff;
-  border-radius: 6px;
-  border: 1px solid #409eff;
+  padding: 12px 16px;
+  background: rgba(52, 199, 89, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(52, 199, 89, 0.2);
 }
 
 .change-label {
   font-weight: 600;
-  color: #303133;
-  font-size: 12px;
+  color: var(--ios-label);
+  font-size: 15px;
 }
 
 .change-value {
-  font-size: 16px;
-  font-weight: bold;
-  color: #67c23a;
+  font-size: 20px;
+  font-weight: 700;
+  color: #34C759;
+  letter-spacing: -0.3px;
 }
 
-/* 结算区域 */
+/* iOS风格结算区域 */
 .checkout-section {
-  background: white;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   flex-shrink: 0;
 }
 
@@ -1625,34 +2014,96 @@ const getStockClass = (product: any) => {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 12px;
-  border-radius: 8px;
+  border-radius: 14px;
+  background: var(--ios-accent);
+  color: var(--ios-white);
+  border: none;
+  box-shadow: 0 4px 16px rgba(28, 28, 30, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  letter-spacing: -0.2px;
+  
+  &:hover {
+    background: var(--ios-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(28, 28, 30, 0.35);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+  
+  &:disabled {
+    background: var(--ios-gray);
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 .quick-actions {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
+  
+  .quick-action-btn {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--ios-separator);
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--ios-gray);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    
+    &:active {
+      transform: scale(0.96);
+    }
+    
+    .action-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--ios-secondary-label);
+      
+      .action-icon {
+        font-size: 14px;
+        opacity: 0.8;
+      }
+      
+      span {
+        font-size: 11px;
+        font-weight: 500;
+        line-height: 1;
+      }
+    }
+    
+    &:hover .action-content {
+      color: var(--ios-label);
+      
+      .action-icon {
+        opacity: 1;
+      }
+    }
+  }
 }
 
-.quick-actions .el-button {
-  flex: 1;
-  min-width: 0;
-  height: 32px;
-  font-size: 12px;
-  border-radius: 6px;
-}
-
-.quick-actions .el-button .el-icon {
-  margin-right: 3px;
-  font-size: 12px;
-}
-
-/* 快捷功能区域 */
+/* iOS风格快捷功能区域 */
 .quick-functions {
-  background: white;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1662,43 +2113,63 @@ const getStockClass = (product: any) => {
 .function-header {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #303133;
-  flex-shrink: 0;
-}
-
-.function-header .el-icon {
+  margin-bottom: 16px;
   font-size: 16px;
-  color: #409eff;
-  margin-right: 6px;
+  font-weight: 600;
+  color: var(--ios-label);
+  flex-shrink: 0;
+  letter-spacing: -0.2px;
+  
+  .el-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+    color: var(--ios-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-right: 12px;
+    box-shadow: 0 2px 8px rgba(28, 28, 30, 0.2);
+  }
 }
 
 .function-buttons {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   flex: 1;
-}
-
-.function-buttons .el-button {
-  justify-content: flex-start;
-  height: 36px;
-  padding: 0 12px;
-  font-size: 12px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.function-buttons .el-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.function-buttons .el-button .el-icon {
-  margin-right: 6px;
-  font-size: 14px;
+  
+  .el-button {
+    justify-content: flex-start;
+    height: 44px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 12px;
+    background: rgba(28, 28, 30, 0.05);
+    color: var(--ios-secondary-label);
+    border: 1px solid rgba(28, 28, 30, 0.08);
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    &:hover {
+      background: rgba(28, 28, 30, 0.08);
+      color: var(--ios-label);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    &:active {
+      transform: scale(0.98);
+    }
+    
+    .el-icon {
+      margin-right: 12px;
+      font-size: 16px;
+      opacity: 0.8;
+    }
+  }
 }
 
 .function-btn {
@@ -1706,21 +2177,175 @@ const getStockClass = (product: any) => {
   align-items: center !important;
   white-space: nowrap !important;
   overflow: hidden !important;
+  
+  span {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+  }
 }
 
-.function-btn span {
-  flex: 1;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 商品选择对话框样式 */
+/* iOS风格商品选择对话框样式 */
 .product-search {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.search-header {
+  display: flex;
+  align-items: center;
   margin-bottom: 20px;
-  padding: 16px;
-  background: #f8f9fa;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ios-label);
+  letter-spacing: -0.2px;
+}
+
+.search-icon {
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
+  background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+  color: var(--ios-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-right: 12px;
+  box-shadow: 0 2px 8px rgba(28, 28, 30, 0.2);
+}
+
+.search-form {
+  .search-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .search-item {
+    flex: 1;
+    min-width: 220px;
+    margin-bottom: 0;
+    
+    :deep(.el-form-item__label) {
+      font-weight: 500;
+      color: var(--ios-label);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    
+    :deep(.el-input) {
+      .el-input__wrapper {
+        border-radius: 12px;
+        border: 1px solid var(--ios-separator);
+        background: var(--ios-secondary-background);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        min-height: 44px;
+        
+        &:hover {
+          border-color: var(--ios-gray);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+        
+        &.is-focus {
+          border-color: var(--ios-accent);
+          box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.15);
+        }
+      }
+      
+      .el-input__inner {
+        font-size: 15px;
+        color: var(--ios-label);
+        font-weight: 400;
+      }
+    }
+    
+    :deep(.el-select) {
+      .el-select__wrapper {
+        border-radius: 12px;
+        border: 1px solid var(--ios-separator);
+        background: var(--ios-secondary-background);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        min-height: 44px;
+        
+        &:hover {
+          border-color: var(--ios-gray);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+        
+        &.is-focused {
+          border-color: var(--ios-accent);
+          box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.15);
+        }
+      }
+    }
+  }
+  
+  .search-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    
+    .el-button {
+      height: 44px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 0 24px;
+      transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+      
+      &.search-btn {
+        background: var(--ios-accent);
+        color: var(--ios-white);
+        border: none;
+        box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+        
+        &:hover {
+          background: var(--ios-secondary);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+        }
+        
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+      
+      &.reset-btn {
+        background: rgba(28, 28, 30, 0.08);
+        color: var(--ios-secondary-label);
+        border: 1px solid rgba(28, 28, 30, 0.1);
+        
+        &:hover {
+          background: rgba(28, 28, 30, 0.12);
+          color: var(--ios-label);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+      
+      .el-icon {
+        margin-right: 8px;
+        font-size: 16px;
+      }
+    }
+  }
 }
 
 .product-info {
@@ -1730,32 +2355,37 @@ const getStockClass = (product: any) => {
 
 .product-name {
   font-weight: 600;
-  color: #303133;
-  margin-bottom: 4px;
+  color: var(--ios-label);
+  margin-bottom: 6px;
+  font-size: 15px;
+  letter-spacing: -0.1px;
 }
 
 .product-barcode {
-  font-size: 12px;
-  color: #909399;
+  font-size: 13px;
+  color: var(--ios-secondary-label);
+  opacity: 0.8;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
 }
 
 .price {
-  color: #f56c6c;
+  color: #FF3B30;
   font-weight: 600;
+  font-size: 16px;
 }
 
 .stock-normal {
-  color: #67c23a;
+  color: #34C759;
   font-weight: 600;
 }
 
 .stock-low {
-  color: #e6a23c;
+  color: #FF9500;
   font-weight: 600;
 }
 
 .stock-out {
-  color: #f56c6c;
+  color: #FF3B30;
   font-weight: 600;
 }
 
@@ -1765,75 +2395,93 @@ const getStockClass = (product: any) => {
   justify-content: center;
 }
 
-/* 响应式设计 */
+/* iOS风格响应式设计 */
 @media (max-width: 1400px) {
+  .cashier-main {
+    padding: 16px;
+    gap: 16px;
+  }
+  
   .right-panel {
-    min-width: 300px;
+    min-width: 340px;
   }
 
   .amount-value {
-    font-size: 22px;
+    font-size: 28px;
   }
 
   .count-value {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .function-buttons .el-button {
-    height: 32px;
-    font-size: 11px;
+    height: 40px;
+    font-size: 13px;
   }
 }
 
 @media (max-width: 1200px) {
   .cashier-main {
-    flex-direction: row;
-    gap: 10px;
-    padding: 10px;
+    padding: 16px;
+    gap: 12px;
+    height: calc(100vh - 70px);
   }
 
   .right-panel {
-    min-width: 280px;
-    gap: 8px;
+    min-width: 320px;
+    gap: 12px;
   }
 
+  .scan-section,
+  .cart-section,
   .amount-section,
   .payment-section,
   .checkout-section,
   .quick-functions {
-    padding: 12px;
+    padding: 16px;
   }
 
   .quick-actions .el-button {
-    height: 28px;
-    font-size: 11px;
+    height: 36px;
+    font-size: 12px;
   }
 
   .checkout-btn {
-    height: 42px;
-    font-size: 14px;
+    height: 48px;
+    font-size: 16px;
+  }
+  
+  .amount-value {
+    font-size: 24px;
+  }
+  
+  .count-value {
+    font-size: 18px;
   }
 }
 
 @media (max-width: 1024px) {
   .cashier-main {
     flex-direction: column;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 70px);
+    padding: 12px;
+    gap: 12px;
   }
 
   .left-panel {
     flex: 1;
-    min-height: 60%;
+    min-height: 55%;
+    gap: 12px;
   }
 
   .right-panel {
     flex: none;
-    height: 40%;
+    height: 45%;
     min-width: auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 8px;
+    grid-template-rows: auto auto auto;
+    gap: 12px;
   }
 
   .amount-section {
@@ -1849,59 +2497,104 @@ const getStockClass = (product: any) => {
   }
 
   .quick-functions {
-    display: none;
+    grid-column: 1 / -1;
+    min-height: 80px;
+    
+    .function-buttons {
+      flex-direction: row;
+      gap: 8px;
+      
+      .el-button {
+        height: 36px;
+        font-size: 12px;
+      }
+    }
   }
 }
 
 @media (max-width: 768px) {
   .cashier-header {
-    padding: 8px 16px;
-    height: 50px;
+    padding: 12px 16px;
+    height: 60px;
+    
+    .cashier-info {
+      gap: 12px;
+      
+      .cashier-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+      }
+    }
+    
+    .header-right {
+      padding: 8px 12px;
+    }
   }
 
   .cashier-main {
-    height: calc(100vh - 50px);
-    padding: 8px;
-    gap: 8px;
+    height: calc(100vh - 60px);
+    padding: 12px;
+    gap: 12px;
   }
 
-  .cashier-details h2 {
-    font-size: 16px;
-  }
+  .cashier-details {
+    h2 {
+      font-size: 16px;
+    }
 
-  .cashier-details p {
-    font-size: 11px;
+    p {
+      font-size: 12px;
+    }
   }
 
   .current-time {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .current-date {
-    font-size: 11px;
-  }
-
-  .right-panel {
-    height: 35%;
+    font-size: 12px;
   }
 
   .left-panel {
-    min-height: 65%;
+    min-height: 60%;
+    gap: 12px;
+  }
+  
+  .right-panel {
+    height: 40%;
   }
 
-  .payment-methods .el-radio-button__inner {
-    padding: 4px 6px;
-    font-size: 10px;
+  .scan-section,
+  .cart-section,
+  .amount-section,
+  .payment-section,
+  .checkout-section,
+  .quick-functions {
+    padding: 12px;
+  }
+  
+  .amount-value {
+    font-size: 24px;
+  }
+  
+  .count-value {
+    font-size: 18px;
   }
 
   .checkout-btn {
-    height: 38px;
-    font-size: 13px;
+    height: 44px;
+    font-size: 15px;
   }
 
   .quick-actions .el-button {
-    height: 26px;
-    font-size: 10px;
+    height: 32px;
+    font-size: 11px;
+  }
+  
+  .function-buttons .el-button {
+    height: 32px;
+    font-size: 11px;
   }
 }
 

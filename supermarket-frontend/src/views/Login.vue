@@ -169,6 +169,41 @@ const handleLogin = async () => {
 </script>
 
 <style scoped lang="scss">
+// iOS 黑白灰色彩系统
+:root {
+  --ios-primary: #000000;
+  --ios-secondary: #1C1C1E;
+  --ios-tertiary: #2C2C2E;
+  --ios-gray: #8E8E93;
+  --ios-gray-light: #F2F2F7;
+  --ios-gray-medium: #C7C7CC;
+  --ios-gray-dark: #48484A;
+  --ios-white: #FFFFFF;
+  --ios-black: #000000;
+  --ios-system-background: #F2F2F7;
+  --ios-secondary-background: #FFFFFF;
+  --ios-label: #000000;
+  --ios-secondary-label: #3C3C43;
+  --ios-tertiary-label: #3C3C4399;
+  --ios-accent: #1C1C1E;
+}
+
+// 深色模式支持
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ios-primary: #FFFFFF;
+    --ios-secondary: #EBEBF5;
+    --ios-tertiary: #EBEBF599;
+    --ios-system-background: #000000;
+    --ios-secondary-background: #1C1C1E;
+    --ios-gray-light: #1C1C1E;
+    --ios-label: #FFFFFF;
+    --ios-secondary-label: #EBEBF5;
+    --ios-tertiary-label: #EBEBF599;
+    --ios-accent: #FFFFFF;
+  }
+}
+
 .login-container {
   min-height: 100vh;
   height: 100vh;
@@ -178,11 +213,16 @@ const handleLogin = async () => {
   top: 0;
   left: 0;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  // 黑白灰渐变背景
+  background: linear-gradient(135deg, 
+    #1C1C1E 0%, 
+    #2C2C2E 30%,
+    #48484A 70%,
+    #636366 100%);
   z-index: 9999;
 }
 
-/* 背景装饰 */
+/* iOS风格背景装饰 */
 .background-decoration {
   position: absolute;
   top: 0;
@@ -203,62 +243,70 @@ const handleLogin = async () => {
 .shape {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  animation: float 8s ease-in-out infinite;
+  // 更加克制的透明度，符合iOS设计
+  background: rgba(255, 255, 255, 0.05);
+  animation: float 12s ease-in-out infinite;
 
   &.shape-1 {
-    width: 80px;
-    height: 80px;
-    top: 10%;
-    left: 10%;
+    width: 120px;
+    height: 120px;
+    top: 15%;
+    left: 8%;
     animation-delay: 0s;
+    // 添加毛玻璃效果
+    backdrop-filter: blur(2px);
   }
 
   &.shape-2 {
-    width: 120px;
-    height: 120px;
-    top: 20%;
-    right: 15%;
-    animation-delay: 2s;
+    width: 80px;
+    height: 80px;
+    top: 25%;
+    right: 12%;
+    animation-delay: 3s;
+    backdrop-filter: blur(2px);
   }
 
   &.shape-3 {
     width: 60px;
     height: 60px;
-    bottom: 30%;
-    left: 20%;
-    animation-delay: 4s;
+    bottom: 35%;
+    left: 15%;
+    animation-delay: 6s;
+    backdrop-filter: blur(2px);
   }
 
   &.shape-4 {
     width: 100px;
     height: 100px;
-    bottom: 20%;
-    right: 10%;
-    animation-delay: 6s;
+    bottom: 15%;
+    right: 8%;
+    animation-delay: 9s;
+    backdrop-filter: blur(2px);
   }
 
   &.shape-5 {
     width: 40px;
     height: 40px;
-    top: 50%;
-    left: 50%;
-    animation-delay: 1s;
+    top: 60%;
+    left: 45%;
+    animation-delay: 1.5s;
+    backdrop-filter: blur(2px);
   }
 }
 
+// iOS风格的更加自然的动画
 @keyframes float {
   0%, 100% {
-    transform: translateY(0px);
-    opacity: 0.6;
+    transform: translateY(0px) scale(1);
+    opacity: 0.3;
   }
   50% {
-    transform: translateY(-15px);
-    opacity: 0.8;
+    transform: translateY(-8px) scale(1.02);
+    opacity: 0.5;
   }
 }
 
-/* 左侧品牌区域 */
+/* 左侧品牌区域 - iOS风格 */
 .brand-section {
   flex: 1;
   display: flex;
@@ -267,37 +315,48 @@ const handleLogin = async () => {
   padding: 60px;
   position: relative;
   z-index: 2;
-  min-width: 0; // 防止flex项目溢出
+  min-width: 0;
 }
 
 .brand-content {
-  max-width: 500px;
-  color: white;
+  max-width: 480px;
+  color: var(--ios-white);
+  text-align: center;
 }
 
 .brand-logo {
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 64px; // 增加间距提升层级感
 
   .logo-icon {
-    margin-bottom: 20px;
-    opacity: 0.9;
+    margin-bottom: 24px;
+    opacity: 0.95;
+    // 增强的图标阴影
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
   }
 
   .brand-title {
+    // SF Pro Display Heavy规范
     font-size: 48px;
-    font-weight: 700;
-    margin: 0 0 12px 0;
-    color: #ffffff;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    font-weight: 700; // iOS Heavy
+    margin: 0 0 20px 0;
+    color: #FFFFFF; // 纯白色确保最高对比度
+    // 增强的文字阴影提升可读性
+    text-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.4),
+      0 4px 8px rgba(0, 0, 0, 0.2);
+    letter-spacing: -0.8px; // iOS紧致字距
+    line-height: 1.1;
   }
 
   .brand-subtitle {
-    font-size: 18px;
-    opacity: 0.8;
-    font-weight: 300;
-    letter-spacing: 2px;
+    font-size: 18px; // 适当增大提升层级感
+    font-weight: 400; // iOS Regular
+    color: rgba(255, 255, 255, 0.85); // 85%透明度白色
+    letter-spacing: 0.3px;
+    line-height: 1.3;
     margin: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -305,87 +364,111 @@ const handleLogin = async () => {
   .feature-item {
     display: flex;
     align-items: center;
-    margin-bottom: 32px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    margin-bottom: 24px;
+    padding: 20px 24px;
+    // 增强的iOS风格毛玻璃卡片
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 20px; // iOS更大的圆角
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    // iOS风格微妙过渡
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    // 增强的阴影效果
+    box-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
     &:hover {
       background: rgba(255, 255, 255, 0.15);
-      transform: translateX(10px);
+      transform: translateY(-2px);
+      box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    &:active {
+      transform: scale(0.98);
     }
 
     .feature-icon {
-      font-size: 32px;
+      font-size: 28px;
       margin-right: 20px;
-      color: #fff;
-      opacity: 0.9;
+      color: #FFFFFF; // 纯白色图标
+      opacity: 0.95;
     }
 
     .feature-text {
       h3 {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0 0 4px 0;
-        color: #fff;
+        font-size: 18px; // 增大特性标题
+        font-weight: 600; // iOS Semibold
+        margin: 0 0 8px 0;
+        color: #FFFFFF; // 纯白色标题
+        letter-spacing: -0.3px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
       }
 
       p {
-        font-size: 14px;
+        font-size: 16px; // 增大描述文字
         margin: 0;
-        opacity: 0.8;
-        color: #f0f8ff;
+        color: rgba(255, 255, 255, 0.78); // 78%透明度
+        font-weight: 400;
+        line-height: 1.3;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
       }
     }
   }
 }
 
-/* 右侧登录区域 */
+/* 右侧登录区域 - iOS风格 */
 .login-section {
   width: 480px;
-  flex-shrink: 0; // 防止收缩
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
+  // iOS风格毛玻璃背景
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(40px);
   position: relative;
   z-index: 2;
+  // iOS风格边缘阴影
+  box-shadow: -2px 0 40px rgba(0, 0, 0, 0.1);
 }
 
 .login-box {
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
   padding: 60px 40px;
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 48px;
 
   .login-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #2c3e50;
+    // iOS Large Title字体规范
+    font-size: 34px;
+    font-weight: 700; // iOS Heavy
+    color: var(--ios-label);
     margin: 0 0 12px 0;
+    letter-spacing: -0.8px; // iOS紧致字距
   }
 
   .login-subtitle {
-    font-size: 16px;
-    color: #7f8c8d;
+    font-size: 17px; // iOS Body字号
+    color: var(--ios-secondary-label);
     margin: 0;
     font-weight: 400;
+    opacity: 0.8;
   }
 }
 
 .login-form {
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 
   .el-form-item {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 }
 
@@ -394,62 +477,76 @@ const handleLogin = async () => {
 
   .custom-input {
     :deep(.el-input__wrapper) {
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      border: 2px solid transparent;
-      background: #f8f9fa;
-      transition: all 0.3s ease;
+      // iOS风格圆角
+      border-radius: 14px;
+      // iOS风格微妙阴影
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--ios-gray-medium);
+      background: var(--ios-secondary-background);
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      min-height: 48px; // iOS标准触控高度
 
       &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        border-color: var(--ios-gray);
       }
 
       &.is-focus {
-        border-color: #667eea;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
-        background: #fff;
+        border-color: var(--ios-accent);
+        box-shadow: 0 0 0 3px rgba(28, 28, 30, 0.15);
+        background: var(--ios-white);
       }
     }
 
     :deep(.el-input__inner) {
-      padding-left: 45px;
-      font-size: 16px;
-      color: #2c3e50;
+      padding-left: 48px;
+      font-size: 17px; // iOS Body字号
+      color: var(--ios-label);
+      font-weight: 400;
 
       &::placeholder {
-        color: #bdc3c7;
+        color: var(--ios-tertiary-label);
+        font-weight: 400;
       }
     }
   }
 
   .input-icon {
-    color: #7f8c8d;
-    font-size: 18px;
+    color: var(--ios-gray);
+    font-size: 20px;
+    opacity: 0.8;
   }
 }
 
 .login-button {
   width: 100%;
-  height: 50px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 50px; // iOS标准按钮高度
+  border-radius: 14px; // iOS风格圆角
+  font-size: 17px; // iOS Body字号
+  font-weight: 600; // iOS Semibold
+  // 使用黑色主色调
+  background: var(--ios-accent);
   border: none;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  transition: all 0.3s ease;
+  // iOS风格微妙阴影
+  box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  color: var(--ios-white);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    // iOS风格hover效果
+    background: var(--ios-secondary); // 稍微浅一点的灰色
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
   }
 
   &:active {
-    transform: translateY(0);
+    transform: scale(0.98);
+    background: var(--ios-tertiary);
   }
 
   &.is-loading {
-    background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+    background: var(--ios-gray);
+    box-shadow: 0 2px 8px rgba(142, 142, 147, 0.25);
   }
 }
 
@@ -460,15 +557,18 @@ const handleLogin = async () => {
     display: inline-flex;
     align-items: center;
     padding: 12px 20px;
-    background: #e8f4fd;
-    border-radius: 8px;
-    color: #3498db;
-    font-size: 14px;
-    border: 1px solid #d6eaf8;
+    // iOS风格灰色信息卡片
+    background: rgba(142, 142, 147, 0.08);
+    border-radius: 12px;
+    color: var(--ios-gray);
+    font-size: 15px; // iOS Footnote字号
+    border: 1px solid rgba(142, 142, 147, 0.15);
+    font-weight: 400;
 
     .info-icon {
       margin-right: 8px;
       font-size: 16px;
+      opacity: 0.8;
     }
   }
 }
