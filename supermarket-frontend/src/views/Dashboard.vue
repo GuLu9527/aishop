@@ -262,19 +262,43 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-.dashboard-container {
-  min-height: 100vh;
-  background: #f5f7fa;
-  padding: 24px;
+// iOS 黑白灰色彩系统
+:root {
+  --ios-primary: #000000;
+  --ios-secondary: #1C1C1E;
+  --ios-tertiary: #2C2C2E;
+  --ios-gray: #8E8E93;
+  --ios-gray-light: #F2F2F7;
+  --ios-gray-medium: #C7C7CC;
+  --ios-gray-dark: #48484A;
+  --ios-white: #FFFFFF;
+  --ios-system-background: #F2F2F7;
+  --ios-secondary-background: #FFFFFF;
+  --ios-label: #000000;
+  --ios-secondary-label: #3C3C43;
+  --ios-tertiary-label: #3C3C4399;
+  --ios-separator: #C7C7CC;
+  --ios-accent: #1C1C1E;
 }
 
-/* 页面头部 */
-.page-header {
-  background: white;
-  border-radius: 12px;
+.dashboard-container {
+  min-height: 100vh;
+  background: var(--ios-system-background);
   padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+}
+
+/* iOS风格页面头部 */
+.page-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 
   .header-content {
     display: flex;
@@ -286,240 +310,386 @@ onUnmounted(() => {
     .header-title {
       display: flex;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
 
       .header-icon {
-        margin-right: 12px;
-        font-size: 24px;
-        color: #409eff;
+        margin-right: 16px;
+        font-size: 28px;
+        color: var(--ios-accent);
+        opacity: 0.9;
       }
 
       h2 {
         margin: 0;
-        font-size: 24px;
-        font-weight: 600;
-        color: #303133;
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--ios-label);
+        letter-spacing: -0.6px;
+        line-height: 1.2;
       }
     }
 
     .header-desc {
       margin: 0;
-      color: #909399;
-      font-size: 14px;
+      color: var(--ios-secondary-label);
+      font-size: 16px;
+      font-weight: 400;
+      opacity: 0.8;
     }
   }
 
   .header-right {
     display: flex;
-    gap: 12px;
+    gap: 16px;
+    
+    .el-button {
+      height: 44px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 0 20px;
+      border: none;
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      
+      &--primary {
+        background: var(--ios-accent);
+        color: var(--ios-white);
+        box-shadow: 0 2px 8px rgba(28, 28, 30, 0.25);
+        
+        &:hover {
+          background: var(--ios-secondary);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(28, 28, 30, 0.35);
+        }
+        
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+      
+      &:not(.el-button--primary) {
+        background: rgba(28, 28, 30, 0.08);
+        color: var(--ios-label);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        
+        &:hover {
+          background: rgba(28, 28, 30, 0.12);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+      }
+    }
   }
-
-
 }
 
-/* 统计卡片区域 */
+/* iOS风格统计卡片区域 */
 .stats-section {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 
   .header-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
   }
 }
 
 .stat-card {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 32px 24px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 
   .stat-number {
-    font-size: 28px;
-    font-weight: 600;
-    color: #303133;
-    margin-bottom: 8px;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--ios-label);
+    margin-bottom: 12px;
+    letter-spacing: -0.8px;
+    line-height: 1.1;
   }
 
   .stat-label {
-    font-size: 14px;
-    color: #909399;
-    margin-bottom: 8px;
+    font-size: 16px;
+    color: var(--ios-secondary-label);
+    margin-bottom: 16px;
+    font-weight: 500;
+    opacity: 0.8;
   }
 
   .stat-trend {
-    font-size: 12px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 12px;
+    display: inline-flex;
 
     &.up {
-      color: #67c23a;
+      color: #1C1C1E;
+      background: rgba(52, 199, 89, 0.15);
+      border: 1px solid rgba(52, 199, 89, 0.2);
+      
+      .el-icon {
+        color: #34C759;
+      }
     }
 
     &.down {
-      color: #f56c6c;
+      color: #1C1C1E;
+      background: rgba(255, 59, 48, 0.15);
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      
+      .el-icon {
+        color: #FF3B30;
+      }
     }
   }
 
   &.warning {
     .stat-number {
-      color: #e6a23c;
+      color: #FF9500;
     }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #FF9500, #FFB340);
+      border-radius: 18px 18px 0 0;
+    }
+    
+    position: relative;
   }
 
   &.danger {
     .stat-number {
-      color: #f56c6c;
+      color: #FF3B30;
     }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #FF3B30, #FF6B5A);
+      border-radius: 18px 18px 0 0;
+    }
+    
+    position: relative;
   }
 }
 
 
 
-/* 快捷操作区域 */
+/* iOS风格快捷操作区域 */
 .quick-actions-section {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 
   .section-header {
-    margin-bottom: 16px;
+    margin-bottom: 24px;
 
     .section-title {
       display: flex;
       align-items: center;
       margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      color: #303133;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ios-label);
+      letter-spacing: -0.4px;
 
       .el-icon {
-        margin-right: 8px;
-        color: #409eff;
+        margin-right: 12px;
+        color: var(--ios-accent);
+        font-size: 26px;
+        opacity: 0.9;
       }
     }
   }
 
   .quick-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
   }
 }
 
 .action-item {
-  background: white;
-  border-radius: 8px;
-  padding: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 24px;
   display: flex;
   align-items: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 
   .action-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: #409eff;
-    color: white;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--ios-accent) 0%, var(--ios-secondary) 100%);
+    color: var(--ios-white);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 12px;
-    font-size: 18px;
+    margin-right: 20px;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(28, 28, 30, 0.25);
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
   }
 
   .action-content {
     flex: 1;
 
     .action-title {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 600;
-      color: #303133;
-      margin-bottom: 4px;
+      color: var(--ios-label);
+      margin-bottom: 6px;
+      letter-spacing: -0.2px;
     }
 
     .action-desc {
-      font-size: 14px;
-      color: #909399;
+      font-size: 15px;
+      color: var(--ios-secondary-label);
+      opacity: 0.8;
+      font-weight: 400;
     }
   }
 
   .action-arrow {
-    color: #c0c4cc;
-    transition: all 0.3s ease;
+    color: var(--ios-tertiary-label);
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+    font-size: 18px;
   }
 
-  &:hover .action-arrow {
-    color: #409eff;
-    transform: translateX(4px);
+  &:hover {
+    .action-icon {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(28, 28, 30, 0.35);
+    }
+    
+    .action-arrow {
+      color: var(--ios-accent);
+      transform: translateX(6px);
+    }
   }
 }
 
-/* 系统状态区域 */
+/* iOS风格系统状态区域 */
 .status-section {
   .section-header {
-    margin-bottom: 16px;
+    margin-bottom: 24px;
 
     .section-title {
       display: flex;
       align-items: center;
       margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      color: #303133;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ios-label);
+      letter-spacing: -0.4px;
 
       .el-icon {
-        margin-right: 8px;
-        color: #409eff;
+        margin-right: 12px;
+        color: var(--ios-accent);
+        font-size: 26px;
+        opacity: 0.9;
       }
     }
   }
 
   .status-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
   }
 }
 
 .status-item {
-  background: white;
-  border-radius: 8px;
-  padding: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-radius: 18px;
+  padding: 24px;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 6px 20px rgba(0, 0, 0, 0.08),
+      0 3px 10px rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.98);
+  }
 
   .status-indicator {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    margin-right: 12px;
+    margin-right: 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.8);
 
     &.online {
-      background: #67c23a;
+      background: #34C759;
+      animation: pulse-green 2s infinite;
     }
 
     &.warning {
-      background: #e6a23c;
+      background: #FF9500;
+      animation: pulse-orange 2s infinite;
     }
 
     &.offline {
-      background: #f56c6c;
+      background: #FF3B30;
+      animation: pulse-red 2s infinite;
     }
   }
 
@@ -527,31 +697,76 @@ onUnmounted(() => {
     flex: 1;
 
     .status-title {
-      font-size: 14px;
+      font-size: 17px;
       font-weight: 600;
-      color: #303133;
-      margin-bottom: 4px;
+      color: var(--ios-label);
+      margin-bottom: 6px;
+      letter-spacing: -0.2px;
     }
 
     .status-desc {
-      font-size: 12px;
-      color: #909399;
+      font-size: 15px;
+      color: var(--ios-secondary-label);
+      opacity: 0.8;
+      font-weight: 400;
     }
   }
 
   .status-value {
-    font-size: 14px;
-    font-weight: 600;
-    color: #67c23a;
+    font-size: 18px;
+    font-weight: 700;
+    color: #34C759;
+    letter-spacing: -0.2px;
   }
 
   .status-badge {
-    background: #f0f9ff;
-    color: #409eff;
-    padding: 4px 8px;
+    background: rgba(0, 122, 255, 0.15);
+    color: #007AFF;
+    padding: 6px 12px;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
+    border: 1px solid rgba(0, 122, 255, 0.2);
+  }
+}
+
+// iOS风格状态指示器动画
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 
+      0 2px 6px rgba(0, 0, 0, 0.15),
+      0 0 0 0 rgba(52, 199, 89, 0.7);
+  }
+  50% {
+    box-shadow: 
+      0 2px 6px rgba(0, 0, 0, 0.15),
+      0 0 0 8px rgba(52, 199, 89, 0);
+  }
+}
+
+@keyframes pulse-orange {
+  0%, 100% {
+    box-shadow: 
+      0 2px 6px rgba(0, 0, 0, 0.15),
+      0 0 0 0 rgba(255, 149, 0, 0.7);
+  }
+  50% {
+    box-shadow: 
+      0 2px 6px rgba(0, 0, 0, 0.15),
+      0 0 0 8px rgba(255, 149, 0, 0);
+  }
+}
+
+@keyframes pulse-red {
+  0%, 100% {
+    box-shadow: 
+      0 2px 6px rgba(0, 0, 0, 0.15),
+      0 0 0 0 rgba(255, 59, 48, 0.7);
+  }
+  50% {
+    box-shadow: 
+      0 2px 6px rgba(0, 0, 0, 0.15),
+      0 0 0 8px rgba(255, 59, 48, 0);
   }
 }
 
