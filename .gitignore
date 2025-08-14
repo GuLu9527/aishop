@@ -78,3 +78,9 @@ logs/
 # 系统文件
 .DS_Store
 Thumbs.db
+
+# BMad工作流文件
+.bmad-core
+.claude/commands/BMad
+docs/
+
